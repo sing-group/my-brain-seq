@@ -1,0 +1,4 @@
+sudo docker run --rm \
+	-v /home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/data/:/home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/data/ \
+	-v /home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/output/:/home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/output/ \
+	prep/cutadapt -pa /home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/data/compi.parameters

@@ -69,7 +69,7 @@
 		</foreach>
 		
 		<foreach id="bowtieAlignment" after="cutSequences" of="command" in="ls -1 ${outDir}/cutadapt_results/ | grep .*\.fastq" as="file" params="dataDir bwtIndex outDir">
-			bowtie -S -t \
+			bowtie -S \
 				ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' \
 				${outDir}/cutadapt_results/${file} \
 				${outDir}/bowtie_results/${file}.sam

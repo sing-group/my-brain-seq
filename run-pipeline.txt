@@ -1,4 +1,5 @@
-sudo docker run --rm \
-	-v /home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/data/:/home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/data/ \
-	-v /home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/output/:/home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/output/ \
-	prep/cutadapt -pa /home/dannyzimm/Documentos/examples/cutadapt-bowtie-example/data/compi.parameters
+ sudo docker run --rm \
+	-v /home/dannyzimm/Documentos/mirna-pipeline/data/:/home/dannyzimm/Documentos/mirna-pipeline/data/ \
+	-v /home/dannyzimm/Documentos/mirna-pipeline/output/:/home/dannyzimm/Documentos/mirna-pipeline/output/ \
+	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters
+

@@ -13,4 +13,4 @@ RUN apt-get install -y bowtie #installs bowtie 1
 
 # ADD PIPELINE
 ADD pipeline.xml /pipeline.xml
-ENTRYPOINT ["/compi", "run",  "-p", "/pipeline.xml"]
+ENTRYPOINT ["/compi", "run",  "-p", "/pipeline.xml", "-o"]

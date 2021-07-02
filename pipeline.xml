@@ -11,9 +11,9 @@
 		will be shown in the help.
 	-->
 	<params>
-		<param name="dataDir" shortName="dd">The directory containing the fastq files. </param>
+		<param name="dataDir" shortName="dd" global="true">The directory containing the fastq files. </param>
 		<param name="adapter" shortName="adp">The sequence of the adapter to remove. </param>
-		<param name="outDir" shortName="o">The directory to put the adapter-removed files. </param>
+		<param name="outDir" shortName="o" global="true">The directory to put the adapter-removed files. </param>
 		
 		<param name="bwtIndex" shortName="bwti">The directory containing the Bowtie index. </param>
 	</params>
@@ -43,13 +43,13 @@
 			by the Bourne shell (sh)). You can use your parameters by placing
 			${parameter_name} anywhere in your code.
 		-->
-		<task id="initialization" params="outDir">
+		<task id="initialization">
 			mkdir -p ${outDir}/cutadapt_results/
 			ls -l ${outDir}
 		</task>
 
 		
-		<foreach id="cutSequences" after="initialization" of="command" in="ls -1 ${dataDir} | grep .*\.fastq" as="file" params="dataDir adapter outDir">
+		<foreach id="cutSequences" after="initialization" of="command" in="ls -1 ${dataDir} | grep .*\.fastq" as="file" params="adapter">
 			echo "Removing the adapter with Cutadapt"
 			cutadapt \
 				-a ${adapter} \
@@ -58,13 +58,13 @@
 		</foreach>
 	
 		
-		<task id="bowtieFolder" after="cutSequences" params="outDir">
+		<task id="bowtieFolder" after="cutSequences">
 			echo "Creating the directory for the Bowtie results"
 			mkdir -p ${outDir}/bowtie_results/
 		</task>
 		
 		
-		<foreach id="bowtieAlignment" after="bowtieFolder" of="command" in="ls -1 ${outDir}/cutadapt_results/ | grep .*\.fastq" as="file" params="bwtIndex outDir">
+		<foreach id="bowtieAlignment" after="bowtieFolder" of="command" in="ls -1 ${outDir}/cutadapt_results/ | grep .*\.fastq" as="file" params="bwtIndex">
 			
 			bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/'
 			<!-- bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' -->

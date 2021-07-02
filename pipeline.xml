@@ -48,31 +48,33 @@
 			ls -l ${outDir}
 		</task>
 
-		<!--
-			A loop task (<foreach>). A loop iterates over a set of items that are 
-			accesible in your code via a loop variable. For each iteration, 
-			a parallel process is scheduled. This task contains the same attributes
-			as a regular <task>, plus the following	ones:
-			- of: The source of values for the iteration variable:
-			  - "file". The items are the files in a directory.
-			  - "list". The items are those in a list of comma-separated values.
-			  - "param". The items are in a parameter which value is a list of comma-separated values.
-			  - "command". The items are the lines produced by a command via its standard output.
-		    - in: The directory, list of values, parameter name or command, for each type of source (see "of").
-			- as: The name of the loop variable that will be accesible in the code as Compi Development Kit
-		-->
+		
 		<foreach id="cutSequences" after="initialization" of="command" in="ls -1 ${dataDir} | grep .*\.fastq" as="file" params="dataDir adapter outDir">
+			echo "Removing the adapter with Cutadapt"
 			cutadapt \
 				-a ${adapter} \
 				-o ${outDir}/cutadapt_results/trimmed_${file} \
 				${dataDir}/${file}
 		</foreach>
+	
 		
-		<foreach id="bowtieAlignment" after="cutSequences" of="command" in="ls -1 ${outDir}/cutadapt_results/ | grep .*\.fastq" as="file" params="dataDir bwtIndex outDir">
-			bowtie -S \
-				ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' \
-				${outDir}/cutadapt_results/${file} \
-				${outDir}/bowtie_results/${file}.sam
+		<task id="bowtieFolder" after="cutSequences" params="outDir">
+			echo "Creating the directory for the Bowtie results"
+			mkdir -p ${outDir}/bowtie_results/
+		</task>
+		
+		
+		<foreach id="bowtieAlignment" after="bowtieFolder" of="command" in="ls -1 ${outDir}/cutadapt_results/ | grep .*\.fastq" as="file" params="bwtIndex outDir">
+			
+			bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/'
+			<!-- bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' -->
+			bw_fastq=${outDir}/cutadapt_results/${file}
+			bw_output=${outDir}/bowtie_results/${file}.sam
+			
+			<![CDATA[
+			bowtie -S ${bw_index} ${bw_fastq} ${bw_output}
+			]]>
+			
 		</foreach>
 		
 		

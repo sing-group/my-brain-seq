@@ -1,6 +1,6 @@
  sudo docker run --rm \
 	-v /home/dannyzimm/Documentos/mirna-pipeline/data/:/home/dannyzimm/Documentos/mirna-pipeline/data/ \
 	-v /home/dannyzimm/Documentos/mirna-pipeline/output/:/home/dannyzimm/Documentos/mirna-pipeline/output/ \
-	-v /home/dannyzimm/refs/human/GRCh38/Bowtie1_index/bw1_homo_sapiens38:/home/dannyzimm/refs/human/GRCh38/Bowtie1_index/bw1_homo_sapiens38 \
+	-v /home/dannyzimm/refs/human/GRCh38/Bowtie1_index/:/home/dannyzimm/refs/human/GRCh38/Bowtie1_index/ \
 	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -f bowtieFolder
 

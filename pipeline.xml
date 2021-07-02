@@ -66,7 +66,7 @@
 		
 		<foreach id="bowtieAlignment" after="bowtieFolder" of="command" in="ls -1 ${outDir}/cutadapt_results/ | grep .*\.fastq" as="file" params="bwtIndex">
 			
-			bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/'
+			bw_index=ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${bwtIndex}\/\1/'
 			<!-- bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' -->
 			bw_fastq=${outDir}/cutadapt_results/${file}
 			bw_output=${outDir}/bowtie_results/${file}.sam

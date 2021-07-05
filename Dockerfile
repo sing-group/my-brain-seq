@@ -29,6 +29,9 @@ RUN apt-get install -y wget \
     && rm -f Miniconda3-latest-Linux-x86_64.sh 
 RUN conda install -c bioconda mirdeep2
 
+#installs sam-tools
+RUN conda install -c bioconda samtools
+
 # ADD PIPELINE
 ADD pipeline.xml /pipeline.xml
 ENTRYPOINT ["/compi", "run",  "-p", "/pipeline.xml"]

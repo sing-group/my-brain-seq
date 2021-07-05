@@ -51,6 +51,7 @@
 		<foreach id="cutSequences" after="initialization" of="command" in="ls -1 ${dataDir} | grep .*\.fastq" as="file" params="adapter">
 			echo "Removing the adapter with Cutadapt"
 			cutadapt \
+				-m 1 \
 				-a ${adapter} \
 				-o ${outDir}/cutadapt_results/trimmed_${file} \
 				${dataDir}/${file}

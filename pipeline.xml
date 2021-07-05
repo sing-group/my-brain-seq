@@ -45,7 +45,6 @@
 		-->
 		<task id="initialization">
 			mkdir -p ${outDir}/cutadapt_results/
-			ls -l ${outDir}
 		</task>
 
 		
@@ -59,20 +58,27 @@
 	
 		
 		<task id="bowtieFolder" after="cutSequences">
-			echo "Creating the directory for the Bowtie results"
-			mkdir -p ${outDir}/bowtie_results/
+			if [ ! -d "${outDir}/bowtie_results" ]; then
+				echo "Creating the directory for the Bowtie results"
+				mkdir -p ${outDir}/bowtie_results/
+			else
+				echo "bowtieFolder already exist"
+			fi
 		</task>
 		
 		
 		<foreach id="bowtieAlignment" after="bowtieFolder" of="command" in="ls -1 ${outDir}/cutadapt_results/ | grep .*\.fastq" as="file" params="bwtIndex">
-			
-			bw_index=ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${bwtIndex}\/\1/'
+			echo "Performing the alignment"
+			<!--bw_index="${ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@${bwtIndex}\/\1/@'}" -->
 			<!-- bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' -->
-			bw_fastq=${outDir}/cutadapt_results/${file}
-			bw_output=${outDir}/bowtie_results/${file}.sam
+			bw_fastq="${outDir}/cutadapt_results/${file}"
+			bw_output="${outDir}/bowtie_results/${file}.sam"
 			
 			<![CDATA[
-			bowtie -S ${bw_index} ${bw_fastq} ${bw_output}
+			bowtie -S \
+				$(ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${bwtIndex}'\/\1@') \
+				${bw_fastq} \
+				${bw_output}
 			]]>
 			
 		</foreach>

@@ -85,6 +85,16 @@
 		</foreach>
 		
 		
+		<task id="mirDeep2Folder" after="bowtieAlignment">
+			if [ ! -d "${outDir}/miRDeep2_results" ]; then
+				echo "Creating the directory for the miRDeep2 results"
+				mkdir -p ${outDir}/miRDeep2_results/
+			else
+				echo "miRDeep2_results folder already exist"
+			fi
+		</task>
+		
+		
 	</tasks>
 	<!--
 		The metadata section is optional and allows to define additional information about

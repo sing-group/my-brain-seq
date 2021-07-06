@@ -15,7 +15,9 @@
 		<param name="adapter" shortName="adp">The sequence of the adapter to remove. </param>
 		<param name="outDir" shortName="o" global="true">The directory to put the adapter-removed files. </param>
 		
-		<param name="bwtIndex" shortName="bwti">The directory containing the Bowtie index. </param>
+		<param name="bwtIndex" shortName="bwti">The directory path containing the Bowtie index. </param>
+		
+		<param name="gff_file" shortName="gff">The path to the .gff file of the reference genome</param>
 	</params>
 
 	<!--
@@ -118,10 +120,19 @@
 		</task>
 		
 		
-		<foreach id="featureCounts-R" after="featureCountsFolder" of="command" in="ls -1 ${outDir}/bowtie_results/ | grep .*\.fastq.bam" as="file" interpreter="docker run --rm r-base:3.6.0 R -e &quot;$task_code&quot;">
-			bam_output="${outDir}/bowtie_results/"
-			<![CDATA[
+		<foreach
+			id="featureCounts-R"
+			interpreter="docker run --rm r-base:3.6.0 R -e &quot;$task_code&quot;"
+			after="featureCountsFolder"
+			of="command"
+			in="ls -1 ${outDir}/bowtie_results/ | grep .*\.fastq.bam"
+			as="file"
+			params="gff_file">
+			bam_input="${outDir}/bowtie_results/${file}"
+			path_output="${outDir}/featureCounts_results/"
 			
+			<![CDATA[
+			featureCounts -a ${gff_file} -o ${path_output}/"${file}_counts.txt" ${bam_input}
 			]]>
 
 		</foreach>

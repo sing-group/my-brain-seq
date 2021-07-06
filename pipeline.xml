@@ -84,8 +84,14 @@
 			
 		</foreach>
 		
+		<foreach id="samToBAM" after="bowtieAlignment" of="command" in="ls -1 ${outDir}/bowtie_results/ | grep .*\.fastq.sam" as="file">
+			bam_output="${outDir}/bowtie_results/"
+			filebam=$(echo ${file} | sed 's/\.sam//')
+			samtools view -S -b "${file}" > "${bam_output}/${filebam}.bam"
+		</foreach>
+			
 		
-		<task id="mirDeep2Folder" after="bowtieAlignment">
+		<task id="mirDeep2Folder" after="samToBAM">
 			if [ ! -d "${outDir}/miRDeep2_results" ]; then
 				echo "Creating the directory for the miRDeep2 results"
 				mkdir -p ${outDir}/miRDeep2_results/
@@ -93,6 +99,7 @@
 				echo "miRDeep2_results folder already exist"
 			fi
 		</task>
+		
 		
 		
 	</tasks>

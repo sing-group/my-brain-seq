@@ -58,6 +58,14 @@
 		</foreach>
 	
 		
+		
+		
+		
+		
+		
+		
+		
+		
 		<task id="bowtieFolder" after="cutSequences">
 			if [ ! -d "${outDir}/bowtie_results" ]; then
 				echo "Creating the directory for the Bowtie results"
@@ -84,12 +92,21 @@
 			
 		</foreach>
 		
+		
+		
+		
+		
+		
+		
+		
+		
 		<foreach id="samToBAM" after="bowtieAlignment" of="command" in="ls -1 ${outDir}/bowtie_results/ | grep .*\.fastq.sam" as="file">
 			bam_output="${outDir}/bowtie_results/"
 			filebam=$(echo ${file} | sed 's/\.sam//')
 			samtools view -S -b "${bam_output}/${file}" > "${bam_output}/${filebam}.bam"
 		</foreach>
 			
+		
 		
 		<task id="featureCountsFolder" after="samToBAM">
 			if [ ! -d "${outDir}/featureCounts_results" ]; then
@@ -99,6 +116,38 @@
 				echo "featureCounts_results folder already exist"
 			fi
 		</task>
+		
+		
+		<foreach id="featureCounts-R" after="featureCountsFolder" of="command" in="ls -1 ${outDir}/bowtie_results/ | grep .*\.fastq.bam" as="file" interpreter="docker run --rm r-base:3.6.0 R -e &quot;$task_code&quot;">
+			bam_output="${outDir}/bowtie_results/"
+			<![CDATA[
+			
+			]]>
+
+		</foreach>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 		

@@ -91,12 +91,12 @@
 		</foreach>
 			
 		
-		<task id="mirDeep2Folder" after="samToBAM">
-			if [ ! -d "${outDir}/miRDeep2_results" ]; then
+		<task id="featureCountsFolder" after="samToBAM">
+			if [ ! -d "${outDir}/featureCounts_results" ]; then
 				echo "Creating the directory for the miRDeep2 results"
-				mkdir -p ${outDir}/miRDeep2_results/
+				mkdir -p ${outDir}/featureCounts_results/
 			else
-				echo "miRDeep2_results folder already exist"
+				echo "featureCounts_results folder already exist"
 			fi
 		</task>
 		

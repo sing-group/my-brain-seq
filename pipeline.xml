@@ -46,7 +46,12 @@
 			${parameter_name} anywhere in your code.
 		-->
 		<task id="initialization">
-			mkdir -p ${outDir}/cutadapt_results/
+			if [ ! -d "${outDir}/cutadapt_results" ]; then
+				echo "Creating the directory for the cutadapt results"
+				mkdir -p ${outDir}/cutadapt_results/
+			else
+				echo "cutadapt_results already exist"
+			fi
 		</task>
 
 		
@@ -122,7 +127,6 @@
 		
 		<foreach
 			id="featureCounts-R"
-			interpreter="docker run --rm r-base:3.6.0 R -e &quot;$task_code&quot;"
 			after="featureCountsFolder"
 			of="command"
 			in="ls -1 ${outDir}/bowtie_results/ | grep .*\.fastq.bam"
@@ -131,9 +135,9 @@
 			bam_input="${outDir}/bowtie_results/${file}"
 			path_output="${outDir}/featureCounts_results/"
 			
-			<![CDATA[
-			featureCounts -a ${gff_file} -o ${path_output}/"${file}_counts.txt" ${bam_input}
-			]]>
+			R
+			Rsubread::featureCounts()
+			featureCounts -a ${gff_file} -o "${path_output}/${file}_counts.txt" "${bam_input}"
 
 		</foreach>
 		

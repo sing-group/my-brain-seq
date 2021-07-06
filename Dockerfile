@@ -1,6 +1,5 @@
 FROM ubuntu:20.04
 LABEL maintainer="dannyzimm"
-ENV DEBIAN_FRONTEND noninteractive
 
 # INSTALL COMPI
 ADD image-files/compi.tar.gz /
@@ -19,7 +18,8 @@ RUN python3 -m pip install --upgrade cutadapt
 RUN apt-get install -y bowtie #installs bowtie 1
 
 #installs sam-tools
-RUN apt-get install -y samtools
+RUN apt-get update && \
+	DEBIAN_FRONTEND=noninteractive apt-get -qq install samtools
 
 #installs featureCounts (R package)
 RUN apt-get install -y r-base

@@ -87,7 +87,7 @@
 		<foreach id="samToBAM" after="bowtieAlignment" of="command" in="ls -1 ${outDir}/bowtie_results/ | grep .*\.fastq.sam" as="file">
 			bam_output="${outDir}/bowtie_results/"
 			filebam=$(echo ${file} | sed 's/\.sam//')
-			samtools view -S -b "${file}" > "${bam_output}/${filebam}.bam"
+			samtools view -S -b "${bam_output}/${file}" > "${bam_output}/${filebam}.bam"
 		</foreach>
 			
 		

@@ -1,5 +1,6 @@
 FROM ubuntu:20.04
 LABEL maintainer="dannyzimm"
+ENV DEBIAN_FRONTEND noninteractive
 
 # INSTALL COMPI
 ADD image-files/compi.tar.gz /
@@ -18,7 +19,7 @@ RUN python3 -m pip install --upgrade cutadapt
 RUN apt-get install -y bowtie #installs bowtie 1
 
 #installs sam-tools
-CMD apt-get install -y samtools
+RUN apt-get install -y samtools
 
 # ADD PIPELINE
 ADD pipeline.xml /pipeline.xml

@@ -60,7 +60,7 @@
 		
 		
 		<!--Adapter removal with cutadapt-->
-		<foreach id="cutSequences" after="initialization" of="command" in="ls -1 ${dataDir} | grep .*\.fastq" as="file" params="adapter">
+		<foreach id="cut-sequences" after="initialization" of="command" in="ls -1 ${dataDir} | grep .*\.fastq" as="file" params="adapter">
 			echo "Removing the adapter with Cutadapt"
 			cutadapt \
 				-m 1 \
@@ -73,7 +73,7 @@
 		
 		
 		<!--Alignment with Bowtie-->
-		<foreach id="bowtieAlignment" after="bowtieFolder" of="command" in="ls -1 ${outDir}/1_cutadapt/ | grep .*\.fastq" as="file" params="bwtIndex">
+		<foreach id="bowtie-alignment" after="cut-sequences" of="command" in="ls -1 ${outDir}/1_cutadapt/ | grep .*\.fastq" as="file" params="bwtIndex">
 			echo "Performing the alignment"
 			<!--bw_index="${ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@${bwtIndex}\/\1/@'}" -->
 			<!-- bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' -->
@@ -93,7 +93,7 @@
 		
 		
 		<!--Converts the sam files to bam format-->
-		<foreach id="samToBAM" after="bowtieAlignment" of="command" in="ls -1 ${outDir}/2_bowtie/ | grep .*\.fastq.sam" as="file">
+		<foreach id="sam-to-bam" after="bowtie-alignment" of="command" in="ls -1 ${outDir}/2_bowtie/ | grep .*\.fastq.sam" as="file">
 			bam_output="${outDir}/2_bowtie/"
 			filebam=$(echo ${file} | sed 's/\.sam//')
 			samtools view -S -b "${bam_output}/${file}" > "${bam_output}/${filebam}.bam"
@@ -101,8 +101,8 @@
 			
 		
 		<foreach
-			id="featureCounts-R"
-			after="featureCountsFolder"
+			id="feature-counts-R"
+			after="sam-to-bam"
 			of="command"
 			in="ls -1 ${outDir}/2_bowtie/ | grep .*\.fastq.bam"
 			as="file"

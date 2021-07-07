@@ -19,42 +19,47 @@
 		
 		<param name="gff_file" shortName="gff">The path to the .gff file of the reference genome</param>
 	</params>
-
-	<!--
-		Tasks section (<tasks>): this section contains all the steps of your pipeline.
-		There are two types of taks:
-		- regular "tasks" (<task>) which is a simple task with a piece of runnable
-		code inside.
-		- loops (<foreach>) which is a task which launches several subtask in parallel
-	-->
+	
+	
+	
+	
+	
+	
+	
+<!--TASKS-->
 	<tasks>
-		<!--
-			A task (<task>). A task contains the following attributes:
-			- id: a name for the task, which must be unique. This id will be displayed
-			in the help of the pipeline, so it is important that you give it a
-			significative name for the end user.
-			- after: a comma-separated list of task ids that this task depends on.
-			In a regular execution of the pipeline, this task will never start
-			before all dependencies finish. However, if you run the the pipeline with
-			the -s (skip to task) or the -st (single task) options, that will ignore
-			those dependencies and start the pipeline from this task.
-			- fileLog: a file to redirect the standard output.
-			- fileErrorLog: a file to redirect the standar error.
-
-			Inside the <task> you place the code of your task (it is interpreted
-			by the Bourne shell (sh)). You can use your parameters by placing
-			${parameter_name} anywhere in your code.
-		-->
+	
+		<!--Creates the output directories-->
 		<task id="initialization">
+			<!--Cutadapt folder-->
 			if [ ! -d "${outDir}/1_cutadapt" ]; then
 				echo "Creating the directory for the cutadapt results"
 				mkdir -p ${outDir}/1_cutadapt/
 			else
 				echo "1_cutadapt already exist"
 			fi
+			
+			<!--Bowtie folder-->
+			if [ ! -d "${outDir}/2_bowtie" ]; then
+				echo "Creating the directory for the Bowtie results"
+				mkdir -p ${outDir}/2_bowtie/
+			else
+				echo "bowtieFolder already exist"
+			fi
+			
+			<!--FeatureCounts folder-->
+			if [ ! -d "${outDir}/3_feature-counts" ]; then
+				echo "Creating the directory for the miRDeep2 results"
+				mkdir -p ${outDir}/3_feature-counts/
+			else
+				echo "3_feature-counts folder already exist"
+			fi
 		</task>
 
 		
+		
+		
+		<!--Adapter removal with cutadapt-->
 		<foreach id="cutSequences" after="initialization" of="command" in="ls -1 ${dataDir} | grep .*\.fastq" as="file" params="adapter">
 			echo "Removing the adapter with Cutadapt"
 			cutadapt \
@@ -67,22 +72,7 @@
 		
 		
 		
-		
-		
-		
-		
-		
-		
-		<task id="bowtieFolder" after="cutSequences">
-			if [ ! -d "${outDir}/2_bowtie" ]; then
-				echo "Creating the directory for the Bowtie results"
-				mkdir -p ${outDir}/2_bowtie/
-			else
-				echo "bowtieFolder already exist"
-			fi
-		</task>
-		
-		
+		<!--Alignment with Bowtie-->
 		<foreach id="bowtieAlignment" after="bowtieFolder" of="command" in="ls -1 ${outDir}/1_cutadapt/ | grep .*\.fastq" as="file" params="bwtIndex">
 			echo "Performing the alignment"
 			<!--bw_index="${ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@${bwtIndex}\/\1/@'}" -->
@@ -102,28 +92,13 @@
 		
 		
 		
-		
-		
-		
-		
-		
+		<!--Converts the sam files to bam format-->
 		<foreach id="samToBAM" after="bowtieAlignment" of="command" in="ls -1 ${outDir}/2_bowtie/ | grep .*\.fastq.sam" as="file">
 			bam_output="${outDir}/2_bowtie/"
 			filebam=$(echo ${file} | sed 's/\.sam//')
 			samtools view -S -b "${bam_output}/${file}" > "${bam_output}/${filebam}.bam"
 		</foreach>
 			
-		
-		
-		<task id="featureCountsFolder" after="samToBAM">
-			if [ ! -d "${outDir}/3_feature-counts" ]; then
-				echo "Creating the directory for the miRDeep2 results"
-				mkdir -p ${outDir}/3_feature-counts/
-			else
-				echo "3_feature-counts folder already exist"
-			fi
-		</task>
-		
 		
 		<foreach
 			id="featureCounts-R"

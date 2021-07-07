@@ -46,11 +46,11 @@
 			${parameter_name} anywhere in your code.
 		-->
 		<task id="initialization">
-			if [ ! -d "${outDir}/cutadapt_results" ]; then
+			if [ ! -d "${outDir}/1_cutadapt" ]; then
 				echo "Creating the directory for the cutadapt results"
-				mkdir -p ${outDir}/cutadapt_results/
+				mkdir -p ${outDir}/1_cutadapt/
 			else
-				echo "cutadapt_results already exist"
+				echo "1_cutadapt already exist"
 			fi
 		</task>
 
@@ -60,7 +60,7 @@
 			cutadapt \
 				-m 1 \
 				-a ${adapter} \
-				-o ${outDir}/cutadapt_results/trimmed_${file} \
+				-o ${outDir}/1_cutadapt/trimmed_${file} \
 				${dataDir}/${file}
 		</foreach>
 	
@@ -74,21 +74,21 @@
 		
 		
 		<task id="bowtieFolder" after="cutSequences">
-			if [ ! -d "${outDir}/bowtie_results" ]; then
+			if [ ! -d "${outDir}/2_bowtie" ]; then
 				echo "Creating the directory for the Bowtie results"
-				mkdir -p ${outDir}/bowtie_results/
+				mkdir -p ${outDir}/2_bowtie/
 			else
 				echo "bowtieFolder already exist"
 			fi
 		</task>
 		
 		
-		<foreach id="bowtieAlignment" after="bowtieFolder" of="command" in="ls -1 ${outDir}/cutadapt_results/ | grep .*\.fastq" as="file" params="bwtIndex">
+		<foreach id="bowtieAlignment" after="bowtieFolder" of="command" in="ls -1 ${outDir}/1_cutadapt/ | grep .*\.fastq" as="file" params="bwtIndex">
 			echo "Performing the alignment"
 			<!--bw_index="${ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@${bwtIndex}\/\1/@'}" -->
 			<!-- bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' -->
-			bw_fastq="${outDir}/cutadapt_results/${file}"
-			bw_output="${outDir}/bowtie_results/${file}.sam"
+			bw_fastq="${outDir}/1_cutadapt/${file}"
+			bw_output="${outDir}/2_bowtie/${file}.sam"
 			
 			<![CDATA[
 			bowtie -S \
@@ -107,8 +107,8 @@
 		
 		
 		
-		<foreach id="samToBAM" after="bowtieAlignment" of="command" in="ls -1 ${outDir}/bowtie_results/ | grep .*\.fastq.sam" as="file">
-			bam_output="${outDir}/bowtie_results/"
+		<foreach id="samToBAM" after="bowtieAlignment" of="command" in="ls -1 ${outDir}/2_bowtie/ | grep .*\.fastq.sam" as="file">
+			bam_output="${outDir}/2_bowtie/"
 			filebam=$(echo ${file} | sed 's/\.sam//')
 			samtools view -S -b "${bam_output}/${file}" > "${bam_output}/${filebam}.bam"
 		</foreach>
@@ -116,11 +116,11 @@
 		
 		
 		<task id="featureCountsFolder" after="samToBAM">
-			if [ ! -d "${outDir}/featureCounts_results" ]; then
+			if [ ! -d "${outDir}/3_feature-counts" ]; then
 				echo "Creating the directory for the miRDeep2 results"
-				mkdir -p ${outDir}/featureCounts_results/
+				mkdir -p ${outDir}/3_feature-counts/
 			else
-				echo "featureCounts_results folder already exist"
+				echo "3_feature-counts folder already exist"
 			fi
 		</task>
 		
@@ -129,11 +129,11 @@
 			id="featureCounts-R"
 			after="featureCountsFolder"
 			of="command"
-			in="ls -1 ${outDir}/bowtie_results/ | grep .*\.fastq.bam"
+			in="ls -1 ${outDir}/2_bowtie/ | grep .*\.fastq.bam"
 			as="file"
 			params="gff_file">
-			bam_input="${outDir}/bowtie_results/${file}"
-			path_output="${outDir}/featureCounts_results/"
+			bam_input="${outDir}/2_bowtie/${file}"
+			path_output="${outDir}/3_feature-counts/"
 			
 			R
 			Rsubread::featureCounts()

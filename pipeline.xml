@@ -84,7 +84,7 @@
 			bowtie -S \
 				$(ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${bwtIndex}'\/\1@') \
 				${bw_fastq} \
-				${bw_output}
+				${bw_output} 2>bowtie_${file}.log
 			]]>
 			
 		</foreach>
@@ -96,7 +96,9 @@
 		<foreach id="sam-to-bam" after="bowtie-alignment" of="command" in="ls -1 ${outDir}/2_bowtie/ | grep .*\.fastq.sam" as="file">
 			bam_output="${outDir}/2_bowtie/"
 			filebam=$(echo ${file} | sed 's/\.sam//')
-			samtools view -S -b "${bam_output}/${file}" > "${bam_output}/${filebam}.bam"
+			samtools sort "${bam_output}/${file}" > "${bam_output}/${filebam}.bam"
+			samtools index "${bam_output}/${filebam}.bam"
+			
 		</foreach>
 			
 		

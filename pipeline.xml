@@ -111,7 +111,7 @@
 			params="gff_file">
 			bam_input="${outDir}/2_bowtie/${file}"
 			path_output="${outDir}/3_feature-counts/"
-			
+			<!--Se podría pasar también un parámetro que permita elegir el tipo de atributo del archivo gff.-->
 			featureCounts -a ${gff_file} -o "${path_output}/${file}_counts.txt" "${bam_input}"
 
 		</foreach>

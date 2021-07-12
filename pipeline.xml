@@ -106,7 +106,7 @@
 			id="feature-counts-R"
 			after="sam-to-bam"
 			of="command"
-			in="ls -1 ${outDir}/2_bowtie/ | grep .*\.fastq\.bam"
+			in="ls -1 ${outDir}/2_bowtie/ | grep .*\.fastq\.bam$"
 			as="file"
 			params="gff_file">
 			bam_input="${outDir}/2_bowtie/${file}"

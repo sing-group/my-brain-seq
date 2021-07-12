@@ -22,9 +22,10 @@ RUN apt-get update && \
 	DEBIAN_FRONTEND=noninteractive apt-get -qq install samtools
 
 #installs featureCounts (R package)
-RUN apt-get install -y r-base
-RUN R -e "install.packages('BiocManager',dependencies=TRUE, repos='http://cran.rstudio.com/')"
-RUN R -e 'BiocManager::install("Rsubread")'
+RUN apt-get install -y subread
+#RUN apt-get install -y r-base
+#RUN R -e "install.packages('BiocManager',dependencies=TRUE, repos='http://cran.rstudio.com/')"
+#RUN R -e 'BiocManager::install("Rsubread")'
 
 
 # ADD PIPELINE

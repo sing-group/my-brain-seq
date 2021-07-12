@@ -2,19 +2,26 @@
  sudo docker run --rm \
 	-v /home/dannyzimm/Documentos/mirna-pipeline/data/:/home/dannyzimm/Documentos/mirna-pipeline/data/ \
 	-v /home/dannyzimm/Documentos/mirna-pipeline/output/:/home/dannyzimm/Documentos/mirna-pipeline/output/ \
-	-v /home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/:/home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/ \
+	-v /home/dannyzimm/refs/human/GRCh38.p13/:/home/dannyzimm/refs/human/GRCh38.p13/ \
 	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -o -f bowtieFolder
 
 #All
  sudo docker run --rm \
 	-v /home/dannyzimm/Documentos/mirna-pipeline/data/:/home/dannyzimm/Documentos/mirna-pipeline/data/ \
 	-v /home/dannyzimm/Documentos/mirna-pipeline/output/:/home/dannyzimm/Documentos/mirna-pipeline/output/ \
-	-v /home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/:/home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/ \
+	-v /home/dannyzimm/refs/human/GRCh38.p13/:/home/dannyzimm/refs/human/GRCh38.p13/ \
 	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -o -ut sam-to-bam
 
 #miRDeep2
  sudo docker run --rm \
 	-v /home/dannyzimm/Documentos/mirna-pipeline/data/:/home/dannyzimm/Documentos/mirna-pipeline/data/ \
 	-v /home/dannyzimm/Documentos/mirna-pipeline/output/:/home/dannyzimm/Documentos/mirna-pipeline/output/ \
-	-v /home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/:/home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/ \
+	-v /home/dannyzimm/refs/human/GRCh38.p13/:/home/dannyzimm/refs/human/GRCh38.p13/ \
 	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -o -f mirDeep2Folder
+
+#FeatureCounts
+ sudo docker run --rm \
+	-v /home/dannyzimm/Documentos/mirna-pipeline/data/:/home/dannyzimm/Documentos/mirna-pipeline/data/ \
+	-v /home/dannyzimm/Documentos/mirna-pipeline/output/:/home/dannyzimm/Documentos/mirna-pipeline/output/ \
+	-v /home/dannyzimm/refs/human/GRCh38.p13/:/home/dannyzimm/refs/human/GRCh38.p13/ \
+	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -o -f feature-counts-R

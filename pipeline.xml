@@ -43,7 +43,7 @@
 				echo "Creating the directory for the cutadapt results"
 				mkdir -p ${outDir}${ctdOut}/
 			else
-				echo "1_cutadapt already exist"
+				echo "${ctdOut} already exist"
 			fi
 			
 			<!--Bowtie folder-->
@@ -51,7 +51,7 @@
 				echo "Creating the directory for the Bowtie results"
 				mkdir -p ${outDir}${bwtOut}/
 			else
-				echo "bowtieFolder already exist"
+				echo "${bwtOut} already exist"
 			fi
 			
 			<!--FeatureCounts folder-->
@@ -59,7 +59,15 @@
 				echo "Creating the directory for the miRDeep2 results"
 				mkdir -p ${outDir}${ftqOut}/
 			else
-				echo "3_feature-counts folder already exist"
+				echo "${ftqOut} folder already exist"
+			fi
+			
+			<!--DESeq2 folder-->
+			if [ ! -d "${outDir}${dsqOut}" ]; then
+				echo "Creating the directory for the miRDeep2 results"
+				mkdir -p ${outDir}${dsqOut}/
+			else
+				echo "${dsqOut} folder already exist"
 			fi
 		</task>
 

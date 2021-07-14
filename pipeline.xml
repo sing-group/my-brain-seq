@@ -118,7 +118,7 @@
 			
 		
 		
-		
+		<!--Performs the quantification with featureCounts-->
 		<task id="feature-counts" after="sam-to-bam" params="gff_file">
 			bam_input="${outDir}${bwtOut}/"
 			path_output="${outDir}${ftqOut}/"
@@ -130,9 +130,9 @@
 		
 		
 		
-		
+		<!--Performs the differential expression analysis with DESeq2-->
 		<task id="deseq" after="feature-counts" params="conditions">
-			
+			<!--converting the -->
 			
 		</task>
 		

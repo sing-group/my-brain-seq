@@ -24,11 +24,11 @@ RUN apt-get update && \
 #installs featureCounts (R package)
 RUN apt-get install -y subread
 
-# ADD PIPELINE
-ADD pipeline.xml /pipeline.xml
-ENTRYPOINT ["/compi", "run",  "-p", "/pipeline.xml"]
-
 #installs DESeq2
 RUN apt-get install -y r-base
 RUN R -e "install.packages('BiocManager',dependencies=TRUE, repos='http://cran.rstudio.com/')"
 RUN R -e 'BiocManager::install("DESeq2")'
+
+# ADD PIPELINE
+ADD pipeline.xml /pipeline.xml
+ENTRYPOINT ["/compi", "run",  "-p", "/pipeline.xml"]

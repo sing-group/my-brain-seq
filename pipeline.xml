@@ -12,7 +12,7 @@
 	-->
 	<params>
 		<param name="dataDir" shortName="dd" global="true">The directory containing the fastq files. </param>
-		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="${ctdOut}">The relative path to the directory containing the cutadapt results.</param>
+		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="/1_cutadapt">The relative path to the directory containing the cutadapt results.</param>
 		<param name="bwtOut" shortName="bwto" global="true" defaultValue="/2_bowtie">The relative path to the directory containing the bowtie results.</param>
 		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="/3_feature-counts">The relative path to the directory containing the featureCounts results.</param>
 		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="/4_deseq2">The relative path to the directory containing the DESeq2 results.</param>
@@ -132,7 +132,10 @@
 		
 		<!--Performs the differential expression analysis with DESeq2-->
 		<task id="deseq" after="feature-counts" params="conditions">
-			<!--converting the -->
+			path_output="${outDir}${dsqOut}/"
+			<!--Converts the "conditions" file to absolute paths-->
+			<![CDATA[ dqCond="echo ${conditions} | rev | cut -d / -f 1 | rev | sed "s/.*/deseq_&/"" ]]> <!--name of the new conditions file-->
+			<![CDATA[ cat "${conditions}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' > "${path_output}${dqCond}" ]]>
 			
 		</task>
 		

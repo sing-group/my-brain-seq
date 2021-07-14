@@ -12,7 +12,7 @@
 	-v /home/dannyzimm/Documentos/mirna-pipeline/output/:/home/dannyzimm/Documentos/mirna-pipeline/output/ \
 	-v /home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/:/home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/ \
 	-v /home/dannyzimm/refs/human/GRCh38.p13/:/home/dannyzimm/refs/human/GRCh38.p13/ \
-	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -o -ut sam-to-bam
+	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -o
 
 #miRDeep2
  sudo docker run --rm \
@@ -26,4 +26,13 @@
 	-v /home/dannyzimm/Documentos/mirna-pipeline/data/:/home/dannyzimm/Documentos/mirna-pipeline/data/ \
 	-v /home/dannyzimm/Documentos/mirna-pipeline/output/:/home/dannyzimm/Documentos/mirna-pipeline/output/ \
 	-v /home/dannyzimm/refs/human/GRCh38.p13/:/home/dannyzimm/refs/human/GRCh38.p13/ \
-	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -o -f feature-counts-R
+	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -o -f feature-counts
+
+
+#DESeq2
+alias run="sudo docker run --rm \
+	-v /home/dannyzimm/Documentos/mirna-pipeline/data/:/home/dannyzimm/Documentos/mirna-pipeline/data/ \
+	-v /home/dannyzimm/Documentos/mirna-pipeline/output/:/home/dannyzimm/Documentos/mirna-pipeline/output/ \
+	-v /home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/:/home/dannyzimm/refs/human/GRCh38/bowtie-index_GRCh38/ \
+	-v /home/dannyzimm/refs/human/GRCh38.p13/:/home/dannyzimm/refs/human/GRCh38.p13/ \
+	mirna-pipeline -pa /home/dannyzimm/Documentos/mirna-pipeline/data/compi.parameters -o -f deseq"

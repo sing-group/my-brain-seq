@@ -8,6 +8,7 @@ countFile=paste(Sys.getenv("outDir"),
 
 # #The path to the condition file (that produced by the pipeline)
 annotationFile=paste(Sys.getenv("path_output"),
+            "/",
             Sys.getenv("dqCond"),
             sep = "" )
 

@@ -1,11 +1,19 @@
-library("DESeq2")
-#if(!require(DESeq2)){install.packages("DESeq2")}
+suppressMessages(library("DESeq2"))
 
-countFile="/home/dannyzimm/Documentos/mirna-pipeline/output/3_feature-counts/all-counts.txt"
-annotationFile="/home/dannyzimm/Documentos/mirna-pipeline/data/conditions.txt"
+#The path to the featureCounts file
+countFile=paste(Sys.getenv("outDir"),
+             Sys.getenv("ftqOut"),
+             "/all-counts.txt",
+             sep = "" )
+
+# #The path to the condition file (that produced by the pipeline)
+annotationFile=paste(Sys.getenv("path_output"),
+            Sys.getenv("dqCond"),
+            sep = "" )
+
 referenceFactor="control" #usually control
-
-#Loads the read counts of featureCounts
+  
+# #Loads the read counts of featureCounts
 cts = read.csv(file = countFile,
                     sep = "\t",
                     skip = 1,
@@ -31,11 +39,12 @@ coldata$condition = relevel(coldata$condition, referenceFactor)
 coldata$label = factor(coldata$label)
 
 # Checking that the cts and annotations are correct
+print('Rownames of "conditions" are the same as colnames of "counts"...')
 all(rownames(coldata) %in% colnames(cts))
 
 #Test if colnames of cts are in the same order that rownames of coldata
 if (all(rownames(coldata) == colnames(cts)) == FALSE) {
-  cts <- cts[, rownames(coldata)] #if not, arranges them
+  cts = cts[, rownames(coldata)] #if not, arranges them
 }
 
 #Construct DESeq2 dataset

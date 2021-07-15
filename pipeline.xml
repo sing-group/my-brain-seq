@@ -94,7 +94,10 @@
 			<!--bw_index="${ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@${bwtIndex}\/\1/@'}" -->
 			<!-- bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' -->
 			bw_fastq="${outDir}${ctdOut}/${file}"
+			bw_fastq=$(echo $bw_fastq | tr -s '/')  <!--convert the path to single slash-->
+			
 			bw_output="${outDir}${bwtOut}/${file}.sam"
+			bw_output=$(echo $bw_output | tr -s '/')  <!--convert the path to single slash-->
 			
 			<![CDATA[
 			bowtie -S \
@@ -111,9 +114,13 @@
 		<!--Converts the sam files to bam format-->
 		<foreach id="sam-to-bam" after="bowtie-alignment" of="command" in="ls -1 ${outDir}${bwtOut}/ | grep .*\.fastq.sam" as="file">
 			bam_output="${outDir}${bwtOut}/"
+			bam_output="$(echo $bam_output | tr -s '/')" <!--convert the path to single slash-->
+			
 			filebam=$(echo ${file} | sed 's/\.sam//')
-			samtools sort "${bam_output}/${file}" > "${bam_output}/${filebam}.bam"
-			samtools index "${bam_output}/${filebam}.bam"
+			filebam=$(echo $filebam | tr -s '/')  <!--convert the path to single slash-->
+			
+			samtools sort "${bam_output}${file}" > "${bam_output}${filebam}.bam"
+			samtools index "${bam_output}${filebam}.bam"
 			
 		</foreach>
 			
@@ -122,21 +129,27 @@
 		<!--Performs the quantification with featureCounts-->
 		<task id="feature-counts" after="sam-to-bam" params="gff_file">
 			bam_input="${outDir}${bwtOut}/"
+			bam_input=$(echo $bam_input | tr -s '/') <!--convert the path to single slash-->
+			
 			path_output="${outDir}${ftqOut}/"
+			path_output=$(echo $path_output | tr -s '/') <!--convert the path to single slash-->
 			
 			<!--Se podría pasar también un parámetro que permita elegir el tipo de atributo del archivo gff.-->
-			featureCounts -a ${gff_file} -o "${path_output}/all-counts.txt" "${bam_input}"/*".bam"
+			featureCounts -a ${gff_file} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam"
 		</task>
 		
 		
 		
 		<!--Performs the differential expression analysis with DESeq2-->
 		<task id="deseq" after="feature-counts" params="conditions">
-			export path_output="${outDir}${dsqOut}" <!--beware with this path, important for DESeq2 results-->
+			export path_output="${outDir}${dsqOut}" <!--beware of this path, important for DESeq2 results-->
 			<!--Converts the "conditions" file to absolute paths-->
 			echo "Adding full paths to the condition file"
+			
 			<![CDATA[ export dqCond=$(echo ${conditions} | rev | cut -d / -f 1 | rev | sed 's/.*/deseq_&/') ]]> <!--name of the new conditions file-->
-			<![CDATA[ cat "${conditions}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' > "${path_output}${dqCond}" ]]>
+			dqCond=$(echo $dqCond | tr -s '/') <!--convert the path to single slash-->
+			
+			<![CDATA[ cat "${conditions}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' | tr -s '/' > "${path_output}/${dqCond}" ]]>
 			
 			Rscript run_deseq2.R
 			<!--Rscript run_deseq2.R-->

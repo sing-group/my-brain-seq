@@ -125,7 +125,6 @@
 			path_output="${outDir}${ftqOut}/"
 			
 			<!--Se podría pasar también un parámetro que permita elegir el tipo de atributo del archivo gff.-->
-			<!--featureCounts -a ${gff_file} -o "${path_output}/${file}_counts.txt" "${bam_input}"-->
 			featureCounts -a ${gff_file} -o "${path_output}/all-counts.txt" "${bam_input}"/*".bam"
 		</task>
 		
@@ -133,10 +132,10 @@
 		
 		<!--Performs the differential expression analysis with DESeq2-->
 		<task id="deseq" after="feature-counts" params="conditions">
-			path_output="${outDir}${dsqOut}/"
+			export path_output="${outDir}${dsqOut}" <!--beware with this path, important for DESeq2 results-->
 			<!--Converts the "conditions" file to absolute paths-->
 			echo "Adding full paths to the condition file"
-			<![CDATA[ dqCond=$(echo ${conditions} | rev | cut -d / -f 1 | rev | sed 's/.*/deseq_&/') ]]> <!--name of the new conditions file-->
+			<![CDATA[ export dqCond=$(echo ${conditions} | rev | cut -d / -f 1 | rev | sed 's/.*/deseq_&/') ]]> <!--name of the new conditions file-->
 			<![CDATA[ cat "${conditions}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' > "${path_output}${dqCond}" ]]>
 			
 			Rscript run_deseq2.R

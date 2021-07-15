@@ -24,10 +24,30 @@ RUN apt-get update && \
 #installs featureCounts (R package)
 RUN apt-get install -y subread
 
+
+#installs R (4.1)
+RUN apt update -qq
+RUN apt install -y --no-install-recommends software-properties-common dirmngr
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+RUN add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
+RUN apt install -y --no-install-recommends r-base
+
+#installs DESeq2 dependencies
+RUN apt install -y libxml2-dev
+RUN R -e "install.packages('XML')"
+RUN apt install -y libcurl4-openssl-dev
+RUN R -e "install.packages('RCurl')"
+RUN apt install -y libssl-dev
+RUN R -e "install.packages('httr')"
+RUN apt install -y libpng-dev
+RUN R -e "install.packages('png')"
+RUN apt-get install -y gfortran libblas-dev liblapack-dev
+
 #installs DESeq2
-RUN apt-get install -y r-base
-RUN R -e "install.packages('BiocManager',dependencies=TRUE, repos='http://cran.rstudio.com/')"
-RUN R -e 'BiocManager::install("DESeq2")'
+RUN R -e "install.packages('BiocManager'); library('BiocManager'); BiocManager::install('DESeq2')"
+
+#add R script for DESeq2 analysis
+ADD run_deseq2.R /run_deseq2.R
 
 # ADD PIPELINE
 ADD pipeline.xml /pipeline.xml

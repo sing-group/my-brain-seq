@@ -16,6 +16,7 @@
 		<param name="bwtOut" shortName="bwto" global="true" defaultValue="/2_bowtie">The relative path to the directory containing the bowtie results.</param>
 		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="/3_feature-counts">The relative path to the directory containing the featureCounts results.</param>
 		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="/4_deseq2">The relative path to the directory containing the DESeq2 results.</param>
+		<param name="R_deseq" shortName="rdes" global="true" defaultValue="run_deseq2.R">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		
 		<param name="adapter" shortName="adp">The sequence of the adapter to remove. </param>
 		<param name="outDir" shortName="o" global="true">The directory to put the adapter-removed files. </param>
@@ -137,6 +138,9 @@
 			echo "Adding full paths to the condition file"
 			<![CDATA[ dqCond=$(echo ${conditions} | rev | cut -d / -f 1 | rev | sed 's/.*/deseq_&/') ]]> <!--name of the new conditions file-->
 			<![CDATA[ cat "${conditions}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' > "${path_output}${dqCond}" ]]>
+			
+			Rscript run_deseq2.R
+			<!--Rscript run_deseq2.R-->
 			
 		</task>
 		

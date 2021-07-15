@@ -1,4 +1,5 @@
 library("DESeq2")
+#if(!require(DESeq2)){install.packages("DESeq2")}
 
 countFile="/home/dannyzimm/Documentos/mirna-pipeline/output/3_feature-counts/all-counts.txt"
 annotationFile="/home/dannyzimm/Documentos/mirna-pipeline/data/conditions.txt"

@@ -6,7 +6,7 @@ countFile=paste(Sys.getenv("outDir"),
              "/all-counts.txt",
              sep = "" )
 
-# #The path to the condition file (that produced by the pipeline)
+#The path to the condition file (that produced by the pipeline)
 annotationFile=paste(Sys.getenv("path_output"),
             "/",
             Sys.getenv("dqCond"),
@@ -14,7 +14,7 @@ annotationFile=paste(Sys.getenv("path_output"),
 
 referenceFactor="control" #usually control
   
-# #Loads the read counts of featureCounts
+#Loads the read counts of featureCounts
 cts = read.csv(file = countFile,
                     sep = "\t",
                     skip = 1,

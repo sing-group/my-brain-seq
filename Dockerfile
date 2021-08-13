@@ -3,6 +3,8 @@ LABEL maintainer="dannyzimm"
 
 # INSTALL COMPI
 ADD image-files/compi.tar.gz /
+ADD entrypoint.sh /entrypoint.sh
+RUN chmod u+x /entrypoint.sh
 
 # PLACE HERE YOUR DEPENDENCIES (SOFTWARE NEEDED BY YOUR PIPELINE)
 RUN apt-get update -y
@@ -51,4 +53,6 @@ ADD run_deseq2.R /run_deseq2.R
 
 # ADD PIPELINE
 ADD pipeline.xml /pipeline.xml
-ENTRYPOINT ["/compi", "run",  "-p", "/pipeline.xml"]
+RUN mv /pipeline.xml /pipeline-$(echo ${IMAGE_NAME}${IMAGE_VERSION} | md5sum | awk '{print $1}').xml
+
+ENTRYPOINT ["/entrypoint.sh"]

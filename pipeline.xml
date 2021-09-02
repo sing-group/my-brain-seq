@@ -27,37 +27,51 @@
 		
 		<!--Creates the output directories-->
 		<task id="initialization">
-			<!--Cutadapt folder-->
+			<![CDATA[
+			#Cutadapt folder
 			if [ ! -d "${outDir}${ctdOut}" ]; then
-				echo "Creating the directory for the cutadapt results"
+				echo "Creating the directory for the Cutadapt results"
 				mkdir -p ${outDir}${ctdOut}/
 			else
-				echo "${ctdOut} already exist"
+				echo "${ctdOut} already exist"; echo "Removing ${outDir}/${ctdOut} directory and files..."
+				rm -Rf ${outDir}${ctdOut}/
+				echo "Creating the directory for the Cutadapt results"
+				mkdir -p ${outDir}${ctdOut}/
 			fi
 			
-			<!--Bowtie folder-->
+			#<!--Bowtie folder-->
 			if [ ! -d "${outDir}${bwtOut}" ]; then
 				echo "Creating the directory for the Bowtie results"
 				mkdir -p ${outDir}${bwtOut}/
 			else
-				echo "${bwtOut} already exist"
+				echo "${bwtOut} already exist"; echo "Removing ${outDir}${bwtOut} directory and files..."
+				rm -Rf ${outDir}${bwtOut}/
+				echo "Creating the directory for the Bowtie results"
+				mkdir -p ${outDir}${bwtOut}/
 			fi
 			
-			<!--FeatureCounts folder-->
+			#<!--FeatureCounts folder-->
 			if [ ! -d "${outDir}${ftqOut}" ]; then
-				echo "Creating the directory for the miRDeep2 results"
+				echo "Creating the directory for the FeatureCounts results"
 				mkdir -p ${outDir}${ftqOut}/
 			else
-				echo "${ftqOut} folder already exist"
+				echo "${ftqOut} already exist"; echo "Removing ${outDir}${ftqOut} directory and files..."
+				rm -Rf ${outDir}${ftqOut}/
+				echo "Creating the directory for the FeatureCounts results"
+				mkdir -p ${outDir}${ftqOut}/
 			fi
 			
-			<!--DESeq2 folder-->
+			#<!--DESeq2 folder-->
 			if [ ! -d "${outDir}${dsqOut}" ]; then
-				echo "Creating the directory for the miRDeep2 results"
+				echo "Creating the directory for the DESeq2 results"
 				mkdir -p ${outDir}${dsqOut}/
 			else
-				echo "${dsqOut} folder already exist"
+				echo "${dsqOut} already exist"; echo "Removing ${outDir}${dsqOut} directory and files..."
+				rm -Rf ${outDir}${dsqOut}/
+				echo "Creating an empty directory for DESeq2 results"
+				mkdir -p ${outDir}${dsqOut}/
 			fi
+			]]>
 		</task>
 
 		<!--Adapter removal with cutadapt-->

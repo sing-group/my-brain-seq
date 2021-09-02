@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- This is an example file of a compi pipeline -->
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<version>0.0.1</version>
 
-	<!--
-		Params section (<params>): this section contains parameter declarations
-		of the pipeline. It is important that you give a description since it 
-		will be shown in the help.
-	-->
 	<params>
 		<param name="dataDir" shortName="dd" global="true">The directory containing the fastq files. </param>
 		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="/1_cutadapt">The relative path to the directory containing the cutadapt results.</param>
@@ -27,16 +21,10 @@
 		
 		<param name="conditions" shortName="cond">The path to the .tsv file with the file names of the samples, conditions and labels.</param>
 	</params>
-	
-	
-	
-	
-	
-	
-	
+
 <!--TASKS-->
 	<tasks>
-	
+		
 		<!--Creates the output directories-->
 		<task id="initialization">
 			<!--Cutadapt folder-->
@@ -72,9 +60,6 @@
 			fi
 		</task>
 
-		
-		
-		
 		<!--Adapter removal with cutadapt-->
 		<foreach id="cut-sequences" after="initialization" of="command" in="ls -1 ${dataDir} | grep .*\.fastq" as="file" params="adapter">
 			echo "Removing the adapter with Cutadapt"
@@ -84,10 +69,7 @@
 				-o ${outDir}${ctdOut}/trimmed_${file} \
 				${dataDir}/${file}
 		</foreach>
-	
-		
-		
-		
+
 		<!--Alignment with Bowtie-->
 		<foreach id="bowtie-alignment" after="cut-sequences" of="command" in="ls -1 ${outDir}${ctdOut}/ | grep .*\.fastq" as="file" params="bwtIndex">
 			echo "Performing the alignment"
@@ -107,10 +89,7 @@
 			]]>
 			
 		</foreach>
-		
-		
-		
-		
+
 		<!--Converts the sam files to bam format-->
 		<foreach id="sam-to-bam" after="bowtie-alignment" of="command" in="ls -1 ${outDir}${bwtOut}/ | grep .*\.fastq.sam" as="file">
 			bam_output="${outDir}${bwtOut}/"
@@ -123,9 +102,7 @@
 			samtools index "${bam_output}${filebam}.bam"
 			
 		</foreach>
-			
-		
-		
+
 		<!--Performs the quantification with featureCounts-->
 		<task id="feature-counts" after="sam-to-bam" params="gff_file">
 			bam_input="${outDir}${bwtOut}/"
@@ -137,9 +114,7 @@
 			<!--Se podría pasar también un parámetro que permita elegir el tipo de atributo del archivo gff.-->
 			featureCounts -a ${gff_file} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam"
 		</task>
-		
-		
-		
+
 		<!--Performs the differential expression analysis with DESeq2-->
 		<task id="deseq" after="feature-counts" params="conditions">
 			export path_output="${outDir}${dsqOut}" <!--beware of this path, important for DESeq2 results-->
@@ -155,36 +130,7 @@
 			<!--Rscript run_deseq2.R-->
 			
 		</task>
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
 	</tasks>
-	<!--
-		The metadata section is optional and allows to define additional information about
-		the pipeline tasks.
-	<metadata>
-		<task-description id="task-1">Task 1 description.</task-description>
-		<task-description id="task-2">Task 2 description.</task-description>
-	</metadata>
-	-->
+
 </pipeline>

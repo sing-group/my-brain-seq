@@ -86,16 +86,17 @@
 
 		<!--Alignment with Bowtie-->
 		<foreach id="bowtie-alignment" after="cut-sequences" of="command" in="ls -1 ${outDir}${ctdOut}/ | grep .*\.fastq" as="file" params="bwtIndex">
+			<![CDATA[
 			echo "Performing the alignment"
-			<!--bw_index="${ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@${bwtIndex}\/\1/@'}" -->
-			<!-- bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/' -->
+			#bw_index="${ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@${bwtIndex}\/\1/@'}"
+			#bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/'
+			
 			bw_fastq="${outDir}${ctdOut}/${file}"
-			bw_fastq=$(echo $bw_fastq | tr -s '/')  <!--convert the path to single slash-->
+			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash
 			
 			bw_output="${outDir}${bwtOut}/${file}.sam"
-			bw_output=$(echo $bw_output | tr -s '/')  <!--convert the path to single slash-->
+			bw_output=$(echo $bw_output | tr -s '/')  #convert the path to single slash
 			
-			<![CDATA[
 			bowtie -S \
 				$(ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${bwtIndex}'\/\1@') \
 				${bw_fastq} \
@@ -131,18 +132,19 @@
 
 		<!--Performs the differential expression analysis with DESeq2-->
 		<task id="deseq" after="feature-counts" params="conditions">
-			export path_output="${outDir}${dsqOut}" <!--beware of this path, important for DESeq2 results-->
-			<!--Converts the "conditions" file to absolute paths-->
+			<![CDATA[
+			export path_output="${outDir}${dsqOut}" #beware of this path, important for DESeq2 results
+			#Converts the "conditions" file to absolute paths
 			echo "Adding full paths to the condition file"
 			
-			<![CDATA[ export dqCond=$(echo ${conditions} | rev | cut -d / -f 1 | rev | sed 's/.*/deseq_&/') ]]> <!--name of the new conditions file-->
-			dqCond=$(echo $dqCond | tr -s '/') <!--convert the path to single slash-->
+			export dqCond=$(echo ${conditions} | rev | cut -d / -f 1 | rev | sed 's/.*/deseq_&/') #name of the new conditions file
+			dqCond=$(echo $dqCond | tr -s '/') #convert the path to single slash
 			
-			<![CDATA[ cat "${conditions}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' | tr -s '/' > "${path_output}/${dqCond}" ]]>
+			cat "${conditions}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' | tr -s '/' > "${path_output}/${dqCond}"
 			
 			Rscript run_deseq2.R
-			<!--Rscript run_deseq2.R-->
-			
+			#Rscript run_deseq2.R
+			 ]]>
 		</task>
 
 	</tasks>

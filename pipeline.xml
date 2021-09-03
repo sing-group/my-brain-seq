@@ -87,13 +87,21 @@
 		<!--Alignment with Bowtie-->
 		<foreach id="bowtie-alignment" after="cut-sequences" of="command" in="ls -1 ${outDir}${ctdOut}/ | grep .*\.fastq" as="file" params="bwtIndex">
 			<![CDATA[
-			echo "Performing the alignment"
+			
 			
 			bw_fastq="${outDir}${ctdOut}/${file}"
 			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash
 			
 			bw_output="${outDir}${bwtOut}/${file}.sam"
 			bw_output=$(echo $bw_output | tr -s '/')  #convert the path to single slash
+			
+			#test if the file exist, if so removes it
+			if [ -f "${bw_output}" ]; then
+				echo "${file}.sam already exists, removing ${file}.sam."
+				rm -f "${bw_output}"
+			fi
+			
+			echo "Performing the alignment of ${file}.sam"
 			
 			bowtie -S \
 				$(ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${bwtIndex}'\/\1@') \
@@ -111,6 +119,13 @@
 			filebam=$(echo ${file} | sed 's/\.sam//')
 			filebam=$(echo $filebam | tr -s '/')  <!--convert the path to single slash-->
 			
+			#test if the file exist, if so removes it
+			if [ -f "${bam_output}/${filebam}.bam" ]; then
+				echo "${filebam}.bam already exists, removing ${filebam}.bam and ${filebam}.bam.bai."
+				rm -f "${bam_output}/${filebam}.bam*"
+			fi
+				
+			echo "Converting ${filebam}.sam to bam."
 			samtools sort "${bam_output}${file}" > "${bam_output}${filebam}.bam"
 			samtools index "${bam_output}${filebam}.bam"
 			

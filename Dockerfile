@@ -49,7 +49,7 @@ RUN apt-get install -y gfortran libblas-dev liblapack-dev
 RUN R -e "install.packages('BiocManager'); library('BiocManager'); BiocManager::install('DESeq2')"
 
 #add R script for DESeq2 analysis
-ADD run_deseq2.R /run_deseq2.R
+ADD scripts scripts/
 
 # ADD PIPELINE
 ADD pipeline.xml /pipeline.xml

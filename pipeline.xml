@@ -39,7 +39,7 @@
 				mkdir -p ${outDir}${ctdOut}/
 			fi
 			
-			#<!--Bowtie folder-->
+			#Bowtie folder
 			if [ ! -d "${outDir}${bwtOut}" ]; then
 				echo "Creating the directory for the Bowtie results"
 				mkdir -p ${outDir}${bwtOut}/
@@ -50,7 +50,7 @@
 				mkdir -p ${outDir}${bwtOut}/
 			fi
 			
-			#<!--FeatureCounts folder-->
+			#FeatureCounts folder
 			if [ ! -d "${outDir}${ftqOut}" ]; then
 				echo "Creating the directory for the FeatureCounts results"
 				mkdir -p ${outDir}${ftqOut}/
@@ -61,7 +61,7 @@
 				mkdir -p ${outDir}${ftqOut}/
 			fi
 			
-			#<!--DESeq2 folder-->
+			#DESeq2 folder
 			if [ ! -d "${outDir}${dsqOut}" ]; then
 				echo "Creating the directory for the DESeq2 results"
 				mkdir -p ${outDir}${dsqOut}/

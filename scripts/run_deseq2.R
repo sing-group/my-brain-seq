@@ -1,15 +1,18 @@
 suppressMessages(library("DESeq2"))
 
+#Command line arguments that will be used from pipeline.xml
+args = commandArgs(trailingOnly = TRUE)
+
 #The path to the featureCounts file
-countFile=paste(Sys.getenv("outDir"),
-             Sys.getenv("ftqOut"),
+countFile=paste(as.character(args[1]), #outDir
+                as.character(args[2]), #ftqOut
              "/all-counts.txt",
              sep = "" )
 
 #The path to the condition file (that produced by the pipeline)
-annotationFile=paste(Sys.getenv("path_output"),
+annotationFile=paste(as.character(args[3]), #path_output
             "/",
-            Sys.getenv("dqCond"),
+            as.character(args[4]), #dqCond
             sep = "" )
 
 referenceFactor="control" #usually control

@@ -142,7 +142,8 @@
 			
 			cat "${conditions}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' | tr -s '/' > "${path_output}/${dqCond}"
 			
-			Rscript /scripts/run_deseq2.R
+			#Run the DESeq2 analysis
+			Rscript /scripts/run_deseq2.R $outDir $ftqOut $path_output $dqCond
 			 ]]>
 		</task>
 

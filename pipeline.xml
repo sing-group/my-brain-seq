@@ -88,8 +88,6 @@
 		<foreach id="bowtie-alignment" after="cut-sequences" of="command" in="ls -1 ${outDir}${ctdOut}/ | grep .*\.fastq" as="file" params="bwtIndex">
 			<![CDATA[
 			echo "Performing the alignment"
-			#bw_index="${ls -1 ${bwtIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@${bwtIndex}\/\1/@'}"
-			#bw_index=ls -1 ${btwIndex}| head -n1 | sed 's/\..\.ebwt//' | sed 's/\(.*\)/${btwIndex}\/\1/'
 			
 			bw_fastq="${outDir}${ctdOut}/${file}"
 			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash

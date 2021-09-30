@@ -19,7 +19,8 @@
 		
 		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome</param>
 		
-		<param name="conditions" shortName="cond">The path to the .tsv file with the file names of the samples, conditions and labels.</param>
+		<param name="conditions" shortName="cond">The path to the .tsv file with the rootnames of the samples, conditions and labels.</param>
+		<param name="contrast" shortName="cont">The path to the .tsv file with the contrast DESeq2 has to perform.</param>
 	</params>
 
 <!--TASKS-->
@@ -144,19 +145,31 @@
 		</task>
 
 		<!--Performs the differential expression analysis with DESeq2-->
-		<task id="deseq" after="feature-counts" params="conditions">
+		<task id="deseq" after="feature-counts" params="conditions contrast">
 			<![CDATA[
 			export path_output="${outDir}${dsqOut}" #beware of this path, important for DESeq2 results
+			conversion_file="${path_output}/conditions_file.txt"
+			
+			# get the reference factor for the comparison (eg.: control)
+			ref_factor=$(tail --lines=+2 ${contrast} | sed 's/".*" = //' | sed 's/".*-//' | sed 's/"$//')
+			
+			# creates an empty file and adds the header of conditions_file.
+			head -n1 ${conditions} > ${conversion_file}
+
+			# converts the names of the conditions_file to a format recognized by the pipeline
+			# (adds "trimmed_" at the beginning of the rootname and ".fastq.bam" at the end)
+			echo "Converting condition_file format"
+			tail --lines=+2 ${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
+			
 			#Converts the "conditions" file to absolute paths
 			echo "Adding full paths to the condition file"
-			
-			export dqCond=$(echo ${conditions} | rev | cut -d / -f 1 | rev | sed 's/.*/deseq_&/') #name of the new conditions file
+			export dqCond=$(echo ${conversion_file} | rev | cut -d / -f 1 | rev | sed 's/.*/deseq_&/') #name of the new conditions file
 			dqCond=$(echo $dqCond | tr -s '/') #convert the path to single slash
-			
-			cat "${conditions}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' | tr -s '/' > "${path_output}/${dqCond}"
+			cat "${conversion_file}" | sed 's+trimmed_*+'"${outDir}${bwtOut}/"'&+' | tr -s '/' > "${path_output}/${dqCond}"
 			
 			#Run the DESeq2 analysis
-			Rscript /scripts/run_deseq2.R $outDir $ftqOut $path_output $dqCond
+			echo "Running DESeq2 analysis"
+			Rscript /scripts/run_deseq2.R $outDir $ftqOut $path_output $dqCond $ref_factor
 			 ]]>
 		</task>
 

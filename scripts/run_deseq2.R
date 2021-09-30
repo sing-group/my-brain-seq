@@ -15,7 +15,8 @@ annotationFile=paste(as.character(args[3]), #path_output
             as.character(args[4]), #dqCond
             sep = "" )
 
-referenceFactor="control" #usually control
+referenceFactor=paste(as.character(args[5])) #usually control
+print(paste0('The reference factor is: ', referenceFactor))
   
 #Loads the read counts of featureCounts
 cts = read.csv(file = countFile,
@@ -43,8 +44,8 @@ coldata$condition = relevel(coldata$condition, referenceFactor)
 coldata$label = factor(coldata$label)
 
 # Checking that the cts and annotations are correct
-print('Rownames of "conditions" are the same as colnames of "counts"...')
-all(rownames(coldata) %in% colnames(cts))
+test_col = all(rownames(coldata) %in% colnames(cts))
+print(paste0("Rownames of 'conditions' are the same as colnames of 'counts': ", test_col))
 
 #Test if colnames of cts are in the same order that rownames of coldata
 if (all(rownames(coldata) == colnames(cts)) == FALSE) {

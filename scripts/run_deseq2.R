@@ -3,20 +3,17 @@ suppressMessages(library("DESeq2"))
 #Command line arguments that will be used from pipeline.xml
 args = commandArgs(trailingOnly = TRUE)
 
+print(paste0("Input counts file: ", as.character(args[1])))
+print(paste0("Input annotation file: ", as.character(args[2])))
+print(paste0("Reference factor: ", as.character(args[3])))
+
 #The path to the featureCounts file
-countFile=paste(as.character(args[1]), #outDir
-                as.character(args[2]), #ftqOut
-             "/all-counts.txt",
-             sep = "" )
+countFile=as.character(args[1])
 
 #The path to the condition file (that produced by the pipeline)
-annotationFile=paste(as.character(args[3]), #path_output
-            "/",
-            as.character(args[4]), #dqCond
-            sep = "" )
+annotationFile=as.character(args[2])
 
-referenceFactor=paste(as.character(args[5])) #usually control
-print(paste0('The reference factor is: ', referenceFactor))
+referenceFactor=paste(as.character(args[3]))
   
 #Loads the read counts of featureCounts
 cts = read.csv(file = countFile,

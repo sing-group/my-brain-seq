@@ -87,12 +87,16 @@
 
 		<!--Adapter removal with cutadapt-->
 		<foreach id="cut-sequences" after="initialization" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file" params="adapter">
-			echo "Removing the adapter with Cutadapt"
-			cutadapt \
+			echo "Removing the adapter with Cutadapt: ${file}"
+			dk_ID="$(docker ps | cut -f 1 -d " " | tail -n 1)"
+		<![CDATA[
+			docker run --volumes-from ${dk_ID} \
+				pegi3s/cutadapt \
 				-m 1 \
 				-a ${adapter} \
 				-o ${workingDir}/${outDir}/${ctdOut}/trimmed_${file} \
 				${workingDir}/${dataDir}/${file}
+		]]>
 		</foreach>
 
 		<!--Alignment with Bowtie-->

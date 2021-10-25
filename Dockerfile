@@ -11,14 +11,11 @@ RUN chmod u+x /entrypoint.sh
 RUN apt-get update -y
 RUN apt-get install -y python3
 
-#installs docker
-RUN apt install docker.io -y
 #installs pip
 RUN apt install -y python3-pip 
 
 #installs cutadapt using pip
 #RUN python3 -m pip install --upgrade cutadapt
-
 
 #installs bowtie 1
 RUN apt-get install -y bowtie

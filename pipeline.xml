@@ -28,6 +28,7 @@
 		<param name="cutadaptVersion" shortName="cdv" defaultValue="1.16" global="true">Version of the pegi3s/cutadapt Docker image to use.</param>
 		<param name="bowtieVersion" shortName="bwv" defaultValue="1.2.3" global="true">Version of the pegi3s/bowtie1 Docker image to use.</param>
 		<param name="featureCountsVersion" shortName="fqv" defaultValue="2.0.0" global="true">Version of the pegi3s/feature-counts Docker image to use.</param>
+		<param name="samtoolsVersion" shortName="stv" defaultValue="1.9" global="true">Version of the pegi3s/samtools_bcftools Docker image to use.</param>
 		
 	</params>
 
@@ -37,6 +38,7 @@
 			docker pull pegi3s/cutadapt:${cutadaptVersion}
 			docker pull pegi3s/bowtie1:${bowtieVersion}
 			docker pull pegi3s/feature-counts:${featureCountsVersion}
+			docker pull pegi3s/samtools_bcftools:${samtoolsVersion}
 		</task>
 
 		<!--Creates the output directories-->
@@ -151,17 +153,23 @@
 				echo "${filebam}.bam already exists, removing ${filebam}.bam and ${filebam}.bam.bai."
 				rm -f "${bam_output}/${filebam}.bam*"
 			fi
-				
+			
+			#replaces $working_dir with /data/
+			bam_output=$(echo $bam_output | cut -d / -f 3- | awk '{print "/data/" $0}')
+			
 			echo "Converting ${filebam}.sam to bam."
-			samtools sort "${bam_output}${file}" > "${bam_output}${filebam}.bam"
-			samtools index "${bam_output}${filebam}.bam"
+			docker run --rm \
+				-v ${hostWorkingDir}:/data \
+				pegi3s/samtools_bcftools:${samtoolsVersion} \
+				sh -c "samtools sort "${bam_output}${file}" > "${bam_output}${filebam}.bam"" \
+				sh -c "samtools index "${bam_output}${filebam}.bam""
+				
 		</foreach>
 
 		<!--Performs the quantification with featureCounts-->
 		<task id="feature-counts" after="sam-to-bam" params="gffFile">
 			bam_input="/data/${outDir}/${bwtOut}/"
 			bam_input=$(echo $bam_input | tr -s '/') <!--convert the path to single slash-->
-			echo $(bam_input)
 			
 			path_output="/data/${outDir}/${ftqOut}/"
 			path_output=$(echo $path_output | tr -s '/') <!--convert the path to single slash-->

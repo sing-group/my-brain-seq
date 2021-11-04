@@ -14,19 +14,6 @@ RUN apt-get install -y python3
 #installs pip
 RUN apt install -y python3-pip 
 
-#installs cutadapt using pip
-#RUN python3 -m pip install --upgrade cutadapt
-
-#installs bowtie 1
-RUN apt-get install -y bowtie
-
-#installs sam-tools
-RUN apt-get update && \
- 	DEBIAN_FRONTEND=noninteractive apt-get -qq install samtools
-
-#installs featureCounts
- RUN apt-get install -y subread
-
 #adds additional scripts
 ADD scripts scripts/
 

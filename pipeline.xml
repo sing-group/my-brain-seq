@@ -26,6 +26,7 @@
 		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
 		<param name="rDeseq2Version" shortName="rdv" defaultValue="1.32.0" global="true">Version of the pegi3s/r_deseq2 Docker image to use.</param>
 		<param name="cutadaptVersion" shortName="cdv" defaultValue="1.16" global="true">Version of the pegi3s/cutadapt Docker image to use.</param>
+		<param name="bowtieVersion" shortName="bwv" defaultValue="1.2.3" global="true">Version of the pegi3s/bowtie Docker image to use.</param>
 		
 	</params>
 
@@ -33,6 +34,7 @@
 		<task id="pull-docker-images" params="skipPullDockerImages" if="[ -v ${skipPullDockerImages} ]">
 			docker pull pegi3s/r_deseq2:${rDeseq2Version}
 			docker pull pegi3s/cutadapt:${cutadaptVersion}
+			docker pull pegi3s/bowtie1:${bowtieVersion}
 		</task>
 
 		<!--Creates the output directories-->
@@ -105,24 +107,32 @@
 		<!--Alignment with Bowtie-->
 		<foreach id="bowtie-alignment" after="cut-sequences" of="command" in="ls -1 ${workingDir}/${outDir}/${ctdOut}/ | grep .*\.fastq" as="file" params="bwtIndex">
 		<![CDATA[
-			bw_fastq="${workingDir}/${outDir}/${ctdOut}/${file}"
+			bw_fastq="/data/${outDir}/${ctdOut}/${file}"
 			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash
 			
-			bw_output="${workingDir}/${outDir}/${bwtOut}/${file}.sam"
+			bw_output="data/${outDir}/${bwtOut}/${file}.sam"
 			bw_output=$(echo $bw_output | tr -s '/')  #convert the path to single slash
+			
+			bw_index=$(ls -1 ${workingDir}/${bwtIndex} | head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${workingDir}/${bwtIndex}'\/\1@') #gets the root of the index file name
+			bw_index=$(echo $bw_index | tr -s '/')
+			bw_index=$(echo $bw_index | cut -d / -f 3- | awk '{print "/data/" $0}')
 			
 			#test if the file exist, if so removes it
 			if [ -f "${bw_output}" ]; then
 				echo "${file}.sam already exists, removing ${file}.sam."
 				rm -f "${bw_output}"
 			fi
-
+			
 			echo "Performing the alignment of ${file}.sam"
-
-			bowtie -S \
-				$(ls -1 ${workingDir}/${bwtIndex} | head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${workingDir}/${bwtIndex}'\/\1@') \
+			
+			docker run --rm \
+				-v ${hostWorkingDir}:/data \
+				pegi3s/bowtie1:${bowtieVersion} \
+				bowtie -S \
+				${bw_index} \
 				${bw_fastq} \
-				${bw_output} 2>bowtie_${file}.log
+				${bw_output}
+
 		]]>
 		</foreach>
 

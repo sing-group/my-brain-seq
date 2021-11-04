@@ -26,7 +26,8 @@
 		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
 		<param name="rDeseq2Version" shortName="rdv" defaultValue="1.32.0" global="true">Version of the pegi3s/r_deseq2 Docker image to use.</param>
 		<param name="cutadaptVersion" shortName="cdv" defaultValue="1.16" global="true">Version of the pegi3s/cutadapt Docker image to use.</param>
-		<param name="bowtieVersion" shortName="bwv" defaultValue="1.2.3" global="true">Version of the pegi3s/bowtie Docker image to use.</param>
+		<param name="bowtieVersion" shortName="bwv" defaultValue="1.2.3" global="true">Version of the pegi3s/bowtie1 Docker image to use.</param>
+		<param name="featureCountsVersion" shortName="fqv" defaultValue="2.0.0" global="true">Version of the pegi3s/feature-counts Docker image to use.</param>
 		
 	</params>
 
@@ -35,6 +36,7 @@
 			docker pull pegi3s/r_deseq2:${rDeseq2Version}
 			docker pull pegi3s/cutadapt:${cutadaptVersion}
 			docker pull pegi3s/bowtie1:${bowtieVersion}
+			docker pull pegi3s/feature-counts:${featureCountsVersion}
 		</task>
 
 		<!--Creates the output directories-->
@@ -157,14 +159,19 @@
 
 		<!--Performs the quantification with featureCounts-->
 		<task id="feature-counts" after="sam-to-bam" params="gffFile">
-			bam_input="${workingDir}/${outDir}/${bwtOut}/"
+			bam_input="/data/${outDir}/${bwtOut}/"
 			bam_input=$(echo $bam_input | tr -s '/') <!--convert the path to single slash-->
-
-			path_output="${workingDir}/${outDir}/${ftqOut}/"
+			echo $(bam_input)
+			
+			path_output="/data/${outDir}/${ftqOut}/"
 			path_output=$(echo $path_output | tr -s '/') <!--convert the path to single slash-->
-
+			
 			<!--Se podría pasar también un parámetro que permita elegir el tipo de atributo del archivo gff.-->
-			featureCounts -a ${workingDir}/${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam"
+			docker run --rm \
+				-v ${hostWorkingDir}:/data \
+				pegi3s/feature-counts:${featureCountsVersion} \
+				sh -c "featureCounts -a /data/${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
+				
 		</task>
 
 		<!--Performs the differential expression analysis with DESeq2-->

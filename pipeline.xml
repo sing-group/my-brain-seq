@@ -16,6 +16,7 @@
 		<param name="bwtOut" shortName="bwto" global="true" defaultValue="2_bowtie">The relative path to the directory containing the bowtie results.</param>
 		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="3_feature_counts">The relative path to the directory containing the featureCounts results.</param>
 		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="4_deseq2">The relative path to the directory containing the DESeq2 results.</param>
+		<param name="qmOut" shortName="qmo" global="true" defaultValue="3_qualy_map">The relative path to the directory containing the QualyMap results.</param>
 
 		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="deSeq2Rscript" shortName="rdes" global="true" defaultValue="run_deseq2.R">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
@@ -29,6 +30,7 @@
 		<param name="bowtieVersion" shortName="bwv" defaultValue="1.2.3" global="true">Version of the pegi3s/bowtie1 Docker image to use.</param>
 		<param name="featureCountsVersion" shortName="fqv" defaultValue="2.0.0" global="true">Version of the pegi3s/feature-counts Docker image to use.</param>
 		<param name="samtoolsVersion" shortName="stv" defaultValue="1.9" global="true">Version of the pegi3s/samtools_bcftools Docker image to use.</param>
+		<param name="qualimapVersion" shortName="qmv" defaultValue="2.2.1" global="true">Version of the pegi3s/qualimap Docker image to use.</param>
 		
 	</params>
 
@@ -39,6 +41,7 @@
 			docker pull pegi3s/bowtie1:${bowtieVersion}
 			docker pull pegi3s/feature-counts:${featureCountsVersion}
 			docker pull pegi3s/samtools_bcftools:${samtoolsVersion}
+			docker pull pegi3s/qualimap:${qualimapVersion}
 		</task>
 
 		<!--Creates the output directories-->
@@ -64,6 +67,17 @@
 				rm -Rf ${workingDir}/${outDir}/${bwtOut}/
 				echo "Creating the directory for the Bowtie results"
 				mkdir -p ${workingDir}/${outDir}/${bwtOut}/
+			fi
+			
+			#QualiMap folder
+			if [ ! -d "${workingDir}/${outDir}/${qmOut}" ]; then
+				echo "Creating the directory for the QualiMap results"
+				mkdir -p ${workingDir}/${outDir}/${qmOut}/
+			else
+				echo "${qmOut} already exist"; echo "Removing ${workingDir}/${outDir}/${qmOut} directory and files..."
+				rm -Rf ${workingDir}/${outDir}/${qmOut}/
+				echo "Creating the directory for the QualyMap results"
+				mkdir -p ${workingDir}/${outDir}/${qmOut}/
 			fi
 			
 			#FeatureCounts folder
@@ -166,8 +180,22 @@
 				
 		</foreach>
 
+		<!--Performs the quality control with QualiMap-->
+		<foreach id="quali-map" after="sam-to-bam" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*\.fastq.bam" as="bamFile" params="gffFile">
+		<![CDATA[	
+			bam_input="/data/${outDir}/${bwtOut}/${bamFile}"
+			annotations="/data/${gffFile}"
+			qm_output="output/${qmOut}/${bamFile}"
+			
+			docker run --rm\
+				-v ${hostWorkingDir}:/data \
+				pegi3s/qualimap:${qualimapVersion} \
+				sh -c "qualimap rnaseq -bam ${bam_input} -gtf ${annotations} -outdir ${qm_output} -outfile ${bamFile}.pdf --java-mem-size=4G"
+		]]>
+		</foreach>
+		
 		<!--Performs the quantification with featureCounts-->
-		<task id="feature-counts" after="sam-to-bam" params="gffFile">
+		<task id="feature-counts" after="quali-map" params="gffFile">
 			bam_input="/data/${outDir}/${bwtOut}/"
 			bam_input=$(echo $bam_input | tr -s '/') <!--convert the path to single slash-->
 			

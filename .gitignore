@@ -1,3 +1,5 @@
 /image-files/
 /params-examples/
 /runners-examples/
+.Rhistory
+scripts/.Rhistory

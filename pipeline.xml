@@ -240,7 +240,7 @@
 			docker run --rm \
 				-v ${hostWorkingDir}:/data \
 				pegi3s/r_deseq2:${rDeseq2Version} \
-					Rscript /data/compi_scripts/${deSeq2Rscript} /data/${outDir}/${ftqOut}/all-counts.txt ${dqCond_docker} ${ref_factor}
+					Rscript /data/compi_scripts/${deSeq2Rscript} /data/${outDir}/${ftqOut}/all-counts.txt ${dqCond_docker} ${ref_factor} ${path_output_docker}
 		]]>
 		</task>
 	</tasks>

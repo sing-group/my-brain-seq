@@ -6,6 +6,7 @@ args = commandArgs(trailingOnly = TRUE)
 print(paste0("Input counts file: ", as.character(args[1])))
 print(paste0("Input annotation file: ", as.character(args[2])))
 print(paste0("Reference factor: ", as.character(args[3])))
+print(paste0("Output directory: ", as.character(args[4])))
 
 #The path to the featureCounts file
 countFile=as.character(args[1])
@@ -14,7 +15,10 @@ countFile=as.character(args[1])
 annotationFile=as.character(args[2])
 
 referenceFactor=paste(as.character(args[3]))
-  
+
+#The output directory to save the analysis results
+outputDir=as.character(args[4])
+
 #Loads the read counts of featureCounts
 cts = read.csv(file = countFile,
                     sep = "\t",
@@ -63,5 +67,12 @@ dds <- DESeq(dds)
 
 #Visualize the results
 res <- results(dds)
-res
+summary(res)
 
+#Order results by the smallest p-value
+resOrdered <- res[order(res$pvalue),]
+
+#Save results as tsv file
+setwd(outputDir)
+write.csv(as.data.frame(resOrdered),
+          file=paste(coldata$condition, referenceFactor, sep="_"))

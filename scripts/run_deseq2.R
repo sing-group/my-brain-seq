@@ -19,6 +19,10 @@ referenceFactor=paste(as.character(args[3]))
 #The output directory to save the analysis results
 outputDir=as.character(args[4])
 
+#Filename of the output file
+filename=as.character(args[5])
+filename=paste0(filename, '.tsv')
+
 #Loads the read counts of featureCounts
 cts = read.csv(file = countFile,
                     sep = "\t",
@@ -67,12 +71,17 @@ dds <- DESeq(dds)
 
 #Visualize the results
 res <- results(dds)
-summary(res)
+res
 
 #Order results by the smallest p-value
 resOrdered <- res[order(res$pvalue),]
 
 #Save results as tsv file
+print(paste0("Saving DESeq2 results in: ", paste0(outputDir,'/',filename)))
+
 setwd(outputDir)
-write.csv(as.data.frame(resOrdered),
-          file=paste(coldata$condition, referenceFactor, sep="_"))
+# write.csv(as.data.frame(resOrdered),
+#           sep='\t',
+#           file=filename)
+
+write.table(as.data.frame(resOrdered), file = filename, row.names=FALSE, sep="\t")

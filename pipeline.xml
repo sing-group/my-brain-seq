@@ -104,6 +104,8 @@
 
 			rm -rf ${workingDir}/compi_scripts
 			mkdir -p ${workingDir}/compi_scripts
+			
+			#Makes a copy of the scripts used in the analysis to working-dir
 			cp ${scriptsDir}/${deSeq2Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
 		]]>
 		</task>
@@ -215,18 +217,22 @@
 		<![CDATA[
 			export path_output="${workingDir}/${outDir}/${dsqOut}"
 			export path_output_docker="/data/${outDir}/${dsqOut}"
-
+			export path_scriptR_docker="/data/${scriptsDir}/${deSeq2Rscript}"
+			
 			conversion_file="${path_output}/conversion_file.txt"
 
 			# get the reference factor for the comparison (eg.: control)
 			ref_factor=$(tail --lines=+2 ${workingDir}/${contrast} | sed 's/".*" = //' | sed 's/".*-//' | sed 's/"$//')
+			
+			# get the contrast name to build the output filename
+			contrast_filename=$(tail ${workingDir}/${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
 			
 			# creates an empty file and adds the header of conversion_file.
 			head -n1 ${workingDir}/${conditions} > ${conversion_file}
 
 			# converts the names of the conversion_file to a format recognized by the pipeline
 			# (adds "trimmed_" at the beginning of the rootname and ".fastq.bam" at the end)
-			echo "Converting condition_file format ${workingDir}/${conditions}"
+			echo "Converting condition_file format"
 			tail --lines=+2 ${workingDir}/${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
 			
 			#Converts the "conditions" file to absolute paths
@@ -235,14 +241,13 @@
 			export dqCond_docker="${path_output_docker}/deseq_conditions_file.txt"
 			
 				# Adds "/data/..." at the beginning of the row names
-			echo "/data/${outDir}"
 			cat "${conversion_file}" | sed 's+trimmed_*+'"/data/${outDir}/${bwtOut}/"'&+' | tr -s '/' > "${dqCond}"
-
+			echo "Contrast to perform: ${contrast_filename}"
 			echo "Running DESeq2 analysis"
 			docker run --rm \
 				-v ${hostWorkingDir}:/data \
 				pegi3s/r_deseq2:${rDeseq2Version} \
-					Rscript /data/compi_scripts/${deSeq2Rscript} /data/${outDir}/${ftqOut}/all-counts.txt ${dqCond_docker} ${ref_factor} ${path_output_docker}
+					Rscript /data/compi_scripts/${deSeq2Rscript} /data/${outDir}/${ftqOut}/all-counts.txt ${dqCond_docker} ${ref_factor} ${path_output_docker} ${contrast_filename}
 		]]>
 		</task>
 	</tasks>

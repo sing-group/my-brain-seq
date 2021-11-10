@@ -13,13 +13,14 @@
 		<param name="genome" shortName="gnm" defaultValue="">The directory path to the genome to align (relative to workingDir).</param>
 		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome (relative to workingDir).</param>
 		
-		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="1_cutadapt">The relative path to the directory containing the cutadapt results.</param>
-		<param name="newIndOut" shortName="nio" defaultValue="new_index">The path where the new bowtie index will be saved (relative to workingDir).</param>
-		<param name="bwtOut" shortName="bwto" global="true" defaultValue="2_bowtie">The relative path to the directory containing the bowtie results.</param>
-		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="3_feature_counts">The relative path to the directory containing the featureCounts results.</param>
-		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="4_deseq2">The relative path to the directory containing the DESeq2 results.</param>
-		<param name="qmOut" shortName="qmo" global="true" defaultValue="3_qualy_map">The relative path to the directory containing the QualyMap results.</param>
+		<param name="fqcOut" shortName="fqco" global="true" defaultValue="1_fastqc">The relative path to the directory containing the FastQC results.</param>
+		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="2_cutadapt">The relative path to the directory containing the cutadapt results.</param>
+		<param name="bwtOut" shortName="bwto" global="true" defaultValue="3_bowtie">The relative path to the directory containing the bowtie results.</param>
+		<param name="qmOut" shortName="qmo" global="true" defaultValue="4_qualy_map">The relative path to the directory containing the QualyMap results.</param>
+		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="5_feature_counts">The relative path to the directory containing the featureCounts results.</param>
+		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="6_deseq2">The relative path to the directory containing the DESeq2 results.</param>
 
+		<param name="newIndOut" shortName="nio" defaultValue="new_index">The path where the new bowtie index will be saved (relative to workingDir).</param>
 		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="deSeq2Rscript" shortName="rdes" global="true" defaultValue="run_deseq2.R">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="adapter" shortName="adp">The sequence of the adapter to remove.</param>
@@ -29,6 +30,7 @@
 		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
 		<param name="rDeseq2Version" shortName="rdv" defaultValue="1.32.0" global="true">Version of the pegi3s/r_deseq2 Docker image to use.</param>
 		<param name="cutadaptVersion" shortName="cdv" defaultValue="1.16" global="true">Version of the pegi3s/cutadapt Docker image to use.</param>
+		<param name="fastqcVersion" shortName="fqcv" defaultValue="0.11.9" global="true">Version of the pegi3s/fastqc Docker image to use.</param>
 		<param name="bowtieVersion" shortName="bwv" defaultValue="1.2.3" global="true">Version of the pegi3s/bowtie1 Docker image to use.</param>
 		<param name="featureCountsVersion" shortName="fqv" defaultValue="2.0.0" global="true">Version of the pegi3s/feature-counts Docker image to use.</param>
 		<param name="samtoolsVersion" shortName="stv" defaultValue="1.9" global="true">Version of the pegi3s/samtools_bcftools Docker image to use.</param>
@@ -38,17 +40,29 @@
 
 	<tasks>
 		<task id="pull-docker-images" params="skipPullDockerImages" if="[ -v ${skipPullDockerImages} ]">
-			docker pull pegi3s/r_deseq2:${rDeseq2Version}
+			docker pull pegi3s/fastqc:${fastqcVersion}
 			docker pull pegi3s/cutadapt:${cutadaptVersion}
 			docker pull pegi3s/bowtie1:${bowtieVersion}
-			docker pull pegi3s/feature-counts:${featureCountsVersion}
 			docker pull pegi3s/samtools_bcftools:${samtoolsVersion}
 			docker pull pegi3s/qualimap:${qualimapVersion}
+			docker pull pegi3s/feature-counts:${featureCountsVersion}
+			docker pull pegi3s/r_deseq2:${rDeseq2Version}
 		</task>
 
 		<!--Creates the output directories-->
 		<task id="initialization" after="pull-docker-images">
 		<![CDATA[
+			#FastQC folder
+			if [ ! -d "${workingDir}/${outDir}/${fqcOut}" ]; then
+				echo "Creating the directory for the FastQC results"
+				mkdir -p ${workingDir}/${outDir}/${fqcOut}/
+			else
+				echo "${fqcOut} already exist"; echo "Removing ${workingDir}/${outDir}/${fqcOut} directory and files..."
+				rm -Rf ${workingDir}/${outDir}/${fqcOut}/
+				echo "Creating the directory for the FastQC results"
+				mkdir -p ${workingDir}/${outDir}/${fqcOut}/
+			fi
+			
 			#Cutadapt folder
 			if [ ! -d "${workingDir}/${outDir}/${ctdOut}" ]; then
 				echo "Creating the directory for the Cutadapt results"
@@ -111,9 +125,23 @@
 			cp ${scriptsDir}/${deSeq2Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
 		]]>
 		</task>
-
+		
+		<!--Quality control with FastQC-->
+		<foreach id="fastqc-qc" after="initialization" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file">
+		<![CDATA[
+			fqc_input="/data/${dataDir}/${file}"
+			fqc_output="/data/${outDir}/${fqcOut}/"
+			
+			docker run --rm \
+				-v ${hostWorkingDir}:/data \
+				pegi3s/fastqc:${fastqcVersion} \
+				-o ${fqc_output} \
+				${fqc_input}
+		]]>
+		</foreach>
+		
 		<!--Adapter removal with cutadapt-->
-		<foreach id="cut-sequences" after="initialization" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file" params="adapter">
+		<foreach id="cut-sequences" after="fastqc-qc" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file" params="adapter">
 			echo "Removing the adapter with Cutadapt: ${file}"
 		<![CDATA[
 			docker run --rm \

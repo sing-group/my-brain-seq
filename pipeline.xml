@@ -53,71 +53,36 @@
 		<!--Creates the output directories-->
 		<task id="initialization" after="pull-docker-images">
 		<![CDATA[
+			#Function for the directory creation: first arg=${xOut}, second arg=name of the software
+			build_dir () {
+				if [ ! -d "${workingDir}/${outDir}/$1" ]; then
+					echo "Creating the directory for the $2 results"
+					mkdir -p ${workingDir}/${outDir}/$1/
+				else
+					echo "$1 already exist"; echo "Removing ${workingDir}/${outDir}/$1 directory and files..."
+					rm -Rf ${workingDir}/${outDir}/$1/
+					echo "Creating the directory for the $2 results"
+					mkdir -p ${workingDir}/${outDir}/$1/
+				fi
+			}
+			
 			#FastQC folder
-			if [ ! -d "${workingDir}/${outDir}/${fqcOut}" ]; then
-				echo "Creating the directory for the FastQC results"
-				mkdir -p ${workingDir}/${outDir}/${fqcOut}/
-			else
-				echo "${fqcOut} already exist"; echo "Removing ${workingDir}/${outDir}/${fqcOut} directory and files..."
-				rm -Rf ${workingDir}/${outDir}/${fqcOut}/
-				echo "Creating the directory for the FastQC results"
-				mkdir -p ${workingDir}/${outDir}/${fqcOut}/
-			fi
+			build_dir ${fqcOut} "FastQC"
 			
 			#Cutadapt folder
-			if [ ! -d "${workingDir}/${outDir}/${ctdOut}" ]; then
-				echo "Creating the directory for the Cutadapt results"
-				mkdir -p ${workingDir}/${outDir}/${ctdOut}/
-			else
-				echo "${ctdOut} already exist"; echo "Removing ${workingDir}/${outDir}/${ctdOut} directory and files..."
-				rm -Rf ${workingDir}/${outDir}/${ctdOut}/
-				echo "Creating the directory for the Cutadapt results"
-				mkdir -p ${workingDir}/${outDir}/${ctdOut}/
-			fi
+			build_dir ${ctdOut} "Cutadapt"
 			
 			#Bowtie folder
-			if [ ! -d "${workingDir}/${outDir}/${bwtOut}" ]; then
-				echo "Creating the directory for the Bowtie results"
-				mkdir -p ${workingDir}/${outDir}/${bwtOut}/
-			else
-				echo "${bwtOut} already exist"; echo "Removing ${workingDir}/${outDir}/${bwtOut} directory and files..."
-				rm -Rf ${workingDir}/${outDir}/${bwtOut}/
-				echo "Creating the directory for the Bowtie results"
-				mkdir -p ${workingDir}/${outDir}/${bwtOut}/
-			fi
+			build_dir ${bwtOut} "Bowtie"
 			
 			#QualiMap folder
-			if [ ! -d "${workingDir}/${outDir}/${qmOut}" ]; then
-				echo "Creating the directory for the QualiMap results"
-				mkdir -p ${workingDir}/${outDir}/${qmOut}/
-			else
-				echo "${qmOut} already exist"; echo "Removing ${workingDir}/${outDir}/${qmOut} directory and files..."
-				rm -Rf ${workingDir}/${outDir}/${qmOut}/
-				echo "Creating the directory for the QualyMap results"
-				mkdir -p ${workingDir}/${outDir}/${qmOut}/
-			fi
+			build_dir ${qmOut} "QualiMap"
 			
 			#FeatureCounts folder
-			if [ ! -d "${workingDir}/${outDir}/${ftqOut}" ]; then
-				echo "Creating the directory for the FeatureCounts results"
-				mkdir -p ${workingDir}/${outDir}/${ftqOut}/
-			else
-				echo "${ftqOut} already exist"; echo "Removing ${workingDir}/${outDir}/${ftqOut} directory and files..."
-				rm -Rf ${workingDir}/${outDir}/${ftqOut}/
-				echo "Creating the directory for the FeatureCounts results"
-				mkdir -p ${workingDir}/${outDir}/${ftqOut}/
-			fi
+			build_dir ${ftqOut} "FeatureCounts"
 			
 			#DESeq2 folder
-			if [ ! -d "${workingDir}/${outDir}/${dsqOut}" ]; then
-				echo "Creating the directory for the DESeq2 results"
-				mkdir -p ${workingDir}/${outDir}/${dsqOut}/
-			else
-				echo "${dsqOut} already exist"; echo "Removing ${workingDir}/${outDir}/${dsqOut} directory and files..."
-				rm -Rf ${workingDir}/${outDir}/${dsqOut}/
-				echo "Creating an empty directory for DESeq2 results"
-				mkdir -p ${workingDir}/${outDir}/${dsqOut}/
-			fi
+			build_dir ${dsqOut} "DESeq2"
 
 			rm -rf ${workingDir}/compi_scripts
 			mkdir -p ${workingDir}/compi_scripts

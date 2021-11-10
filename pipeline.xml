@@ -90,37 +90,9 @@
 			cp ${scriptsDir}/${deSeq2Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
 		]]>
 		</task>
-		
-		<!--Quality control with FastQC-->
-		<foreach id="fastqc-qc" after="initialization" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file">
-		<![CDATA[
-			fqc_input="/data/${dataDir}/${file}"
-			fqc_output="/data/${outDir}/${fqcOut}/"
-			
-			docker run --rm \
-				-v ${hostWorkingDir}:/data \
-				pegi3s/fastqc:${fastqcVersion} \
-				-o ${fqc_output} \
-				${fqc_input}
-		]]>
-		</foreach>
-		
-		<!--Adapter removal with cutadapt-->
-		<foreach id="cut-sequences" after="fastqc-qc" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file" params="adapter">
-			echo "Removing the adapter with Cutadapt: ${file}"
-		<![CDATA[
-			docker run --rm \
-				-v ${hostWorkingDir}:/data \
-				pegi3s/cutadapt:${cutadaptVersion} \
-				-m 1 \
-				-a ${adapter} \
-				-o /data/${outDir}/${ctdOut}/trimmed_${file} \
-				data/${dataDir}/${file}
-		]]>
-		</foreach>
 
 		<!--Bowtie genome index build--> 
-		<task id="build-genome-index" after="cut-sequences" params="bwtOut genome bwtIndex" if="[ ! -z ${genome} ]"> #if user sets a value for genome, then this task is executed
+		<task id="build-genome-index" after="initialization" params="bwtOut genome bwtIndex" if="[ ! -z ${genome} ]"> #if user sets a value for genome, then this task is executed
 		<![CDATA[
 			echo "Genome parameter passed"
 			echo "Building the genome index for Bowtie alignment"
@@ -156,9 +128,37 @@
 			fi
 		]]>
 		</task>
-		
+
+		<!--Quality control with FastQC-->
+		<foreach id="fastqc-qc" after="initialization" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file">
+		<![CDATA[
+			fqc_input="/data/${dataDir}/${file}"
+			fqc_output="/data/${outDir}/${fqcOut}/"
+			
+			docker run --rm \
+				-v ${hostWorkingDir}:/data \
+				pegi3s/fastqc:${fastqcVersion} \
+				-o ${fqc_output} \
+				${fqc_input}
+		]]>
+		</foreach>
+
+		<!--Adapter removal with cutadapt-->
+		<foreach id="cut-sequences" after="fastqc-qc" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file" params="adapter">
+			echo "Removing the adapter with Cutadapt: ${file}"
+		<![CDATA[
+			docker run --rm \
+				-v ${hostWorkingDir}:/data \
+				pegi3s/cutadapt:${cutadaptVersion} \
+				-m 1 \
+				-a ${adapter} \
+				-o /data/${outDir}/${ctdOut}/trimmed_${file} \
+				data/${dataDir}/${file}
+		]]>
+		</foreach>
+
 		<!--Alignment with Bowtie-->
-		<foreach id="bowtie-alignment" after="build-genome-index" of="command" in="ls -1 ${workingDir}/${outDir}/${ctdOut}/ | grep .*\.fastq" as="file" params="bwtIndex">
+		<foreach id="bowtie-alignment" after="build-genome-index, cut-sequences" of="command" in="ls -1 ${workingDir}/${outDir}/${ctdOut}/ | grep .*\.fastq" as="file" params="bwtIndex">
 		<![CDATA[
 			bw_fastq="/data/${outDir}/${ctdOut}/${file}"
 			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash
@@ -230,7 +230,7 @@
 				sh -c "qualimap rnaseq -bam ${bam_input} -gtf ${annotations} -outdir ${qm_output} -outfile ${bamFile}.pdf --java-mem-size=4G"
 		]]>
 		</foreach>
-		
+
 		<!--Performs the quantification with featureCounts-->
 		<task id="feature-counts" after="quali-map" params="gffFile">
 			bam_input="/data/${outDir}/${bwtOut}/"

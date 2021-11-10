@@ -39,6 +39,7 @@
 	</params>
 
 	<tasks>
+		<!--Pull the docker images of the software used for the analysis-->
 		<task id="pull-docker-images" params="skipPullDockerImages" if="[ -v ${skipPullDockerImages} ]">
 			docker pull pegi3s/fastqc:${fastqcVersion}
 			docker pull pegi3s/cutadapt:${cutadaptVersion}
@@ -329,4 +330,17 @@
 		]]>
 		</task>
 	</tasks>
+	<metadata>
+		<task-description id="pull-docker-images">Pull the docker images of the software used for the analysis.</task-description>
+		<task-description id="initialization">Creates the output directories.</task-description>
+		<task-description id="fastqc-qc">Quality control with FastQC.</task-description>
+		<task-description id="cut-sequences">Adapter removal with cutadapt.</task-description>
+		<task-description id="build-genome-index">Builds a genome index if the genome parameter is passed in compi.parameters.</task-description>
+		<task-description id="bowtie-alignment">Alignment with Bowtie.</task-description>
+		<task-description id="sam-to-bam">Converts the sam files to bam format.</task-description>
+		<task-description id="quali-map">Performs the quality control with QualiMap.</task-description>
+		<task-description id="feature-counts">Performs the quantification with featureCounts.</task-description>
+		<task-description id="deseq">Performs the differential expression analysis with DESeq2.</task-description>
+	</metadata>
+
 </pipeline>

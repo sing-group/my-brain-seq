@@ -20,7 +20,6 @@
 		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="5_feature_counts">The relative path to the directory containing the featureCounts results.</param>
 		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="6_deseq2">The relative path to the directory containing the DESeq2 results.</param>
 
-		<param name="newIndOut" shortName="nio" defaultValue="new_index">The path where the new bowtie index will be saved (relative to workingDir).</param>
 		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="deSeq2Rscript" shortName="rdes" global="true" defaultValue="run_deseq2.R">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="adapter" shortName="adp">The sequence of the adapter to remove.</param>
@@ -121,37 +120,45 @@
 		</foreach>
 
 		<!--Bowtie genome index build--> 
-		<task id="build-genome-index" after="cut-sequences" params="bwtOut genome newIndOut" if="[ ! -z ${genome} ]"> #if user sets a value for genome, then this task is executed
+		<task id="build-genome-index" after="cut-sequences" params="bwtOut genome bwtIndex" if="[ ! -z ${genome} ]"> #if user sets a value for genome, then this task is executed
 		<![CDATA[
 			echo "Genome parameter passed"
 			echo "Building the genome index for Bowtie alignment"
 			bgi_genome="/data/${genome}"
-			
+
 			#get the filename of genome without the file extension
 			bgi_filename="$(echo ${bgi_genome} | rev  | cut -d \/ -f 1 | rev | cut -d . -f 1)"
 			
 			#makes the path to the directory using the genome filename as part of the directory name
-			bgi_output="/data/${outDir}/${bwtOut}/${newIndOut}_${bgi_filename}"
+			bgi_output="/data/${bwtIndex}"
+			bgi_output_wd="${workingDir}/${bwtIndex}"
 			
-			echo "  Path to genome file:           ${bgi_genome}"
-			echo "  Output path for the index:     ${bgi_output}"
-			echo "  Root name for the index files: ${bgi_filename}"
+			#second argument passed to bowtie
+			bgi_index_path="${bgi_output}/${bgi_filename}"
 			
-			#enviromental variable of the index to use in the next step
-			export bgi_index_path="${bgi_output}/${bgi_filename}"
-			
-			echo "Running bowtie for the genome index creation, previous index of the same genome will be deleted"
-			docker run --rm \
-				-v ${hostWorkingDir}:/data \
-				pegi3s/bowtie1:${bowtieVersion} \
-				sh -c "rm -rf ${bgi_output}\
-				&& mkdir ${bgi_output} \
-				&& bowtie-build ${bgi_genome} ${bgi_index_path}"
+			#if the genome directory exists skip the index creation
+			if [[ -d ${bgi_output_wd} ]]
+			then
+				echo "Genome index already exists in: ${bgi_output_wd}"
+				echo "Skipping Bowtie1 index creation"
+			else
+				echo "  Path to genome file:           ${bgi_genome}"
+				echo "  Output path for the index:     ${bgi_output}"
+				echo "  Root name for the index files: ${bgi_filename}"
+
+				echo "Running bowtie for the genome index creation"
+				docker run --rm \
+					-v ${hostWorkingDir}:/data \
+					pegi3s/bowtie1:${bowtieVersion} \
+					sh -c "rm -rf ${bgi_output}\
+					&& mkdir ${bgi_output} \
+					&& bowtie-build ${bgi_genome} ${bgi_index_path}"
+			fi
 		]]>
 		</task>
 		
 		<!--Alignment with Bowtie-->
-		<foreach id="bowtie-alignment" after="build-genome-index" of="command" in="ls -1 ${workingDir}/${outDir}/${ctdOut}/ | grep .*\.fastq" as="file" params="genome bwtOut bwtIndex newIndOut">
+		<foreach id="bowtie-alignment" after="build-genome-index" of="command" in="ls -1 ${workingDir}/${outDir}/${ctdOut}/ | grep .*\.fastq" as="file" params="bwtIndex">
 		<![CDATA[
 			bw_fastq="/data/${outDir}/${ctdOut}/${file}"
 			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash
@@ -159,27 +166,11 @@
 			bw_output="data/${outDir}/${bwtOut}/${file}.sam"
 			bw_output=$(echo $bw_output | tr -s '/')  #convert the path to single slash
 			
-			#if the genome parameter is passed in the arguments
-			if [ ! -z ${genome} ]
-			then
-				bgi_genome="/data/${genome}"
-				
-				#get the filename of genome without the file extension
-				bgi_filename="$(echo ${bgi_genome} | rev  | cut -d \/ -f 1 | rev | cut -d . -f 1)"
-			
-				#makes the path to the directory using the genome filename as part of the directory name
-				bgi_output="/data/${outDir}/${bwtOut}/${newIndOut}_${bgi_filename}"
-				
-				bw_index="${bgi_output}/${bgi_filename}"
-				echo "Index to align with: ${bw_index}"
-				
-			#otherwise
-			else
-				bw_index=$(ls -1 ${workingDir}/${bwtIndex} | head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${workingDir}/${bwtIndex}'\/\1@') #gets the root of the index file name
-				bw_index=$(echo $bw_index | tr -s '/')
-				bw_index=$(echo $bw_index | cut -d / -f 3- | awk '{print "/data/" $0}')
-				echo "Index to align with: ${bw_index}"
-			fi
+			#gets the root of the index file name
+			bw_index=$(ls -1 ${workingDir}/${bwtIndex} | head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${workingDir}/${bwtIndex}'\/\1@')
+			bw_index=$(echo $bw_index | tr -s '/')
+			bw_index=$(echo $bw_index | cut -d / -f 3- | awk '{print "/data/" $0}')
+			echo "Index to align with: ${bw_index}"
 				
 			#test if the file exist, if so removes it
 			if [ -f "${bw_output}" ]; then

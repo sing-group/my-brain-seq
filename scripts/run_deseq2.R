@@ -21,7 +21,6 @@ outputDir=as.character(args[4])
 
 #Filename of the output file
 filename=as.character(args[5])
-filename=paste0(filename, '.tsv')
 
 #Loads the read counts of featureCounts
 cts = read.csv(file = countFile,
@@ -76,12 +75,8 @@ res
 #Order results by the smallest p-value
 resOrdered <- res[order(res$pvalue),]
 
-#Save results as tsv file
-print(paste0("Saving DESeq2 results in: ", paste0(outputDir,'/',filename)))
-
-setwd(outputDir)
-# write.csv(as.data.frame(resOrdered),
-#           sep='\t',
-#           file=filename)
-
-write.table(as.data.frame(resOrdered), file = filename, row.names=FALSE, sep="\t")
+#Save results as .tsv file
+path_output_file = paste0(outputDir, '/', 'DESeq2_', filename, '.tsv')
+dataframe_save = as.data.frame(resOrdered)
+dataframe_save = cbind(Feature = rownames(resOrdered), dataframe_save)
+write.table(dataframe_save, path_output_file, row.names = FALSE, col.names = TRUE, sep="\t")

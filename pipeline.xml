@@ -22,12 +22,14 @@
 
 		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="deSeq2Rscript" shortName="rdes" global="true" defaultValue="run_deseq2.R">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
+		<param name="enhancedVolcanoRscript" shortName="evrs" global="true" defaultValue="run_enhanced-volcano.R">The relative path to the directory containing the R script to build the Volcano plot.</param>
 		<param name="adapter" shortName="adp">The sequence of the adapter to remove.</param>
 		<param name="conditions" shortName="cond">The path to the .tsv file with the rootnames of the samples, conditions and labels.</param>
 		<param name="contrast" shortName="cont">The path to the .tsv file with the contrast DESeq2 has to perform.</param>
 		
 		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
 		<param name="rDeseq2Version" shortName="rdv" defaultValue="1.32.0" global="true">Version of the pegi3s/r_deseq2 Docker image to use.</param>
+		<param name="rEnhancedVolcanoVersion" shortName="revv" defaultValue="1.12.0" global="true">Version of the pegi3s/r_enhanced-volcano Docker image to use.</param>
 		<param name="cutadaptVersion" shortName="cdv" defaultValue="1.16" global="true">Version of the pegi3s/cutadapt Docker image to use.</param>
 		<param name="fastqcVersion" shortName="fqcv" defaultValue="0.11.9" global="true">Version of the pegi3s/fastqc Docker image to use.</param>
 		<param name="bowtieVersion" shortName="bwv" defaultValue="1.2.3" global="true">Version of the pegi3s/bowtie1 Docker image to use.</param>
@@ -47,6 +49,7 @@
 			docker pull pegi3s/qualimap:${qualimapVersion}
 			docker pull pegi3s/feature-counts:${featureCountsVersion}
 			docker pull pegi3s/r_deseq2:${rDeseq2Version}
+			docker pull pegi3s/r_enhanced-volcano:${rEnhancedVolcanoVersion}
 		</task>
 
 		<!--Creates the output directories-->
@@ -88,6 +91,7 @@
 			
 			#Makes a copy of the scripts used in the analysis to working-dir
 			cp ${scriptsDir}/${deSeq2Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
+			cp ${scriptsDir}/${enhancedVolcanoRscript ${workingDir}/compi_scripts/${enhancedVolcanoRscript}
 		]]>
 		</task>
 
@@ -243,7 +247,7 @@
 			docker run --rm \
 				-v ${hostWorkingDir}:/data \
 				pegi3s/feature-counts:${featureCountsVersion} \
-				sh -c "featureCounts -a /data/${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
+				sh -c "featureCounts -F gtf -t exon -g gene_id -a /data/${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
 				
 		</task>
 
@@ -275,7 +279,7 @@
 			export dqCond="${path_output}/deseq_conditions_file.txt"
 			export dqCond_docker="${path_output_docker}/deseq_conditions_file.txt"
 			
-				# Adds "/data/..." at the beginning of the row names
+			# Adds "/data/..." at the beginning of the row names
 			cat "${conversion_file}" | sed 's+trimmed_*+'"/data/${outDir}/${bwtOut}/"'&+' | tr -s '/' > "${dqCond}"
 			echo "Contrast to perform: ${contrast_filename}"
 			echo "Running DESeq2 analysis"
@@ -284,6 +288,37 @@
 				pegi3s/r_deseq2:${rDeseq2Version} \
 					Rscript /data/compi_scripts/${deSeq2Rscript} /data/${outDir}/${ftqOut}/all-counts.txt ${dqCond_docker} ${ref_factor} ${path_output_docker} ${contrast_filename}
 		]]>
+		</task>
+		
+		<!--Build the Volcano Plot with the DESeq2 results-->
+		<task id="volcano" after="deseq" params="conditions contrast deSeq2Rscript">
+			<![CDATA[
+			#VVVVVVVV        REMOVE THESE LINES          VVVV (just for testing)
+			#docker pull pegi3s/r_enhanced-volcano:1.12.0
+			cp ${scriptsDir}/${deSeq2Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
+			cp ${scriptsDir}/${enhancedVolcanoRscript} ${workingDir}/compi_scripts/${enhancedVolcanoRscript}
+			#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			
+			echo "Building the Volcano Plot"
+			path_output_docker="/data/${outDir}/${dsqOut}"
+			
+			# get the contrast name to build the output filename
+			contrast_filename=$(tail ${workingDir}/${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
+			vp_path_counts="${path_output_docker}/$(echo DESeq2_${contrast_filename} | xargs).tsv"
+			vp_path_output=${path_output_docker}
+			vp_comparison_label="$(echo $contrast_filename | xargs)"
+			vp_software="deseq"
+			
+			echo ${vp_path_counts}
+			echo ${path_output_docker}
+			echo ${vp_comparison_label}
+			echo ${vp_software}
+			
+			docker run --rm \
+				-v ${hostWorkingDir}:/data \
+				pegi3s/r_enhanced-volcano:${rEnhancedVolcanoVersion} \
+					Rscript /data/compi_scripts/${enhancedVolcanoRscript} ${vp_path_counts} ${path_output_docker} ${vp_comparison_label} ${vp_software}
+			]]>
 		</task>
 	</tasks>
 	<metadata>

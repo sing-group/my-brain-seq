@@ -22,14 +22,13 @@
 		<param name="qmOut" shortName="qmo" global="true" defaultValue="4_qualy_map">The relative path to the directory containing the QualyMap results.</param>
 		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="5_feature_counts">The relative path to the directory containing the featureCounts results.</param>
 		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="6_deseq2">The relative path to the directory containing the DESeq2 results.</param>
-		<param name="edgOut" shortName="edgo" global="true" defaultValue="6.1_edger">The relative path to the directory containing the DESeq2 results.</param>
+		<param name="edgOut" shortName="edgo" global="true" defaultValue="6_edger">The relative path to the directory containing the DESeq2 results.</param>
 
 		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="deSeq2Rscript" shortName="rdes" global="true" defaultValue="run_deseq2.R">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="edgerRscript" shortName="reds" global="true" defaultValue="run_edger_exact-test.R">The relative path to the directory containing the R script to run the EdgeR analysis.</param>
 		<param name="enhancedVolcanoRscript" shortName="evrs" global="true" defaultValue="run_enhanced-volcano.R">The relative path to the directory containing the R script to build the Volcano plot.</param>
 		
-		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
 		<param name="rDeseq2Version" shortName="rdv" defaultValue="1.32.0" global="true">Version of the pegi3s/r_deseq2 Docker image to use.</param>
 		<param name="rEdgerVersion" shortName="redv" defaultValue="3.36.0" global="true">Version of the pegi3s/r_edger Docker image to use.</param>
 		<param name="rEnhancedVolcanoVersion" shortName="revv" defaultValue="1.12.0" global="true">Version of the pegi3s/r_enhanced-volcano Docker image to use.</param>
@@ -40,6 +39,8 @@
 		<param name="samtoolsVersion" shortName="stv" defaultValue="1.9" global="true">Version of the pegi3s/samtools_bcftools Docker image to use.</param>
 		<param name="qualimapVersion" shortName="qmv" defaultValue="2.2.1" global="true">Version of the pegi3s/qualimap Docker image to use.</param>
 		
+		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
+		<param name="selectDEAsoftware" shortName="dea" defaultValue="both" global="true">Use this param to select the differential expression analysis software (deseq, edger or both).</param>
 		
 	</params>
 
@@ -261,7 +262,7 @@
 		</task>
 
 		<!--Performs the differential expression analysis with DESeq2-->
-		<task id="deseq" after="feature-counts" params="conditions contrast deSeq2Rscript">
+		<task id="deseq" after="feature-counts" params="conditions contrast deSeq2Rscript" if="[ ${selectDEAsoftware} = deseq ]">
 		<![CDATA[
 			export path_output="${workingDir}/${outDir}/${dsqOut}"
 			export path_output_docker="/data/${outDir}/${dsqOut}"
@@ -291,6 +292,7 @@
 			# Adds "/data/..." at the beginning of the row names
 			cat "${conversion_file}" | sed 's+trimmed_*+'"/data/${outDir}/${bwtOut}/"'&+' | tr -s '/' > "${dqCond}"
 			echo "Contrast to perform: ${contrast_filename}"
+			
 			echo "Running DESeq2 analysis..."
 			docker run --rm \
 				-v ${hostWorkingDir}:/data \
@@ -300,7 +302,7 @@
 		</task>
 		
 		<!--Performs the differential expression analysis with EdgeR-->
-		<task id="edger" after="deseq" params="conditions contrast edgerRscript">
+		<task id="edger" after="feature-counts" params="conditions contrast edgerRscript" if="[ ${selectDEAsoftware} = edger ]">
 			<![CDATA[
 			touch "${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
 			cat "${workingDir}/${outDir}/${ftqOut}/all-counts.txt" | tail -n +2 > "${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
@@ -319,23 +321,28 @@
 			]]>
 		</task>
 		
-		<!--Build the Volcano Plot with the DESeq2 results-->
-		<task id="volcano" after="deseq" params="conditions contrast deSeq2Rscript">
+		<!--Build the Volcano Plot with the DESeq2/EdgeR results-->
+		<task id="volcano" after="deseq edger" params="conditions contrast">
 			<![CDATA[
 			echo "Building the Volcano Plot..."
-			path_output_docker="/data/${outDir}/${dsqOut}"
 			
 			# get the contrast name to build the output filename
 			contrast_filename=$(tail ${workingDir}/${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
-			vp_path_counts="${path_output_docker}/$(echo DESeq2_${contrast_filename} | xargs).tsv"
-			vp_path_output=${path_output_docker}
 			vp_comparison_label="$(echo $contrast_filename | xargs)"
-			vp_software="deseq"
 			
-			echo ${vp_path_counts}
-			echo ${path_output_docker}
-			echo ${vp_comparison_label}
-			echo ${vp_software}
+			if [[ ${selectDEAsoftware} == 'edger' ]]
+			then
+				path_output_docker="/data/${outDir}/${edgOut}/"
+				vp_path_counts="${path_output_docker}/$(echo EdgeR_${contrast_filename} | xargs).tsv"
+				vp_software="edger"
+			elif [[ ${selectDEAsoftware} == 'deseq' ]]
+			then
+				path_output_docker="/data/${outDir}/${dsqOut}/"
+				vp_path_counts="${path_output_docker}/$(echo DESeq2_${contrast_filename} | xargs).tsv"
+				vp_software="deseq"
+			fi
+			
+			vp_path_output=${path_output_docker}
 			
 			docker run --rm \
 				-v ${hostWorkingDir}:/data \

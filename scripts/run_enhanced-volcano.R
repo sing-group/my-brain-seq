@@ -8,12 +8,12 @@
 suppressMessages(library('EnhancedVolcano'))
 
 #INPUT
-# print(paste0("Input counts file: ", as.character(args[1])))
-# print(paste0("Input output dir:  ", as.character(args[2])))
-# print(paste0("Title:             ", as.character(args[3])))
-# print(paste0("Software:          ", as.character(args[4])))
-
 args = commandArgs(trailingOnly = TRUE)
+print(paste0("Input counts file: ", as.character(args[1])))
+print(paste0("Input output dir:  ", as.character(args[2])))
+print(paste0("Title:             ", as.character(args[3])))
+print(paste0("Software:          ", as.character(args[4])))
+
 path_counts = as.character(args[1])
 path_output = as.character(args[2])
 comparison_label = as.character(args[3])
@@ -38,7 +38,7 @@ titl = paste0(sfw_name, 'Differential expression')
 
 #PLOT: Volcano plot
 volcano_name = paste0(comparison_label, '_volcano', '.pdf')
-vol_path = paste0(path_output, comparison_label)
+vol_path = paste0(path_output, volcano_name)
 pdf(file=vol_path)
 EnhancedVolcano(res,
                 title = comparison_label,

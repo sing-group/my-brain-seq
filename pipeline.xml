@@ -15,19 +15,23 @@
 		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome (relative to workingDir).</param>
 		<param name="conditions" shortName="cond">The path to the .tsv file with the rootnames of the samples, conditions and labels.</param>
 		<param name="contrast" shortName="cont">The path to the .tsv file with the contrast DESeq2 has to perform.</param>
+		<param name="vennFormat" shortName="venf" global="true" defaultValue="png">The file format of the Venn diagram (png/svg/tiff), default png.</param>
 		
 		<param name="fqcOut" shortName="fqco" global="true" defaultValue="1_fastqc">The relative path to the directory containing the FastQC results.</param>
-		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="2_cutadapt">The relative path to the directory containing the cutadapt results.</param>
-		<param name="bwtOut" shortName="bwto" global="true" defaultValue="3_bowtie">The relative path to the directory containing the bowtie results.</param>
+		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="2_cutadapt">The relative path to the directory containing the Cutadapt results.</param>
+		<param name="bwtOut" shortName="bwto" global="true" defaultValue="3_bowtie">The relative path to the directory containing the Bowtie results.</param>
 		<param name="qmOut" shortName="qmo" global="true" defaultValue="4_qualy_map">The relative path to the directory containing the QualyMap results.</param>
-		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="5_feature_counts">The relative path to the directory containing the featureCounts results.</param>
+		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="5_feature_counts">The relative path to the directory containing the FeatureCounts results.</param>
 		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="6_deseq2">The relative path to the directory containing the DESeq2 results.</param>
-		<param name="edgOut" shortName="edgo" global="true" defaultValue="6_edger">The relative path to the directory containing the DESeq2 results.</param>
+		<param name="edgOut" shortName="edgo" global="true" defaultValue="6_edger">The relative path to the directory containing the EdgeR results.</param>
+		<param name="deaIntOut" shortName="dinto" global="true" defaultValue="6_deseq2+edger">The relative path to the directory containing the results of the DESeq2 and EdgeR integration.</param>
 
 		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="deSeq2Rscript" shortName="rdes" global="true" defaultValue="run_deseq2.R">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="edgerRscript" shortName="reds" global="true" defaultValue="run_edger_exact-test.R">The relative path to the directory containing the R script to run the EdgeR analysis.</param>
 		<param name="enhancedVolcanoRscript" shortName="evrs" global="true" defaultValue="run_enhanced-volcano.R">The relative path to the directory containing the R script to build the Volcano plot.</param>
+		<param name="deaIntRscript" shortName="deais" global="true" defaultValue="run_dea-integration.R">The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.</param>
+		<param name="vennRscript" shortName="rven" global="true" defaultValue="run_venn-diagram.R">The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.</param>
 		
 		<param name="rDeseq2Version" shortName="rdv" defaultValue="1.32.0" global="true">Version of the pegi3s/r_deseq2 Docker image to use.</param>
 		<param name="rEdgerVersion" shortName="redv" defaultValue="3.36.0" global="true">Version of the pegi3s/r_edger Docker image to use.</param>
@@ -38,6 +42,8 @@
 		<param name="featureCountsVersion" shortName="fqv" defaultValue="2.0.0" global="true">Version of the pegi3s/feature-counts Docker image to use.</param>
 		<param name="samtoolsVersion" shortName="stv" defaultValue="1.9" global="true">Version of the pegi3s/samtools_bcftools Docker image to use.</param>
 		<param name="qualimapVersion" shortName="qmv" defaultValue="2.2.1" global="true">Version of the pegi3s/qualimap Docker image to use.</param>
+		<param name="rdatanalysisVersion" shortName="rdav" defaultValue="4.1.1" global="true">Version of the pegi3s/r_data-analysis Docker image to use.</param>
+		<param name="rVennVersion" shortName="rvv" defaultValue="1.7.0" global="true">Version of the pegi3s/r_venn-diagram Docker image to use.</param>
 		
 		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
 		<param name="selectDEAsoftware" shortName="dea" defaultValue="both" global="true">Use this param to select the differential expression analysis software (deseq, edger or both).</param>
@@ -56,6 +62,9 @@
 			docker pull pegi3s/r_deseq2:${rDeseq2Version}
 			docker pull pegi3s/r_edger:${rEdgerVersion}
 			docker pull pegi3s/r_enhanced-volcano:${rEnhancedVolcanoVersion}
+			#docker pull pegi3s/r_data-analysis:${rdatanalysisVersion}
+			docker pull pegi3s/r_venn-diagram
+			#:${rVennVersion}
 		</task>
 
 		<!--Creates the output directories-->
@@ -94,6 +103,9 @@
 			
 			#EdgeR folder
 			build_dir ${edgOut} "EdgeR"
+			
+			#DEA integration folder
+			build_dir ${deaIntOut} "DEA integration"
 
 			rm -rf ${workingDir}/compi_scripts
 			mkdir -p ${workingDir}/compi_scripts
@@ -101,7 +113,9 @@
 			#Makes a copy of the scripts used in the analysis to working-dir
 			cp ${scriptsDir}/${deSeq2Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
 			cp ${scriptsDir}/${edgerRscript} ${workingDir}/compi_scripts/${edgerRscript}
-			cp ${scriptsDir}/${enhancedVolcanoRscript ${workingDir}/compi_scripts/${enhancedVolcanoRscript}
+			cp ${scriptsDir}/${deaIntRscript} ${workingDir}/compi_scripts/${deaIntRscript}
+			cp ${scriptsDir}/${enhancedVolcanoRscript} ${workingDir}/compi_scripts/${enhancedVolcanoRscript}
+			cp ${scriptsDir}/${vennRscript} ${workingDir}/compi_scripts/${vennRscript}
 		]]>
 		</task>
 
@@ -262,7 +276,7 @@
 		</task>
 
 		<!--Performs the differential expression analysis with DESeq2-->
-		<task id="deseq" after="feature-counts" params="conditions contrast deSeq2Rscript" if="[ ${selectDEAsoftware} = deseq ]">
+		<task id="deseq" after="feature-counts" params="conditions contrast deSeq2Rscript" if="[ ${selectDEAsoftware} = deseq ] || [ ${selectDEAsoftware} = both ]">
 		<![CDATA[
 			export path_output="${workingDir}/${outDir}/${dsqOut}"
 			export path_output_docker="/data/${outDir}/${dsqOut}"
@@ -281,19 +295,19 @@
 
 			# converts the names of the conversion_file to a format recognized by the pipeline
 			# (adds "trimmed_" at the beginning of the rootname and ".fastq.bam" at the end)
-			echo "Converting condition_file format"
+			echo "[PIPELINE -- deseq]: Converting condition_file format"
 			tail --lines=+2 ${workingDir}/${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
 			
 			#Converts the "conditions" file to absolute paths
-			echo "Adding full paths to the condition file"
+			echo "[PIPELINE -- deseq]: Adding full paths to the condition file"
 			export dqCond="${path_output}/deseq_conditions_file.txt"
 			export dqCond_docker="${path_output_docker}/deseq_conditions_file.txt"
 			
 			# Adds "/data/..." at the beginning of the row names
 			cat "${conversion_file}" | sed 's+trimmed_*+'"/data/${outDir}/${bwtOut}/"'&+' | tr -s '/' > "${dqCond}"
-			echo "Contrast to perform: ${contrast_filename}"
+			echo "[PIPELINE -- deseq]: Contrast to perform: ${contrast_filename}"
 			
-			echo "Running DESeq2 analysis..."
+			echo "[PIPELINE -- deseq]: Running DESeq2 analysis..."
 			docker run --rm \
 				-v ${hostWorkingDir}:/data \
 				pegi3s/r_deseq2:${rDeseq2Version} \
@@ -302,7 +316,7 @@
 		</task>
 		
 		<!--Performs the differential expression analysis with EdgeR-->
-		<task id="edger" after="feature-counts" params="conditions contrast edgerRscript" if="[ ${selectDEAsoftware} = edger ]">
+		<task id="edger" after="feature-counts" params="conditions contrast edgerRscript" if="[ ${selectDEAsoftware} = edger ] || [ ${selectDEAsoftware} = both ]">
 			<![CDATA[
 			touch "${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
 			cat "${workingDir}/${outDir}/${ftqOut}/all-counts.txt" | tail -n +2 > "${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
@@ -313,7 +327,7 @@
 			er_path_contrast=${contrast}
 			er_path_output="/data/${outDir}/${edgOut}/"
 			
-			echo "Running EdgeR analysis..."
+			echo "[PIPELINE -- edger]: Running EdgeR analysis..."
 			docker run --rm \
 				-v ${hostWorkingDir}:/data \
 				pegi3s/r_edger:${rEdgerVersion} \
@@ -321,10 +335,74 @@
 			]]>
 		</task>
 		
-		<!--Build the Volcano Plot with the DESeq2/EdgeR results-->
-		<task id="volcano" after="deseq edger" params="conditions contrast">
+		<!--Compares the results of DESeq2 and EdgeR and builds a result file with the coincidences-->
+		<task id="dea-integration" after="deseq edger" params="conditions contrast" if="[ ${selectDEAsoftware} = both ]">
 			<![CDATA[
-			echo "Building the Volcano Plot..."
+			echo "[PIPELINE -- dea-integration]: Integrating DESeq2 and EdgeR results..."
+
+			dint_output="${workingDir}/${outDir}/${deaIntOut}"
+			dint_output_dk="/data/${outDir}/${deaIntOut}"
+			
+			# find the filenames of DESeq2 and EdgeR results
+			contrast_filename=$(tail ${workingDir}/${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
+			vp_comparison_label="$(echo $contrast_filename | xargs)"
+			deseq_file="${workingDir}/${outDir}/${dsqOut}/DESeq2_${vp_comparison_label}.tsv"
+			edger_file="${workingDir}/${outDir}/${edgOut}/EdgeR_${vp_comparison_label}.tsv"
+			
+			echo "[PIPELINE -- dea-integration]: Filtering results by q-value"
+			#remove header and filters the results by q-value
+			cat "${deseq_file}" | tail -n +2 | awk '$7<5e-2' | sort > "${dint_output}/deseq_qval-0.05.tsv"
+			cat "${edger_file}" | tail -n +2 | awk '$4<5e-2' | sort > "${dint_output}/edger_qval-0.05.tsv"
+			
+			echo "[PIPELINE -- dea-integration]: Saving filtered results"
+			#build one file with both results: first column "Feature", second "log2FC" and third "q-value"
+			cat <(cut -f1,3,7 "${dint_output}/deseq_qval-0.05.tsv") \
+				<(cut -f1,2,4 "${dint_output}/edger_qval-0.05.tsv") > "${dint_output}/all.tsv"
+			
+			echo "[PIPELINE -- dea-integration]: Findind duplicates"
+			#find duplicated lines in "Feature" column and saves them in "coincidences.tsv"
+			cat "${dint_output}/edger_qval-0.05.tsv" "${dint_output}/deseq_qval-0.05.tsv" | cut -f 1 | sort | uniq -d > "${dint_output}/coincidences.tsv"
+			
+			#Search the duplicates in all.tsv and adds them to a file, this file will have two rows per miRNA (one for DESeq2 results, the other for EdgeR)
+			grep -f "${dint_output}/coincidences.tsv" "${dint_output}/all.tsv" > "${dint_output}/DEmiRNAs_deseq-edger_integrated.tsv"
+			sed -i '1s/^/Feature	log2FC	q-value\n/' "${dint_output}/DEmiRNAs_deseq-edger_integrated.tsv"
+			
+			#Build the results of the proces by averaging the DESeq2 and EdgeR values
+			echo "[PIPELINE -- dea-integration]: Averaging values and building the results..."
+			docker run --rm \
+				-v ${hostWorkingDir}:/data \
+				pegi3s/r_data-analysis \
+					Rscript /data/compi_scripts/${deaIntRscript} ${dint_output_dk}/DEmiRNAs_deseq-edger_integrated.tsv ${dint_output_dk}
+			
+			echo "[PIPELINE -- dea-integration]: Done!"
+					
+			]]>
+		</task>
+		<!--Build the Venn diagram with the DESeq2+EdgeR results-->
+		<task id="venn" after="deseq edger dea-integration" params="vennFormat">
+			<![CDATA[
+			echo "[PIPELINE -- venn]: Building a file for the Venn diagram"
+			#Build a file with the DE features found by DESeq2 (col 1) and EdgeR (col 2)
+			venn_output_local="${workingDir}/${outDir}/${deaIntOut}/"
+			venn_des005_path=$(echo "${venn_output_local}/deseq_qval-0.05.tsv")
+			venn_edg005_path=$(echo "${venn_output_local}/edger_qval-0.05.tsv")
+			paste <(cut -f1 ${venn_des005_path}) <(cut -f1 ${venn_edg005_path}) > ${venn_output_local}/DEmiRNAs_deseq-edger_venn.tsv
+			
+			venn_path="/data/${outDir}/${deaIntOut}/DEmiRNAs_deseq-edger_venn.tsv"
+			venn_output="/data/${outDir}/${deaIntOut}/"
+			venn_output_format=${vennFormat}
+			
+			echo "[PIPELINE -- venn]: Building the Venn diagram"
+			docker run --rm \
+				-v ${hostWorkingDir}:/data \
+				pegi3s/r_venn-diagram \
+					Rscript /data/compi_scripts/${vennRscript} ${venn_path} ${venn_output} ${venn_output_format}
+			]]>
+		</task>
+		<!--Build the Volcano Plot with the DESeq2/EdgeR results-->
+		<task id="volcano" after="deseq edger dea-integration" params="conditions contrast">
+			<![CDATA[
+			echo "[PIPELINE -- volcano]: Building the Volcano Plot..."
 			
 			# get the contrast name to build the output filename
 			contrast_filename=$(tail ${workingDir}/${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
@@ -340,6 +418,11 @@
 				path_output_docker="/data/${outDir}/${dsqOut}/"
 				vp_path_counts="${path_output_docker}/$(echo DESeq2_${contrast_filename} | xargs).tsv"
 				vp_software="deseq"
+			elif [[ ${selectDEAsoftware} = 'both' ]]
+			then
+				path_output_docker="/data/${outDir}/${deaIntOut}/"
+				vp_path_counts="${path_output_docker}/DEmiRNAs_deseq-edger_integrated.tsv"
+				vp_software="both"
 			fi
 			
 			vp_path_output=${path_output_docker}

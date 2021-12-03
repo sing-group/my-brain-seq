@@ -9,10 +9,14 @@ suppressMessages(library('EnhancedVolcano'))
 
 #INPUT
 args = commandArgs(trailingOnly = TRUE)
-print(paste0("Input counts file: ", as.character(args[1])))
-print(paste0("Input output dir:  ", as.character(args[2])))
-print(paste0("Title:             ", as.character(args[3])))
-print(paste0("Software:          ", as.character(args[4])))
+print("======================================================")
+print('       [PIPELINE -- dea-integration]: Rscript         ')
+print('......................................................')
+print(paste0("  Input counts file: ", as.character(args[1])))
+print(paste0("  Input output dir:  ", as.character(args[2])))
+print(paste0("  Title:             ", as.character(args[3])))
+print(paste0("  Software:          ", as.character(args[4])))
+print('......................................................')
 
 path_counts = as.character(args[1])
 path_output = as.character(args[2])
@@ -27,16 +31,21 @@ res = read.csv(file = path_counts,
 
 #CREATING VARIABLES
 vol_x = 'log2FoldChange'
-vol_y = 'pvalue'
+vol_y = 'padj'
 sfw_name = 'DESeq2: '
 if (software == 'edger') {
   vol_x = 'logFC'
   vol_y = 'PValue'
   sfw_name = 'EdgeR: '
+} else if (software == 'both') {
+  vol_x = 'log2FC'
+  vol_y = 'q.value'
+  sfw_name = 'DESeq2-EdgeR: '
 }
 titl = paste0(sfw_name, 'Differential expression')
 
 #PLOT: Volcano plot
+print('  Building Volcano plot')
 volcano_name = paste0(comparison_label, '_volcano', '.pdf')
 vol_path = paste0(path_output, volcano_name)
 pdf(file=vol_path)
@@ -49,3 +58,4 @@ EnhancedVolcano(res,
                 x = vol_x,
                 y = vol_y)
 dev.off()
+print("======================================================")

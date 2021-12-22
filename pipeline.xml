@@ -10,8 +10,8 @@
 		<param name="dataDir" shortName="dd" global="true" defaultValue="input/fastq">The directory containing the fastq files (relative to workingDir).</param>
 		<param name="outDir" shortName="o" global="true" defaultValue="output">The directory containing the pipeline outputs (relative to workingDir).</param>
 		<param name="adapter" shortName="adp">The sequence of the adapter to remove.</param>
-		<param name="genome" shortName="gnm" defaultValue="">The directory path to the genome to align (relative to workingDir).</param>
-		<param name="bwtIndex" shortName="bwti">The directory path containing the Bowtie index (relative to workingDir).</param>
+		<param name="genome" shortName="genome" global="true" defaultValue="">The directory path to the genome to align (relative to workingDir).</param>
+		<param name="bwtIndex" shortName="bwti" global="true" defaultValue="">The directory path containing the Bowtie index (relative to workingDir).</param>
 		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome (relative to workingDir).</param>
 		<param name="conditions" shortName="cond">The path to the .tsv file with the rootnames of the samples, conditions and labels.</param>
 		<param name="contrast" shortName="cont">The path to the .tsv file with the contrast DESeq2 has to perform.</param>
@@ -117,22 +117,23 @@
 		</task>
 
 		<!--Bowtie genome index build--> 
-		<task id="build-genome-index" after="initialization" params="bwtOut genome bwtIndex" if="[ ! -z ${genome} ]"> #if user sets a value for genome, then this task is executed
+		<task id="build-genome-index" after="initialization" params="bwtOut genome" if="[ ! -z ${genome} ]"> #if user sets a value for genome, then this task is executed
 		<![CDATA[
 			echo "[PIPELINE -- build-genome-index]: Building the genome index for Bowtie..."
 			echo "[PIPELINE -- build-genome-index]: Genome path: ${genome}"
 			
-			bgi_genome="/data/${genome}"
-
-			#get the filename of genome without the file extension
-			bgi_filename="$(echo ${bgi_genome} | rev  | cut -d \/ -f 1 | rev | cut -d . -f 1)"
+			bgi_genome="/data/input/genome/${genome}"
+			bgi_wd_genome="${workingDir}/input/genome/${genome}"
 			
 			#makes the path to the directory using the genome filename as part of the directory name
-			bgi_output="/data/${bwtIndex}"
-			bgi_output_wd="${workingDir}/${bwtIndex}"
+			bgi_output="/data/input/genome/${genome}/bowtie-index_${genome}"
+			bgi_output_wd="${workingDir}/input/genome/${genome}/bowtie-index_${genome}"
+			
+			#first argument passed to bowtie (files on ${genome} separated by comma)
+			bgi_files="$(find ${bgi_wd_genome} -maxdepth 1 -type f | rev | cut -d\/ -f 1 | rev | tr '\n' ',' | sed 's/,$//')"
 			
 			#second argument passed to bowtie
-			bgi_index_path="${bgi_output}/${bgi_filename}"
+			bgi_index_path="${bgi_output}/${genome}"
 			
 			#if the genome directory exists skip the index creation
 			if [[ -d ${bgi_output_wd} ]]
@@ -142,7 +143,7 @@
 			else
 				echo "[PIPELINE -- build-genome-index]:   Path to genome file:           ${bgi_genome}"
 				echo "[PIPELINE -- build-genome-index]:   Output path for the index:     ${bgi_output}"
-				echo "[PIPELINE -- build-genome-index]:   Root name for the index files: ${bgi_filename}"
+				echo "[PIPELINE -- build-genome-index]:   Root name for the index files: ${genome}"
 
 				echo "[PIPELINE -- build-genome-index]: Running bowtie for the genome index creation"
 				docker run --rm \
@@ -150,7 +151,8 @@
 					pegi3s/bowtie1:${bowtieVersion} \
 					sh -c "rm -rf ${bgi_output}\
 					&& mkdir ${bgi_output} \
-					&& bowtie-build ${bgi_genome} ${bgi_index_path}"
+					&& cd ${bgi_genome} \
+					&& bowtie-build -f ${bgi_files} ${bgi_index_path}"
 			fi
 		]]>
 		</task>
@@ -193,6 +195,15 @@
 		<![CDATA[
 			echo "[PIPELINE -- bowtie-alignment]: Performing genome alignment with Bowtie..."
 			
+			#choose the path to the bowtie index (depending if the user provides a pre-built index or if it was built in the task "build-genome-index").
+			#if genome flag
+			if [ ! -z ${genome} ]; then
+				bgi_genome="${workingDir}/input/genome/${genome}/"
+				bw_index_path="/input/genome/${genome}/bowtie-index_${genome}/"
+			else
+				bw_index_path=${bwtIndex}
+			fi
+			
 			bw_fastq="/data/${outDir}/${ctdOut}/${file}"
 			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash
 			
@@ -200,7 +211,7 @@
 			bw_output=$(echo $bw_output | tr -s '/')  #convert the path to single slash
 			
 			#gets the root of the index file name
-			bw_index=$(ls -1 ${workingDir}/${bwtIndex} | head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${workingDir}/${bwtIndex}'\/\1@')
+			bw_index=$(ls -1 ${workingDir}/${bw_index_path} | head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${workingDir}/${bw_index_path}'\/\1@')
 			bw_index=$(echo $bw_index | tr -s '/')
 			bw_index=$(echo $bw_index | cut -d / -f 3- | awk '{print "/data/" $0}')
 			echo "[PIPELINE -- bowtie-alignment]: Index to align with: ${bw_index}"
@@ -230,10 +241,10 @@
 			echo "[PIPELINE -- sam-to-bam]: Creating bam files with samtools/sort..."
 			
 			bam_output="${workingDir}/${outDir}/${bwtOut}/"
-			bam_output="$(echo $bam_output | tr -s '/')" <!--convert the path to single slash-->
+			bam_output="$(echo $bam_output | tr -s '/')" # convert the path to single slash
 			
 			filebam=$(echo ${file} | sed 's/\.sam//')
-			filebam=$(echo $filebam | tr -s '/')  <!--convert the path to single slash-->
+			filebam=$(echo $filebam | tr -s '/')  # convert the path to single slash
 			
 			#test if the file exist, if so removes it
 			if [ -f "${bam_output}/${filebam}.bam" ]; then
@@ -283,7 +294,7 @@
 			docker run --rm \
 				-v ${hostWorkingDir}:/data \
 				pegi3s/feature-counts:${featureCountsVersion} \
-				sh -c "featureCounts -F gtf -t exon -g gene_id -a /data/${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
+				sh -c "featureCounts -F GTF -t miRNA -g ID -a /data/${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
 				
 		</task>
 

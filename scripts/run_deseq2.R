@@ -49,7 +49,13 @@ coldata$label = factor(coldata$label)
 
 # Checking that the cts and annotations are correct
 test_col = all(rownames(coldata) %in% colnames(cts))
-print(paste0("Rownames of 'conditions' are the same as colnames of 'counts': ", test_col))
+print(paste0("Rownames of 'condition_file.txt' are the same as colnames of 'all-counts.txt': ", test_col))
+
+# If annotations are incorrect, show both headers
+if (test_col == FALSE){
+  print(paste0("Rownames of 'condition_file.txt': ", rownames(coldata)))
+  print(paste0("Colnames of 'all-counts.txt': ", colnames(cts)))
+  }
 
 #Test if colnames of cts are in the same order that rownames of coldata
 if (all(rownames(coldata) == colnames(cts)) == FALSE) {

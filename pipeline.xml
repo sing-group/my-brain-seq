@@ -294,7 +294,7 @@
 			docker run --rm \
 				-v ${hostWorkingDir}:/data \
 				pegi3s/feature-counts:${featureCountsVersion} \
-				sh -c "featureCounts -F GTF -t miRNA -g ID -a /data/${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
+				sh -c "featureCounts -F GTF -t miRNA -g 'Name' -a /data/${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
 				
 		</task>
 

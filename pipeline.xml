@@ -5,14 +5,13 @@
 	<version>0.0.1</version>
 
 	<params>
-		<param name="hostWorkingDir" shortName="hw" global="true">Path of the working directory in the host.</param>
 		<param name="workingDir" shortName="wd" global="true" defaultValue="/working_dir">The working directory of the project. </param>
-		<param name="dataDir" shortName="dd" global="true" defaultValue="input/fastq">The directory containing the fastq files (relative to workingDir).</param>
-		<param name="outDir" shortName="o" global="true" defaultValue="output">The directory containing the pipeline outputs (relative to workingDir).</param>
+		<param name="fastqDir" shortName="dd" global="true" defaultValue="input/fastq">The directory containing the fastq files (default is relative to workingDir).</param>
+		<param name="outDir" shortName="o" global="true" defaultValue="output">The directory containing the pipeline outputs (default is relative to workingDir).</param>
 		<param name="adapter" shortName="adp">The sequence of the adapter to remove.</param>
-		<param name="genome" shortName="genome" global="true" defaultValue="">The directory path to the genome to align (relative to workingDir).</param>
-		<param name="bwtIndex" shortName="bwti" global="true" defaultValue="">The directory path containing the Bowtie index (relative to workingDir).</param>
-		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome (relative to workingDir).</param>
+		<param name="genome" shortName="genome" global="true" defaultValue="">The directory path to the genome to align.</param>
+		<param name="bwtIndex" shortName="bwti" global="true" defaultValue="">The directory path containing the Bowtie index.</param>
+		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome.</param>
 		<param name="conditions" shortName="cond">The path to the .tsv file with the rootnames of the samples, conditions and labels.</param>
 		<param name="contrast" shortName="cont">The path to the .tsv file with the contrast DESeq2 has to perform.</param>
 		<param name="vennFormat" shortName="venf" global="true" defaultValue="png">The file format of the Venn diagram (png/svg/tiff), default png.</param>
@@ -122,11 +121,11 @@
 			echo "[PIPELINE -- build-genome-index]: Building the genome index for Bowtie..."
 			echo "[PIPELINE -- build-genome-index]: Genome path: ${genome}"
 			
-			bgi_genome="/data/input/genome/${genome}"
+			bgi_genome="${workingDir}/input/genome/${genome}"
 			bgi_wd_genome="${workingDir}/input/genome/${genome}"
 			
 			#makes the path to the directory using the genome filename as part of the directory name
-			bgi_output="/data/input/genome/${genome}/bowtie-index_${genome}"
+			bgi_output="${workingDir}/input/genome/${genome}/bowtie-index_${genome}"
 			bgi_output_wd="${workingDir}/input/genome/${genome}/bowtie-index_${genome}"
 			
 			#first argument passed to bowtie (files on ${genome} separated by comma)
@@ -147,7 +146,7 @@
 
 				echo "[PIPELINE -- build-genome-index]: Running bowtie for the genome index creation"
 				docker run --rm \
-					-v ${hostWorkingDir}:/data \
+					-v ${workingDir}:${workingDir} \
 					pegi3s/bowtie1:${bowtieVersion} \
 					sh -c "rm -rf ${bgi_output}\
 					&& mkdir ${bgi_output} \
@@ -158,16 +157,17 @@
 		</task>
 
 		<!--Quality control with FastQC-->
-		<foreach id="fastqc-qc" after="initialization" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file">
+		<foreach id="fastqc-qc" after="initialization" of="command" in="ls -1 ${fastqDir} | grep .*\.fastq" as="file">
 		<![CDATA[
 			echo "[PIPELINE -- fastqc-qc]: Performing a quality control with FastQC..."
 			echo "[PIPELINE -- fastqc-qc]: Processing file: ${file}"
 			
-			fqc_input="/data/${dataDir}/${file}"
-			fqc_output="/data/${outDir}/${fqcOut}/"
+			fqc_input="${fastqDir}/${file}"
+			fqc_output="${workingDir}/${outDir}/${fqcOut}/"
 			
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
+				-v ${fastqDir}:${fastqDir} \
 				pegi3s/fastqc:${fastqcVersion} \
 				-o ${fqc_output} \
 				${fqc_input}
@@ -175,18 +175,19 @@
 		</foreach>
 
 		<!--Adapter removal with cutadapt-->
-		<foreach id="cut-sequences" after="fastqc-qc" of="command" in="ls -1 ${workingDir}/${dataDir} | grep .*\.fastq" as="file" params="adapter">
+		<foreach id="cut-sequences" after="fastqc-qc" of="command" in="ls -1 ${fastqDir} | grep .*\.fastq" as="file" params="adapter">
 		<![CDATA[
 			echo "[PIPELINE -- cut-sequences]: Removing the adapter with Cutadapt..."
 			echo "[PIPELINE -- cut-sequences]: Processing file: ${file}"
 			
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
+				-v ${fastqDir}:${fastqDir} \
 				pegi3s/cutadapt:${cutadaptVersion} \
 				-m 1 \
 				-a ${adapter} \
-				-o /data/${outDir}/${ctdOut}/trimmed_${file} \
-				data/${dataDir}/${file}
+				-o ${workingDir}/${outDir}/${ctdOut}/trimmed_${file} \
+				${fastqDir}/${file}
 		]]>
 		</foreach>
 
@@ -199,21 +200,21 @@
 			#if genome flag
 			if [ ! -z ${genome} ]; then
 				bgi_genome="${workingDir}/input/genome/${genome}/"
-				bw_index_path="/input/genome/${genome}/bowtie-index_${genome}/"
+				bw_index_path="${workingDir}/input/genome/${genome}/bowtie-index_${genome}/"
 			else
 				bw_index_path=${bwtIndex}
 			fi
 			
-			bw_fastq="/data/${outDir}/${ctdOut}/${file}"
+			bw_fastq="${workingDir}/${outDir}/${ctdOut}/${file}"
 			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash
 			
-			bw_output="data/${outDir}/${bwtOut}/${file}.sam"
+			bw_output="${workingDir}/${outDir}/${bwtOut}/${file}.sam"
 			bw_output=$(echo $bw_output | tr -s '/')  #convert the path to single slash
 			
 			#gets the root of the index file name
-			bw_index=$(ls -1 ${workingDir}/${bw_index_path} | head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${workingDir}/${bw_index_path}'\/\1@')
+			bw_index=$(ls -1 ${bw_index_path} | head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${bw_index_path}'\/\1@')
 			bw_index=$(echo $bw_index | tr -s '/')
-			bw_index=$(echo $bw_index | cut -d / -f 3- | awk '{print "/data/" $0}')
+			#bw_index=$(echo $bw_index | cut -d / -f 3- | awk '{print "${workingDir}/" $0}')
 			echo "[PIPELINE -- bowtie-alignment]: Index to align with: ${bw_index}"
 				
 			#test if the file exist, if so removes it
@@ -225,7 +226,8 @@
 			echo "[PIPELINE -- bowtie-alignment]: Aligning file: ${file}.sam"
 			
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
+				-v ${bwtIndex}:${bwtIndex} \
 				pegi3s/bowtie1:${bowtieVersion} \
 				bowtie -S \
 				${bw_index} \
@@ -252,12 +254,12 @@
 				rm -f "${bam_output}/${filebam}.bam*"
 			fi
 			
-			#replaces $working_dir with /data/
-			bam_output=$(echo $bam_output | cut -d / -f 3- | awk '{print "/data/" $0}')
+			##replaces $working_dir with ${workingDir}/
+			#bam_output=$(echo $bam_output | cut -d / -f 3- | awk '{print "${workingDir}/" $0}')
 			
 			echo "[PIPELINE -- sam-to-bam]: Converting ${filebam}.sam to bam."
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
 				pegi3s/samtools_bcftools:${samtoolsVersion} \
 				sh -c "samtools sort "${bam_output}${file}" > "${bam_output}${filebam}.bam"" \
 				sh -c "samtools index "${bam_output}${filebam}.bam""
@@ -269,14 +271,14 @@
 		<![CDATA[	
 			echo "[PIPELINE -- quali-map]: Analyzing bam files with QualiMap..."
 			
-			bam_input="/data/${outDir}/${bwtOut}/${bamFile}"
-			annotations="/data/${gffFile}"
+			bam_input="${workingDir}/${outDir}/${bwtOut}/${bamFile}"
+			annotations="${workingDir}/${gffFile}"
 			qm_output="output/${qmOut}/${bamFile}"
 			
-			docker run --rm\
-				-v ${hostWorkingDir}:/data \
-				pegi3s/qualimap:${qualimapVersion} \
-				sh -c "qualimap rnaseq -bam ${bam_input} -gtf ${annotations} -outdir ${qm_output} -outfile ${bamFile}.pdf --java-mem-size=4G"
+			#docker run --rm\
+			#	-v ${workingDir}:${workingDir} \
+			#	pegi3s/qualimap:${qualimapVersion} \
+			#	sh -c "qualimap rnaseq -bam ${bam_input} -gtf ${annotations} -outdir ${qm_output} -outfile ${bamFile}.pdf --java-mem-size=4G"
 		]]>
 		</foreach>
 
@@ -284,17 +286,18 @@
 		<task id="feature-counts" after="quali-map" params="gffFile">
 			echo "[PIPELINE -- feature-counts]: Performing the read count with FeatureCounts..."
 			
-			bam_input="/data/${outDir}/${bwtOut}/"
+			bam_input="${workingDir}/${outDir}/${bwtOut}/"
 			bam_input=$(echo $bam_input | tr -s '/') <!--convert the path to single slash-->
 			
-			path_output="/data/${outDir}/${ftqOut}/"
+			path_output="${workingDir}/${outDir}/${ftqOut}/"
 			path_output=$(echo $path_output | tr -s '/') <!--convert the path to single slash-->
 			
 			<!--Se podría pasar también un parámetro que permita elegir el tipo de atributo del archivo gff.-->
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
+				-v ${gffFile}:${gffFile} \
 				pegi3s/feature-counts:${featureCountsVersion} \
-				sh -c "featureCounts -F GTF -t miRNA -g 'Name' -a /data/${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
+				sh -c "featureCounts -F GTF -t miRNA -g 'Name' -a ${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
 				
 		</task>
 
@@ -307,39 +310,39 @@
 			cp ${scriptsDir}/${deSeq2Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
 			
 			export path_output="${workingDir}/${outDir}/${dsqOut}"
-			export path_output_docker="/data/${outDir}/${dsqOut}"
-			export path_scriptR_docker="/data/${scriptsDir}/${deSeq2Rscript}"
+			export path_output_docker="${workingDir}/${outDir}/${dsqOut}"
+			export path_scriptR_docker="${workingDir}/${scriptsDir}/${deSeq2Rscript}"
 			
 			conversion_file="${path_output}/conversion_file.txt"
 
 			# get the reference factor for the comparison (eg.: control)
-			ref_factor=$(tail --lines=+2 ${workingDir}/${contrast} | sed 's/".*" = //' | sed 's/".*-//' | sed 's/"$//')
+			ref_factor=$(tail --lines=+2 ${contrast} | sed 's/".*" = //' | sed 's/".*-//' | sed 's/"$//')
 			
 			# get the contrast name to build the output filename
-			contrast_filename=$(tail ${workingDir}/${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
+			contrast_filename=$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
 			
 			# creates an empty file and adds the header of conversion_file.
-			head -n1 ${workingDir}/${conditions} > ${conversion_file}
+			head -n1 ${conditions} > ${conversion_file}
 
 			# converts the names of the conversion_file to a format recognized by the pipeline
 			# (adds "trimmed_" at the beginning of the rootname and ".fastq.bam" at the end)
 			echo "[PIPELINE -- deseq]: Converting condition_file format"
-			tail --lines=+2 ${workingDir}/${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
+			tail --lines=+2 ${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
 			
 			#Converts the "conditions" file to absolute paths
 			echo "[PIPELINE -- deseq]: Adding full paths to the condition file"
 			export dqCond="${path_output}/deseq_conditions_file.txt"
 			export dqCond_docker="${path_output_docker}/deseq_conditions_file.txt"
 			
-			# Adds "/data/..." at the beginning of the row names
-			cat "${conversion_file}" | sed 's+trimmed_*+'"/data/${outDir}/${bwtOut}/"'&+' | tr -s '/' > "${dqCond}"
+			# Adds "${workingDir}/..." at the beginning of the row names
+			cat "${conversion_file}" | sed 's+trimmed_*+'"${workingDir}/${outDir}/${bwtOut}/"'&+' | tr -s '/' > "${dqCond}"
 			echo "[PIPELINE -- deseq]: Contrast to perform: ${contrast_filename}"
 			
 			echo "[PIPELINE -- deseq]: Running DESeq2 analysis..."
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
 				pegi3s/r_deseq2:${rDeseq2Version} \
-					Rscript /data/compi_scripts/${deSeq2Rscript} /data/${outDir}/${ftqOut}/all-counts.txt ${dqCond_docker} ${ref_factor} ${path_output_docker} ${contrast_filename}
+					Rscript ${workingDir}/compi_scripts/${deSeq2Rscript} ${workingDir}/${outDir}/${ftqOut}/all-counts.txt ${dqCond_docker} ${ref_factor} ${path_output_docker} ${contrast_filename}
 		]]>
 		</task>
 		
@@ -355,16 +358,16 @@
 			cat "${workingDir}/${outDir}/${ftqOut}/all-counts.txt" | tail -n +2 > "${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
 			
 			#Inputs
-			er_path_counts="/data/${outDir}/${edgOut}/all-counts_edger.txt"
+			er_path_counts="${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
 			er_path_cond=${conditions}
 			er_path_contrast=${contrast}
-			er_path_output="/data/${outDir}/${edgOut}/"
+			er_path_output="${workingDir}/${outDir}/${edgOut}/"
 			
 			echo "[PIPELINE -- edger]: Running EdgeR analysis..."
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
 				pegi3s/r_edger:${rEdgerVersion} \
-					Rscript /data/compi_scripts/${edgerRscript} ${er_path_counts} ${er_path_cond} ${er_path_contrast} ${er_path_output}
+					Rscript ${workingDir}/compi_scripts/${edgerRscript} ${er_path_counts} ${er_path_cond} ${er_path_contrast} ${er_path_output}
 			]]>
 		</task>
 		
@@ -377,10 +380,10 @@
 			cp ${scriptsDir}/${deaIntRscript} ${workingDir}/compi_scripts/${deaIntRscript}
 
 			dint_output="${workingDir}/${outDir}/${deaIntOut}"
-			dint_output_dk="/data/${outDir}/${deaIntOut}"
+			dint_output_dk="${workingDir}/${outDir}/${deaIntOut}"
 			
 			# find the filenames of DESeq2 and EdgeR results
-			contrast_filename=$(tail ${workingDir}/${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
+			contrast_filename=$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
 			vp_comparison_label="$(echo $contrast_filename | xargs)"
 			deseq_file="${workingDir}/${outDir}/${dsqOut}/DESeq2_${vp_comparison_label}.tsv"
 			edger_file="${workingDir}/${outDir}/${edgOut}/EdgeR_${vp_comparison_label}.tsv"
@@ -406,9 +409,9 @@
 			#Build the results of the proces by averaging the DESeq2 and EdgeR values
 			echo "[PIPELINE -- dea-integration]: Averaging values and building the results..."
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
 				pegi3s/r_data-analysis \
-					Rscript /data/compi_scripts/${deaIntRscript} ${dint_output_dk}/DEmiRNAs_deseq-edger_integrated.tsv ${dint_output_dk}
+					Rscript ${workingDir}/compi_scripts/${deaIntRscript} ${dint_output_dk}/DEmiRNAs_deseq-edger_integrated.tsv ${dint_output_dk}
 			
 			echo "[PIPELINE -- dea-integration]: Done!"
 					
@@ -428,15 +431,15 @@
 			venn_edg005_path=$(echo "${venn_output_local}/edger_qval-0.05.tsv")
 			paste <(cut -f1 ${venn_des005_path}) <(cut -f1 ${venn_edg005_path}) > ${venn_output_local}/DEmiRNAs_deseq-edger_venn.tsv
 			
-			venn_path="/data/${outDir}/${deaIntOut}/DEmiRNAs_deseq-edger_venn.tsv"
-			venn_output="/data/${outDir}/${deaIntOut}/"
+			venn_path="${workingDir}/${outDir}/${deaIntOut}/DEmiRNAs_deseq-edger_venn.tsv"
+			venn_output="${workingDir}/${outDir}/${deaIntOut}/"
 			venn_output_format=${vennFormat}
 			
 			echo "[PIPELINE -- venn]: Building the Venn diagram"
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
 				pegi3s/r_venn-diagram \
-					Rscript /data/compi_scripts/${vennRscript} ${venn_path} ${venn_output} ${venn_output_format}
+					Rscript ${workingDir}/compi_scripts/${vennRscript} ${venn_path} ${venn_output} ${venn_output_format}
 			]]>
 		</task>
 		<!--Build the Volcano Plot with the DESeq2/EdgeR results-->
@@ -448,22 +451,22 @@
 			cp ${scriptsDir}/${enhancedVolcanoRscript} ${workingDir}/compi_scripts/${enhancedVolcanoRscript}
 			
 			# get the contrast name to build the output filename
-			contrast_filename=$(tail ${workingDir}/${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
+			contrast_filename=$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
 			vp_comparison_label="$(echo $contrast_filename | xargs)"
 			
 			if [[ ${selectDEAsoftware} == 'edger' ]]
 			then
-				path_output_docker="/data/${outDir}/${edgOut}/"
+				path_output_docker="${workingDir}/${outDir}/${edgOut}/"
 				vp_path_counts="${path_output_docker}/$(echo EdgeR_${contrast_filename} | xargs).tsv"
 				vp_software="edger"
 			elif [[ ${selectDEAsoftware} == 'deseq' ]]
 			then
-				path_output_docker="/data/${outDir}/${dsqOut}/"
+				path_output_docker="${workingDir}/${outDir}/${dsqOut}/"
 				vp_path_counts="${path_output_docker}/$(echo DESeq2_${contrast_filename} | xargs).tsv"
 				vp_software="deseq"
 			elif [[ ${selectDEAsoftware} = 'both' ]]
 			then
-				path_output_docker="/data/${outDir}/${deaIntOut}/"
+				path_output_docker="${workingDir}/${outDir}/${deaIntOut}/"
 				vp_path_counts="${path_output_docker}/DEmiRNAs_deseq-edger_integrated.tsv"
 				vp_software="both"
 			fi
@@ -471,9 +474,9 @@
 			vp_path_output=${path_output_docker}
 			
 			docker run --rm \
-				-v ${hostWorkingDir}:/data \
+				-v ${workingDir}:${workingDir} \
 				pegi3s/r_enhanced-volcano:${rEnhancedVolcanoVersion} \
-					Rscript /data/compi_scripts/${enhancedVolcanoRscript} ${vp_path_counts} ${path_output_docker} ${vp_comparison_label} ${vp_software}
+					Rscript ${workingDir}/compi_scripts/${enhancedVolcanoRscript} ${vp_path_counts} ${path_output_docker} ${vp_comparison_label} ${vp_software}
 			]]>
 		</task>
 	</tasks>

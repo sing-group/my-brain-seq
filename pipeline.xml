@@ -7,7 +7,7 @@
 	<params>
 		<param name="workingDir" shortName="wd" global="true" defaultValue="/working_dir">The working directory of the project. </param>
 		<param name="fastqDir" shortName="dd" global="true" defaultValue="input/fastq">The directory containing the fastq files (default is relative to workingDir).</param>
-		<param name="outDir" shortName="o" global="true" defaultValue="output">The directory containing the pipeline outputs (default is relative to workingDir).</param>
+		<param name="outDir" shortName="o" global="true" defaultValue="output">The directory containing the pipeline outputs (relative to workingDir).</param>
 		<param name="adapter" shortName="adp">The sequence of the adapter to remove.</param>
 		<param name="genome" shortName="genome" global="true" defaultValue="">The directory path to the genome to align.</param>
 		<param name="bwtIndex" shortName="bwti" global="true" defaultValue="">The directory path containing the Bowtie index.</param>
@@ -19,7 +19,7 @@
 		<param name="fqcOut" shortName="fqco" global="true" defaultValue="1_fastqc">The relative path to the directory containing the FastQC results.</param>
 		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="2_cutadapt">The relative path to the directory containing the Cutadapt results.</param>
 		<param name="bwtOut" shortName="bwto" global="true" defaultValue="3_bowtie">The relative path to the directory containing the Bowtie results.</param>
-		<param name="qmOut" shortName="qmo" global="true" defaultValue="4_qualy_map">The relative path to the directory containing the QualyMap results.</param>
+		<param name="bamstOut" shortName="bsto" global="true" defaultValue="4_bam_stats">The relative path to the directory containing the Samtools stats and Plot-bamstats results.</param>
 		<param name="ftqOut" shortName="ftqo" global="true" defaultValue="5_feature_counts">The relative path to the directory containing the FeatureCounts results.</param>
 		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="6_deseq2">The relative path to the directory containing the DESeq2 results.</param>
 		<param name="edgOut" shortName="edgo" global="true" defaultValue="6_edger">The relative path to the directory containing the EdgeR results.</param>
@@ -40,7 +40,7 @@
 		<param name="bowtieVersion" shortName="bwv" defaultValue="1.2.3" global="true">Version of the pegi3s/bowtie1 Docker image to use.</param>
 		<param name="featureCountsVersion" shortName="fqv" defaultValue="2.0.0" global="true">Version of the pegi3s/feature-counts Docker image to use.</param>
 		<param name="samtoolsVersion" shortName="stv" defaultValue="1.9" global="true">Version of the pegi3s/samtools_bcftools Docker image to use.</param>
-		<param name="qualimapVersion" shortName="qmv" defaultValue="2.2.1" global="true">Version of the pegi3s/qualimap Docker image to use.</param>
+		<param name="samtoolsBamstatsVersion" shortName="spb" defaultValue="1.10" global="true">Version of the pegi3s/samtools_bcftools Docker image to use for bam analysis.</param>
 		<param name="rdatanalysisVersion" shortName="rdav" defaultValue="4.1.1" global="true">Version of the pegi3s/r_data-analysis Docker image to use.</param>
 		<param name="rVennVersion" shortName="rvv" defaultValue="1.7.0" global="true">Version of the pegi3s/r_venn-diagram Docker image to use.</param>
 		
@@ -58,7 +58,7 @@
 			docker pull pegi3s/cutadapt:${cutadaptVersion}
 			docker pull pegi3s/bowtie1:${bowtieVersion}
 			docker pull pegi3s/samtools_bcftools:${samtoolsVersion}
-			docker pull pegi3s/qualimap:${qualimapVersion}
+			docker pull pegi3s/samtools_bcftools:${samtoolsBamstatsVersion}
 			docker pull pegi3s/feature-counts:${featureCountsVersion}
 			docker pull pegi3s/r_deseq2:${rDeseq2Version}
 			docker pull pegi3s/r_edger:${rEdgerVersion}
@@ -95,8 +95,8 @@
 			#Bowtie folder
 			build_dir ${bwtOut} "Bowtie"
 			
-			#QualiMap folder
-			build_dir ${qmOut} "QualiMap"
+			#Samtools stats folder
+			build_dir ${bamstOut} "BAM stats"
 			
 			#FeatureCounts folder
 			build_dir ${ftqOut} "FeatureCounts"
@@ -267,23 +267,31 @@
 		</foreach>
 
 		<!--Performs the quality control with QualiMap-->
-		<foreach id="quali-map" after="sam-to-bam" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*\.fastq.bam" as="bamFile" params="gffFile">
+		<foreach id="bam-stats" after="sam-to-bam" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*\.fastq.bam" as="bamFile">
 		<![CDATA[	
-			echo "[PIPELINE -- quali-map]: Analyzing bam files with QualiMap..."
+			echo "[PIPELINE -- bam-stats]: Analyzing bam files with SAMtools stats..."
 			
 			bam_input="${workingDir}/${outDir}/${bwtOut}/${bamFile}"
-			annotations="${workingDir}/${gffFile}"
-			qm_output="output/${qmOut}/${bamFile}"
+			bs_output="${workingDir}/${outDir}/${bamstOut}/$(echo ${bamFile} | cut -d'.' -f1)"
+			bs_stats_file="${bs_output}/${bamFile}.stats"
+			bs_plot_names="${bs_output}/${bamFile}_PLOT"
 			
-			#docker run --rm\
-			#	-v ${workingDir}:${workingDir} \
-			#	pegi3s/qualimap:${qualimapVersion} \
-			#	sh -c "qualimap rnaseq -bam ${bam_input} -gtf ${annotations} -outdir ${qm_output} -outfile ${bamFile}.pdf --java-mem-size=4G"
+			mkdir "${bs_output}"
+			
+			docker run --rm\
+				-v ${workingDir}:${workingDir} \
+				pegi3s/samtools_bcftools:${samtoolsVersion} \
+				sh -c "samtools stats ${bam_input} > ${bs_stats_file}"
+			
+			docker run --rm\
+				-v ${workingDir}:${workingDir} \
+				pegi3s/samtools_bcftools:${samtoolsVersion} \
+				sh -c "plot-bamstats -p ${bs_plot_names} ${bs_stats_file}"
 		]]>
 		</foreach>
 
 		<!--Performs the quantification with featureCounts-->
-		<task id="feature-counts" after="quali-map" params="gffFile">
+		<task id="feature-counts" after="bam-stats" params="gffFile">
 			echo "[PIPELINE -- feature-counts]: Performing the read count with FeatureCounts..."
 			
 			bam_input="${workingDir}/${outDir}/${bwtOut}/"
@@ -488,7 +496,7 @@
 		<task-description id="build-genome-index">Builds a genome index if the genome parameter is passed in compi.parameters.</task-description>
 		<task-description id="bowtie-alignment">Alignment with Bowtie.</task-description>
 		<task-description id="sam-to-bam">Converts the sam files to bam format.</task-description>
-		<task-description id="quali-map">Performs the quality control with QualiMap.</task-description>
+		<task-description id="bam-stats">Performs the quality control of the bam files with SAMtools.</task-description>
 		<task-description id="feature-counts">Performs the quantification with featureCounts.</task-description>
 		<task-description id="deseq">Performs the differential expression analysis with DESeq2.</task-description>
 	</metadata>

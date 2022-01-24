@@ -8,7 +8,7 @@
 		<param name="workingDir" shortName="wd" global="true" defaultValue="/working_dir">The working directory of the project. </param>
 		<param name="fastqDir" shortName="dd" global="true" defaultValue="input/fastq">The directory containing the fastq files (default is relative to workingDir).</param>
 		<param name="outDir" shortName="o" global="true" defaultValue="output">The directory containing the pipeline outputs (relative to workingDir).</param>
-		<param name="adapter" shortName="adp">The sequence of the adapter to remove.</param>
+		<param name="adapter" shortName="adp" global="true" defaultValue="NA">The sequence of the adapter to remove.</param>
 		<param name="genome" shortName="genome" global="true" defaultValue="">The directory path to the genome to align.</param>
 		<param name="bwtIndex" shortName="bwti" global="true" defaultValue="">The directory path containing the Bowtie index.</param>
 		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome.</param>
@@ -26,6 +26,7 @@
 		<param name="deaIntOut" shortName="dinto" global="true" defaultValue="6_deseq2+edger">The relative path to the directory containing the results of the DESeq2 and EdgeR integration.</param>
 
 		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
+		<param name="testAdapterBashScript" shortName="tabs" global="true" defaultValue="test_isadapter.sh">The relative path to the directory containing the R script to get the path of the aligned/unaligned data.</param>
 		<param name="deSeq2Rscript" shortName="rdes" global="true" defaultValue="run_deseq2.R">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="edgerRscript" shortName="reds" global="true" defaultValue="run_edger_exact-test.R">The relative path to the directory containing the R script to run the EdgeR analysis.</param>
 		<param name="enhancedVolcanoRscript" shortName="evrs" global="true" defaultValue="run_enhanced-volcano.R">The relative path to the directory containing the R script to build the Volcano plot.</param>
@@ -177,22 +178,27 @@
 		<!--Adapter removal with cutadapt-->
 		<foreach id="cut-sequences" after="fastqc-qc" of="command" in="ls -1 ${fastqDir} | grep .*\.fastq" as="file" params="adapter">
 		<![CDATA[
-			echo "[PIPELINE -- cut-sequences]: Removing the adapter with Cutadapt..."
-			echo "[PIPELINE -- cut-sequences]: Processing file: ${file}"
 			
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				-v ${fastqDir}:${fastqDir} \
-				pegi3s/cutadapt:${cutadaptVersion} \
-				-m 1 \
-				-a ${adapter} \
-				-o ${workingDir}/${outDir}/${ctdOut}/trimmed_${file} \
-				${fastqDir}/${file}
+			if [ "${adapter}" != "NA" ]; then
+				echo "[PIPELINE -- cut-sequences]: Removing the adapter with Cutadapt..."
+				echo "[PIPELINE -- cut-sequences]: Processing file: ${file}"
+				
+				docker run --rm \
+					-v ${workingDir}:${workingDir} \
+					-v ${fastqDir}:${fastqDir} \
+					pegi3s/cutadapt:${cutadaptVersion} \
+					-m 1 \
+					-a ${adapter} \
+					-o ${workingDir}/${outDir}/${ctdOut}/trimmed_${file} \
+					${fastqDir}/${file}
+			else
+				echo "[PIPELINE -- cut-sequences]: No adapter specified, adapter removal skipped"
+			fi
 		]]>
 		</foreach>
 
 		<!--Alignment with Bowtie-->
-		<foreach id="bowtie-alignment" after="build-genome-index, cut-sequences" of="command" in="ls -1 ${workingDir}/${outDir}/${ctdOut}/ | grep .*\.fastq" as="file" params="bwtIndex">
+		<foreach id="bowtie-alignment" after="build-genome-index, cut-sequences" of="command" in="bash ${scriptsDir}/${testAdapterBashScript} ${adapter} ${workingDir}/${outDir}/${ctdOut}/ ${fastqDir}" as="file" params="bwtIndex adapter fastqDir">
 		<![CDATA[
 			echo "[PIPELINE -- bowtie-alignment]: Performing genome alignment with Bowtie..."
 			
@@ -205,7 +211,15 @@
 				bw_index_path=${bwtIndex}
 			fi
 			
-			bw_fastq="${workingDir}/${outDir}/${ctdOut}/${file}"
+			# if adapter specified
+			if [ "${adapter}" != "NA" ]; then
+				bw_fastq="${workingDir}/${outDir}/${ctdOut}/${file}"
+				
+			# if no adapter specified
+			else
+				bw_fastq="${fastqDir}/${file}"
+			fi
+			
 			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash
 			
 			bw_output="${workingDir}/${outDir}/${bwtOut}/${file}.sam"
@@ -228,6 +242,7 @@
 			docker run --rm \
 				-v ${workingDir}:${workingDir} \
 				-v ${bwtIndex}:${bwtIndex} \
+				-v ${fastqDir}:${fastqDir} \
 				pegi3s/bowtie1:${bowtieVersion} \
 				bowtie -S \
 				${bw_index} \

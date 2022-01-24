@@ -406,27 +406,34 @@
 			cat <(cut -f1,3,7 "${dint_output}/deseq_qval-0.05.tsv") \
 				<(cut -f1,2,4 "${dint_output}/edger_qval-0.05.tsv") > "${dint_output}/all.tsv"
 			
-			echo "[PIPELINE -- dea-integration]: Findind duplicates"
+			echo "[PIPELINE -- dea-integration]: Findind coincidences"
 			#find duplicated lines in "Feature" column and saves them in "coincidences.tsv"
 			cat "${dint_output}/edger_qval-0.05.tsv" "${dint_output}/deseq_qval-0.05.tsv" | cut -f 1 | sort | uniq -d > "${dint_output}/coincidences.tsv"
 			
-			#Search the duplicates in all.tsv and adds them to a file, this file will have two rows per miRNA (one for DESeq2 results, the other for EdgeR)
-			grep -f "${dint_output}/coincidences.tsv" "${dint_output}/all.tsv" > "${dint_output}/DEmiRNAs_deseq-edger_integrated.tsv"
-			sed -i '1s/^/Feature	log2FC	q-value\n/' "${dint_output}/DEmiRNAs_deseq-edger_integrated.tsv"
+			#if coincidences.tsv is not empty, perform the integration
+			if [ -s "${dint_output}/coincidences.tsv" ]; then
+				#Search the duplicates in all.tsv and adds them to a file, this file will have two rows per miRNA (one for DESeq2 results, the other for EdgeR)
+				grep -f "${dint_output}/coincidences.tsv" "${dint_output}/all.tsv" > "${dint_output}/DEmiRNAs_deseq-edger_integrated.tsv"
+				sed -i '1s/^/Feature	log2FC	q-value\n/' "${dint_output}/DEmiRNAs_deseq-edger_integrated.tsv"
 			
-			#Build the results of the proces by averaging the DESeq2 and EdgeR values
-			echo "[PIPELINE -- dea-integration]: Averaging values and building the results..."
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				pegi3s/r_data-analysis \
-					Rscript ${workingDir}/compi_scripts/${deaIntRscript} ${dint_output_dk}/DEmiRNAs_deseq-edger_integrated.tsv ${dint_output_dk}
+				#Build the results of the proces by averaging the DESeq2 and EdgeR values
+				echo "[PIPELINE -- dea-integration]: Averaging values and building the results..."
+				docker run --rm \
+					-v ${workingDir}:${workingDir} \
+					pegi3s/r_data-analysis \
+						Rscript ${workingDir}/compi_scripts/${deaIntRscript} ${dint_output_dk}/DEmiRNAs_deseq-edger_integrated.tsv ${dint_output_dk}
+			
+			else
+				echo "[PIPELINE -- dea-integration]: [WARNING]: No coincidences between Edger and DESeq2 results"
+				echo "[PIPELINE -- dea-integration]: [WARNING]: Venn and Volcano plots skipped"
+			fi
 			
 			echo "[PIPELINE -- dea-integration]: Done!"
 					
 			]]>
 		</task>
 		<!--Build the Venn diagram with the DESeq2+EdgeR results-->
-		<task id="venn" after="deseq edger dea-integration" params="vennFormat">
+		<task id="venn" after="deseq edger dea-integration" params="vennFormat" if="[ -s ${workingDir}/${outDir}/${deaIntOut}/coincidences.tsv ]">
 			<![CDATA[
 			echo "[PIPELINE -- venn]: Building a file for the Venn diagram"
 			
@@ -451,7 +458,7 @@
 			]]>
 		</task>
 		<!--Build the Volcano Plot with the DESeq2/EdgeR results-->
-		<task id="volcano" after="deseq edger dea-integration" params="conditions contrast">
+		<task id="volcano" after="deseq edger dea-integration" params="conditions contrast" if="[ -s ${workingDir}/${outDir}/${deaIntOut}/coincidences.tsv ]">
 			<![CDATA[
 			echo "[PIPELINE -- volcano]: Building the Volcano Plot..."
 			

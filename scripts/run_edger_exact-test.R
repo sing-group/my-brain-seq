@@ -28,14 +28,16 @@ conditions_table = read.delim(path_cond)
 contrast = strsplit(as.character(contrast_table$name), '-')[[1]]
 ref_factor = trimws(contrast[2])
 cond_factor = as.character(trimws(contrast[1]))
-#get the label of the reference factor
-ref_index=match(ref_factor, conditions_table$condition)
-ref_label = as.character(conditions_table$label[ref_index])
-ref_contrast_label=trimws(strsplit(as.character(rownames(contrast_table)), '-')[[1]][2])
-#get the label of the condition factor
-cond_index = match(cond_factor, conditions_table$condition)
-cond_label = as.character(conditions_table$label[cond_index])
-cond_contrast_label=trimws(strsplit(as.character(rownames(contrast_table)), '-')[[1]][1])
+
+# #get the label of the reference factor
+# ref_index=match(ref_factor, conditions_table$condition)
+# ref_label = as.character(conditions_table$label[ref_index])
+# ref_contrast_label=trimws(strsplit(as.character(rownames(contrast_table)), '-')[[1]][2])
+# #get the label of the condition factor
+# cond_index = match(cond_factor, conditions_table$condition)
+# cond_label = as.character(conditions_table$label[cond_index])
+# cond_contrast_label=trimws(strsplit(as.character(rownames(contrast_table)), '-')[[1]][1])
+
 #import the read counts and remove the featureCount annotations
 x = read.delim(path_counts, row.names="Geneid")
 x = x[-1:-5]
@@ -54,7 +56,8 @@ for (i in conditions_table$name){
 
 #EDGER ANALYSIS
 #build the group using ref_label as reference factor (first position in vector)
-group = factor(user_labels, levels = c(ref_label, cond_label))
+# group = factor(user_labels, levels = c(ref_label, cond_label))
+group = factor(conditions_table$condition, levels = c(ref_factor, cond_factor))
 #build the DGEList object for the EdgeR analysis
 y = DGEList(counts=x, group=group)
 #filter out lowly expressed miRNAs
@@ -75,7 +78,7 @@ et = exactTest(y)
 print(topTags(et))
 print(summary(decideTests(et)))
 #save results
-output_tag = paste('EdgeR_', cond_contrast_label, '-', ref_contrast_label, sep = '')
+output_tag = paste('EdgeR_', cond_factor, '-', ref_factor, sep = '')
 output_file = paste(output_tag, '.tsv', sep = '')
 path_output_file = paste(path_output, output_file, sep='')
 

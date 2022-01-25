@@ -53,467 +53,72 @@
 	<tasks>
 		<!--Pull the docker images of the software used for the analysis-->
 		<task id="pull-docker-images" params="skipPullDockerImages" if="[ -v ${skipPullDockerImages} ]">
-			echo "[PIPELINE -- pull-docker-images]: Downloading docker images from pegi3s..."
-			
-			docker pull pegi3s/fastqc:${fastqcVersion}
-			docker pull pegi3s/cutadapt:${cutadaptVersion}
-			docker pull pegi3s/bowtie1:${bowtieVersion}
-			docker pull pegi3s/samtools_bcftools:${samtoolsVersion}
-			docker pull pegi3s/samtools_bcftools:${samtoolsBamstatsVersion}
-			docker pull pegi3s/feature-counts:${featureCountsVersion}
-			docker pull pegi3s/r_deseq2:${rDeseq2Version}
-			docker pull pegi3s/r_edger:${rEdgerVersion}
-			docker pull pegi3s/r_enhanced-volcano:${rEnhancedVolcanoVersion}
-			#docker pull pegi3s/r_data-analysis:${rdatanalysisVersion}
-			docker pull pegi3s/r_venn-diagram
-			#:${rVennVersion}
+			${scriptsDir}/pull-docker-images.sh
 		</task>
 
 		<!--Creates the output directories-->
 		<task id="initialization" after="pull-docker-images">
-		<![CDATA[
-			echo "[PIPELINE -- initialization]: Building the directory tree..."
-			
-			#Function for the directory creation: first arg=${xOut}, second arg=name of the software
-			build_dir () {
-				if [ ! -d "${workingDir}/${outDir}/$1" ]; then
-					echo "[PIPELINE -- initialization]: Creating the directory for the $2 results"
-					mkdir -p ${workingDir}/${outDir}/$1/
-				else
-					echo "[PIPELINE -- initialization]: $1 already exist"; echo "[PIPELINE -- initialization]: Removing ${workingDir}/${outDir}/$1 directory and files..."
-					rm -Rf ${workingDir}/${outDir}/$1/
-					echo "[PIPELINE -- initialization]: Creating the directory for the $2 results"
-					mkdir -p ${workingDir}/${outDir}/$1/
-				fi
-			}
-			
-			#FastQC folder
-			build_dir ${fqcOut} "FastQC"
-			
-			#Cutadapt folder
-			build_dir ${ctdOut} "Cutadapt"
-			
-			#Bowtie folder
-			build_dir ${bwtOut} "Bowtie"
-			
-			#Samtools stats folder
-			build_dir ${bamstOut} "BAM stats"
-			
-			#FeatureCounts folder
-			build_dir ${ftqOut} "FeatureCounts"
-			
-			#DESeq2 folder
-			build_dir ${dsqOut} "DESeq2"
-			
-			#EdgeR folder
-			build_dir ${edgOut} "EdgeR"
-			
-			#DEA integration folder
-			build_dir ${deaIntOut} "DEA integration"
-
-			rm -rf ${workingDir}/compi_scripts
-			mkdir -p ${workingDir}/compi_scripts
-		]]>
+			${scriptsDir}/initialization.sh
 		</task>
 
 		<!--Bowtie genome index build--> 
 		<task id="build-genome-index" after="initialization" params="bwtOut genome" if="[ ! -z ${genome} ]"> #if user sets a value for genome, then this task is executed
-		<![CDATA[
-			echo "[PIPELINE -- build-genome-index]: Building the genome index for Bowtie..."
-			echo "[PIPELINE -- build-genome-index]: Genome path: ${genome}"
-			
-			bgi_genome="${workingDir}/input/genome/${genome}"
-			bgi_wd_genome="${workingDir}/input/genome/${genome}"
-			
-			#makes the path to the directory using the genome filename as part of the directory name
-			bgi_output="${workingDir}/input/genome/${genome}/bowtie-index_${genome}"
-			bgi_output_wd="${workingDir}/input/genome/${genome}/bowtie-index_${genome}"
-			
-			#first argument passed to bowtie (files on ${genome} separated by comma)
-			bgi_files="$(find ${bgi_wd_genome} -maxdepth 1 -type f | rev | cut -d\/ -f 1 | rev | tr '\n' ',' | sed 's/,$//')"
-			
-			#second argument passed to bowtie
-			bgi_index_path="${bgi_output}/${genome}"
-			
-			#if the genome directory exists skip the index creation
-			if [[ -d ${bgi_output_wd} ]]
-			then
-				echo "[PIPELINE -- build-genome-index]: Genome index already exists in: ${bgi_output_wd}"
-				echo "[PIPELINE -- build-genome-index]: Skipping Bowtie1 index creation"
-			else
-				echo "[PIPELINE -- build-genome-index]:   Path to genome file:           ${bgi_genome}"
-				echo "[PIPELINE -- build-genome-index]:   Output path for the index:     ${bgi_output}"
-				echo "[PIPELINE -- build-genome-index]:   Root name for the index files: ${genome}"
-
-				echo "[PIPELINE -- build-genome-index]: Running bowtie for the genome index creation"
-				docker run --rm \
-					-v ${workingDir}:${workingDir} \
-					pegi3s/bowtie1:${bowtieVersion} \
-					sh -c "rm -rf ${bgi_output}\
-					&& mkdir ${bgi_output} \
-					&& cd ${bgi_genome} \
-					&& bowtie-build -f ${bgi_files} ${bgi_index_path}"
-			fi
-		]]>
+			${scriptsDir}/build-genome-index.sh
 		</task>
 
 		<!--Quality control with FastQC-->
 		<foreach id="fastqc-qc" after="initialization" of="command" in="ls -1 ${fastqDir} | grep .*\.fastq" as="file">
-		<![CDATA[
-			echo "[PIPELINE -- fastqc-qc]: Performing a quality control with FastQC..."
-			echo "[PIPELINE -- fastqc-qc]: Processing file: ${file}"
-			
-			fqc_input="${fastqDir}/${file}"
-			fqc_output="${workingDir}/${outDir}/${fqcOut}/"
-			
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				-v ${fastqDir}:${fastqDir} \
-				pegi3s/fastqc:${fastqcVersion} \
-				-o ${fqc_output} \
-				${fqc_input}
-		]]>
+			${scriptsDir}/fastqc-qc.sh
 		</foreach>
 
 		<!--Adapter removal with cutadapt-->
 		<foreach id="cut-sequences" after="fastqc-qc" of="command" in="ls -1 ${fastqDir} | grep .*\.fastq" as="file" params="adapter">
-		<![CDATA[
-			
-			if [ "${adapter}" != "NA" ]; then
-				echo "[PIPELINE -- cut-sequences]: Removing the adapter with Cutadapt..."
-				echo "[PIPELINE -- cut-sequences]: Processing file: ${file}"
-				
-				docker run --rm \
-					-v ${workingDir}:${workingDir} \
-					-v ${fastqDir}:${fastqDir} \
-					pegi3s/cutadapt:${cutadaptVersion} \
-					-m 1 \
-					-a ${adapter} \
-					-o ${workingDir}/${outDir}/${ctdOut}/trimmed_${file} \
-					${fastqDir}/${file}
-			else
-				echo "[PIPELINE -- cut-sequences]: No adapter specified, adapter removal skipped"
-			fi
-		]]>
+			${scriptsDir}/cut-sequences.sh
 		</foreach>
 
 		<!--Alignment with Bowtie-->
 		<foreach id="bowtie-alignment" after="build-genome-index, cut-sequences" of="command" in="bash ${scriptsDir}/${testAdapterBashScript} ${adapter} ${workingDir}/${outDir}/${ctdOut}/ ${fastqDir}" as="file" params="bwtIndex adapter fastqDir">
-		<![CDATA[
-			echo "[PIPELINE -- bowtie-alignment]: Performing genome alignment with Bowtie..."
-			
-			#choose the path to the bowtie index (depending if the user provides a pre-built index or if it was built in the task "build-genome-index").
-			#if genome flag
-			if [ ! -z ${genome} ]; then
-				bgi_genome="${workingDir}/input/genome/${genome}/"
-				bw_index_path="${workingDir}/input/genome/${genome}/bowtie-index_${genome}/"
-			else
-				bw_index_path=${bwtIndex}
-			fi
-			
-			# if adapter specified
-			if [ "${adapter}" != "NA" ]; then
-				bw_fastq="${workingDir}/${outDir}/${ctdOut}/${file}"
-				
-			# if no adapter specified
-			else
-				bw_fastq="${fastqDir}/${file}"
-			fi
-			
-			bw_fastq=$(echo $bw_fastq | tr -s '/')  #convert the path to single slash
-			
-			bw_output="${workingDir}/${outDir}/${bwtOut}/${file}.sam"
-			bw_output=$(echo $bw_output | tr -s '/')  #convert the path to single slash
-			
-			#gets the root of the index file name
-			bw_index=$(ls -1 ${bw_index_path} | head -n1 | sed 's/\..\.ebwt//' | sed 's@\(.*\)@'${bw_index_path}'\/\1@')
-			bw_index=$(echo $bw_index | tr -s '/')
-			#bw_index=$(echo $bw_index | cut -d / -f 3- | awk '{print "${workingDir}/" $0}')
-			echo "[PIPELINE -- bowtie-alignment]: Index to align with: ${bw_index}"
-				
-			#test if the file exist, if so removes it
-			if [ -f "${bw_output}" ]; then
-				echo "[PIPELINE -- bowtie-alignment]: ${file}.sam already exists, removing ${file}.sam."
-				rm -f "${bw_output}"
-			fi
-			
-			echo "[PIPELINE -- bowtie-alignment]: Aligning file: ${file}.sam"
-			
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				-v ${bwtIndex}:${bwtIndex} \
-				-v ${fastqDir}:${fastqDir} \
-				pegi3s/bowtie1:${bowtieVersion} \
-				bowtie -S \
-				${bw_index} \
-				${bw_fastq} \
-				${bw_output}
-
-		]]>
+			${scriptsDir}/bowtie-alignment.sh
 		</foreach>
 
 		<!--Converts the sam files to bam format-->
 		<foreach id="sam-to-bam" after="bowtie-alignment" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*\.fastq.sam" as="file">
-		<![CDATA[
-			echo "[PIPELINE -- sam-to-bam]: Creating bam files with samtools/sort..."
-			
-			bam_output="${workingDir}/${outDir}/${bwtOut}/"
-			bam_output="$(echo $bam_output | tr -s '/')" # convert the path to single slash
-			
-			filebam=$(echo ${file} | sed 's/\.sam//')
-			filebam=$(echo $filebam | tr -s '/')  # convert the path to single slash
-			
-			#test if the file exist, if so removes it
-			if [ -f "${bam_output}/${filebam}.bam" ]; then
-				echo "[PIPELINE -- sam-to-bam]: ${filebam}.bam already exists, removing ${filebam}.bam and ${filebam}.bam.bai."
-				rm -f "${bam_output}/${filebam}.bam*"
-			fi
-			
-			##replaces $working_dir with ${workingDir}/
-			#bam_output=$(echo $bam_output | cut -d / -f 3- | awk '{print "${workingDir}/" $0}')
-			
-			echo "[PIPELINE -- sam-to-bam]: Converting ${filebam}.sam to bam."
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				pegi3s/samtools_bcftools:${samtoolsVersion} \
-				sh -c "samtools sort "${bam_output}${file}" > "${bam_output}${filebam}.bam"" \
-				sh -c "samtools index "${bam_output}${filebam}.bam""
-		]]>
+			${scriptsDir}/sam-to-bam.sh
 		</foreach>
 
 		<!--Performs the quality control with QualiMap-->
 		<foreach id="bam-stats" after="sam-to-bam" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*\.fastq.bam" as="bamFile">
-		<![CDATA[	
-			echo "[PIPELINE -- bam-stats]: Analyzing bam files with SAMtools stats..."
-			
-			bam_input="${workingDir}/${outDir}/${bwtOut}/${bamFile}"
-			bs_output="${workingDir}/${outDir}/${bamstOut}/$(echo ${bamFile} | cut -d'.' -f1)"
-			bs_stats_file="${bs_output}/${bamFile}.stats"
-			bs_plot_names="${bs_output}/${bamFile}_PLOT"
-			
-			mkdir "${bs_output}"
-			
-			docker run --rm\
-				-v ${workingDir}:${workingDir} \
-				pegi3s/samtools_bcftools:${samtoolsVersion} \
-				sh -c "samtools stats ${bam_input} > ${bs_stats_file}"
-			
-			docker run --rm\
-				-v ${workingDir}:${workingDir} \
-				pegi3s/samtools_bcftools:${samtoolsVersion} \
-				sh -c "plot-bamstats -p ${bs_plot_names} ${bs_stats_file}"
-		]]>
+			${scriptsDir}/bam-stats.sh
 		</foreach>
 
 		<!--Performs the quantification with featureCounts-->
 		<task id="feature-counts" after="bam-stats" params="gffFile">
-			echo "[PIPELINE -- feature-counts]: Performing the read count with FeatureCounts..."
-			
-			bam_input="${workingDir}/${outDir}/${bwtOut}/"
-			bam_input=$(echo $bam_input | tr -s '/') <!--convert the path to single slash-->
-			
-			path_output="${workingDir}/${outDir}/${ftqOut}/"
-			path_output=$(echo $path_output | tr -s '/') <!--convert the path to single slash-->
-			
-			<!--Se podría pasar también un parámetro que permita elegir el tipo de atributo del archivo gff.-->
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				-v ${gffFile}:${gffFile} \
-				pegi3s/feature-counts:${featureCountsVersion} \
-				sh -c "featureCounts -F GTF -t miRNA -g 'Name' -a ${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
-				
+			${scriptsDir}/feature-counts.sh
 		</task>
 
 		<!--Performs the differential expression analysis with DESeq2-->
 		<task id="deseq" after="feature-counts" params="conditions contrast deSeq2Rscript" if="[ ${selectDEAsoftware} = deseq ] || [ ${selectDEAsoftware} = both ]">
-		<![CDATA[
-			echo "[PIPELINE -- deseq]: Performing differential expression analysis with DESeq2..."
-			
-			#Makes a copy of the scripts used in the analysis to working-dir
-			cp ${scriptsDir}/${deSeq2Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
-			
-			export path_output="${workingDir}/${outDir}/${dsqOut}"
-			export path_output_docker="${workingDir}/${outDir}/${dsqOut}"
-			export path_scriptR_docker="${workingDir}/${scriptsDir}/${deSeq2Rscript}"
-			
-			conversion_file="${path_output}/conversion_file.txt"
-
-			# get the reference factor for the comparison (eg.: control)
-			ref_factor=$(tail --lines=+2 ${contrast} | sed 's/".*" = //' | sed 's/".*-//' | sed 's/"$//')
-			
-			# get the contrast name to build the output filename
-			contrast_filename=$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
-			
-			# creates an empty file and adds the header of conversion_file.
-			head -n1 ${conditions} > ${conversion_file}
-
-			# converts the names of the conversion_file to a format recognized by the pipeline
-			echo "[PIPELINE -- deseq]: Converting condition_file format"
-			# if adapter specified, adds trimmed at the beginning of the rootname and ".fastq.bam" at the end
-			if [ "${adapter}" != "NA" ]; then
-				tail --lines=+2 ${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
-			#if adapter not specified only adds ".fastq.bam" at the end
-			else
-				tail --lines=+2 ${conditions} | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
-			fi
-			
-			#Converts the "conditions" file to absolute paths
-			echo "[PIPELINE -- deseq]: Adding full paths to the condition file"
-			export dqCond="${path_output}/deseq_conditions_file.txt"
-			export dqCond_docker="${path_output_docker}/deseq_conditions_file.txt"
-			
-			# Adds "${workingDir}/..." at the beginning of the row names
-			cat "${conversion_file}" | sed '2,$s+^+'"${workingDir}/${outDir}/${bwtOut}/"'+' | tr -s '/' > "${dqCond}"
-			
-			echo "[PIPELINE -- deseq]: Contrast to perform: ${contrast_filename}"
-			
-			echo "[PIPELINE -- deseq]: Running DESeq2 analysis..."
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				pegi3s/r_deseq2:${rDeseq2Version} \
-					Rscript ${workingDir}/compi_scripts/${deSeq2Rscript} ${workingDir}/${outDir}/${ftqOut}/all-counts.txt ${dqCond_docker} ${ref_factor} ${path_output_docker} ${contrast_filename}
-		]]>
+			${scriptsDir}/deseq.sh
 		</task>
 		
 		<!--Performs the differential expression analysis with EdgeR-->
 		<task id="edger" after="feature-counts" params="conditions contrast edgerRscript" if="[ ${selectDEAsoftware} = edger ] || [ ${selectDEAsoftware} = both ]">
-			<![CDATA[
-			echo "[PIPELINE -- edger]: Performing differential expression analysis with EdgeR..."
-			
-			#Makes a copy of the scripts used in the analysis to working-dir
-			cp ${scriptsDir}/${edgerRscript} ${workingDir}/compi_scripts/${edgerRscript}
-			
-			touch "${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
-			cat "${workingDir}/${outDir}/${ftqOut}/all-counts.txt" | tail -n +2 > "${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
-			
-			#Inputs
-			er_path_counts="${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
-			er_path_cond=${conditions}
-			er_path_contrast=${contrast}
-			er_path_output="${workingDir}/${outDir}/${edgOut}/"
-			
-			echo "[PIPELINE -- edger]: Running EdgeR analysis..."
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				pegi3s/r_edger:${rEdgerVersion} \
-					Rscript ${workingDir}/compi_scripts/${edgerRscript} ${er_path_counts} ${er_path_cond} ${er_path_contrast} ${er_path_output}
-			]]>
+			${scriptsDir}/edger.sh
 		</task>
 		
 		<!--Compares the results of DESeq2 and EdgeR and builds a result file with the coincidences-->
 		<task id="dea-integration" after="deseq edger" params="conditions contrast" if="[ ${selectDEAsoftware} = both ]">
-			<![CDATA[
-			echo "[PIPELINE -- dea-integration]: Integrating DESeq2 and EdgeR results..."
-			
-			#Makes a copy of the scripts used in the analysis to working-dir
-			cp ${scriptsDir}/${deaIntRscript} ${workingDir}/compi_scripts/${deaIntRscript}
-
-			dint_output="${workingDir}/${outDir}/${deaIntOut}"
-			dint_output_dk="${workingDir}/${outDir}/${deaIntOut}"
-			
-			# find the filenames of DESeq2 and EdgeR results
-			contrast_filename=$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
-			vp_comparison_label="$(echo $contrast_filename | xargs)"
-			deseq_file="${workingDir}/${outDir}/${dsqOut}/DESeq2_${vp_comparison_label}.tsv"
-			edger_file="${workingDir}/${outDir}/${edgOut}/EdgeR_${vp_comparison_label}.tsv"
-			
-			echo "[PIPELINE -- dea-integration]: Filtering results by q-value"
-			#remove header and filters the results by q-value
-			cat "${deseq_file}" | tail -n +2 | awk '$7<5e-2' | sort > "${dint_output}/deseq_qval-0.05.tsv"
-			cat "${edger_file}" | tail -n +2 | awk '$4<5e-2' | sort > "${dint_output}/edger_qval-0.05.tsv"
-			
-			echo "[PIPELINE -- dea-integration]: Saving filtered results"
-			#build one file with both results: first column "Feature", second "log2FC" and third "q-value"
-			cat <(cut -f1,3,7 "${dint_output}/deseq_qval-0.05.tsv") \
-				<(cut -f1,2,4 "${dint_output}/edger_qval-0.05.tsv") > "${dint_output}/all.tsv"
-			
-			echo "[PIPELINE -- dea-integration]: Findind coincidences"
-			#find duplicated lines in "Feature" column and saves them in "coincidences.tsv"
-			cat "${dint_output}/edger_qval-0.05.tsv" "${dint_output}/deseq_qval-0.05.tsv" | cut -f 1 | sort | uniq -d > "${dint_output}/coincidences.tsv"
-			
-			#if coincidences.tsv is not empty, perform the integration
-			if [ -s "${dint_output}/coincidences.tsv" ]; then
-				#Search the duplicates in all.tsv and adds them to a file, this file will have two rows per miRNA (one for DESeq2 results, the other for EdgeR)
-				grep -f "${dint_output}/coincidences.tsv" "${dint_output}/all.tsv" > "${dint_output}/DEmiRNAs_deseq-edger_integrated.tsv"
-				sed -i '1s/^/Feature	log2FC	q-value\n/' "${dint_output}/DEmiRNAs_deseq-edger_integrated.tsv"
-			
-				#Build the results of the proces by averaging the DESeq2 and EdgeR values
-				echo "[PIPELINE -- dea-integration]: Averaging values and building the results..."
-				docker run --rm \
-					-v ${workingDir}:${workingDir} \
-					pegi3s/r_data-analysis \
-						Rscript ${workingDir}/compi_scripts/${deaIntRscript} ${dint_output_dk}/DEmiRNAs_deseq-edger_integrated.tsv ${dint_output_dk}
-			
-			else
-				echo "[PIPELINE -- dea-integration]: [WARNING]: No coincidences between Edger and DESeq2 results"
-				echo "[PIPELINE -- dea-integration]: [WARNING]: Venn and Volcano plots skipped"
-			fi
-			
-			echo "[PIPELINE -- dea-integration]: Done!"
-					
-			]]>
+			${scriptsDir}/dea-integration.sh
 		</task>
+		
 		<!--Build the Venn diagram with the DESeq2+EdgeR results-->
 		<task id="venn" after="deseq edger dea-integration" params="vennFormat" if="[ -s ${workingDir}/${outDir}/${deaIntOut}/coincidences.tsv ]">
-			<![CDATA[
-			echo "[PIPELINE -- venn]: Building a file for the Venn diagram"
-			
-			#Makes a copy of the scripts used in the analysis to working-dir
-			cp ${scriptsDir}/${vennRscript} ${workingDir}/compi_scripts/${vennRscript}
-			
-			#Build a file with the DE features found by DESeq2 (col 1) and EdgeR (col 2)
-			venn_output_local="${workingDir}/${outDir}/${deaIntOut}/"
-			venn_des005_path=$(echo "${venn_output_local}/deseq_qval-0.05.tsv")
-			venn_edg005_path=$(echo "${venn_output_local}/edger_qval-0.05.tsv")
-			paste <(cut -f1 ${venn_des005_path}) <(cut -f1 ${venn_edg005_path}) > ${venn_output_local}/DEmiRNAs_deseq-edger_venn.tsv
-			
-			venn_path="${workingDir}/${outDir}/${deaIntOut}/DEmiRNAs_deseq-edger_venn.tsv"
-			venn_output="${workingDir}/${outDir}/${deaIntOut}/"
-			venn_output_format=${vennFormat}
-			
-			echo "[PIPELINE -- venn]: Building the Venn diagram"
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				pegi3s/r_venn-diagram \
-					Rscript ${workingDir}/compi_scripts/${vennRscript} ${venn_path} ${venn_output} ${venn_output_format}
-			]]>
+			${scriptsDir}/venn.sh
 		</task>
+		
 		<!--Build the Volcano Plot with the DESeq2/EdgeR results-->
 		<task id="volcano" after="deseq edger dea-integration" params="conditions contrast" if="[ -s ${workingDir}/${outDir}/${deaIntOut}/coincidences.tsv ]">
-			<![CDATA[
-			echo "[PIPELINE -- volcano]: Building the Volcano Plot..."
-			
-			#Makes a copy of the scripts used in the analysis to working-dir
-			cp ${scriptsDir}/${enhancedVolcanoRscript} ${workingDir}/compi_scripts/${enhancedVolcanoRscript}
-			
-			# get the contrast name to build the output filename
-			contrast_filename=$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
-			vp_comparison_label="$(echo $contrast_filename | xargs)"
-			
-			if [[ ${selectDEAsoftware} == 'edger' ]]
-			then
-				path_output_docker="${workingDir}/${outDir}/${edgOut}/"
-				vp_path_counts="${path_output_docker}/$(echo EdgeR_${contrast_filename} | xargs).tsv"
-				vp_software="edger"
-			elif [[ ${selectDEAsoftware} == 'deseq' ]]
-			then
-				path_output_docker="${workingDir}/${outDir}/${dsqOut}/"
-				vp_path_counts="${path_output_docker}/$(echo DESeq2_${contrast_filename} | xargs).tsv"
-				vp_software="deseq"
-			elif [[ ${selectDEAsoftware} = 'both' ]]
-			then
-				path_output_docker="${workingDir}/${outDir}/${deaIntOut}/"
-				vp_path_counts="${path_output_docker}/DEmiRNAs_deseq-edger_integrated.tsv"
-				vp_software="both"
-			fi
-			
-			vp_path_output=${path_output_docker}
-			
-			docker run --rm \
-				-v ${workingDir}:${workingDir} \
-				pegi3s/r_enhanced-volcano:${rEnhancedVolcanoVersion} \
-					Rscript ${workingDir}/compi_scripts/${enhancedVolcanoRscript} ${vp_path_counts} ${path_output_docker} ${vp_comparison_label} ${vp_software}
-			]]>
+			${scriptsDir}/volcano.sh
 		</task>
 	</tasks>
 	<metadata>

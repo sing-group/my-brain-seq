@@ -66,7 +66,7 @@ for (i in conditions_table$name){
 #SUBSET THE DESIRED FACTORS
 print('[PIPELINE -- edger]: Subsetting desired factors')
 # samples with the desired factors to compare
-des_samples = as.vector(subset(conditions_table, condition==c(cond_factor, ref_factor))$name)
+des_samples = as.vector(subset(conditions_table, conditions_table$condition == ref_factor | conditions_table$condition == cond_factor )$name)
 # remove the undesired samples from the counts
 x=x[,(names(x) %in% des_samples)]
 # remove the undesired samples from the conditions_table

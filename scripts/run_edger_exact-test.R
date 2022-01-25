@@ -20,6 +20,13 @@ path_cond=as.character(args[2])
 path_contrast=as.character(args[3])
 path_output=as.character(args[4])
 
+print("  ------------------------------------------------------------------")
+print(paste0("[PIPELINE -- edger]: Input counts file: ", as.character(args[1])))
+print(paste0("[PIPELINE -- edger]: Input condition file: ", as.character(args[2])))
+print(paste0("[PIPELINE -- edger]: Input contrast file: ", as.character(args[3])))
+print(paste0("[PIPELINE -- edger]: Output directory: ", as.character(args[4])))
+print("  ------------------------------------------------------------------")
+
 #DETECT FACTORS AND LABELS
 #read the input files
 contrast_table = read.delim(path_contrast, sep = '=')
@@ -28,6 +35,8 @@ conditions_table = read.delim(path_cond)
 contrast = strsplit(as.character(contrast_table$name), '-')[[1]]
 ref_factor = trimws(contrast[2])
 cond_factor = as.character(trimws(contrast[1]))
+print(paste0('[PIPELINE -- edger]: Reference factor: ', ref_factor))
+print(paste0('[PIPELINE -- edger]: Condition factor: ', cond_factor))
 
 # #get the label of the reference factor
 # ref_index=match(ref_factor, conditions_table$condition)
@@ -54,7 +63,18 @@ for (i in conditions_table$name){
   user_labels = c(user_labels, getLabel(i))
 }
 
+#SUBSET THE DESIRED FACTORS
+print('[PIPELINE -- edger]: Subsetting desired factors')
+# samples with the desired factors to compare
+des_samples = as.vector(subset(conditions_table, condition==c(cond_factor, ref_factor))$name)
+# remove the undesired samples from the counts
+x=x[,(names(x) %in% des_samples)]
+# remove the undesired samples from the conditions_table
+conditions_table=conditions_table[(conditions_table$name %in% des_samples),]
+
 #EDGER ANALYSIS
+print('[PIPELINE -- edger]: Performing the differential expression with EdgeR')
+print('')
 #build the group using ref_label as reference factor (first position in vector)
 # group = factor(user_labels, levels = c(ref_label, cond_label))
 group = factor(conditions_table$condition, levels = c(ref_factor, cond_factor))

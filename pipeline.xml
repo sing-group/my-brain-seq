@@ -348,9 +348,14 @@
 			head -n1 ${conditions} > ${conversion_file}
 
 			# converts the names of the conversion_file to a format recognized by the pipeline
-			# (adds "trimmed_" at the beginning of the rootname and ".fastq.bam" at the end)
 			echo "[PIPELINE -- deseq]: Converting condition_file format"
-			tail --lines=+2 ${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
+			# if adapter specified, adds trimmed at the beginning of the rootname and ".fastq.bam" at the end
+			if [ "${adapter}" != "NA" ]; then
+				tail --lines=+2 ${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
+			#if adapter not specified only adds ".fastq.bam" at the end
+			else
+				tail --lines=+2 ${conditions} | sed 's/\t/.fastq.bam\t/' >> ${conversion_file}
+			fi
 			
 			#Converts the "conditions" file to absolute paths
 			echo "[PIPELINE -- deseq]: Adding full paths to the condition file"
@@ -358,7 +363,8 @@
 			export dqCond_docker="${path_output_docker}/deseq_conditions_file.txt"
 			
 			# Adds "${workingDir}/..." at the beginning of the row names
-			cat "${conversion_file}" | sed 's+trimmed_*+'"${workingDir}/${outDir}/${bwtOut}/"'&+' | tr -s '/' > "${dqCond}"
+			cat "${conversion_file}" | sed '2,$s+^+'"${workingDir}/${outDir}/${bwtOut}/"'+' | tr -s '/' > "${dqCond}"
+			
 			echo "[PIPELINE -- deseq]: Contrast to perform: ${contrast_filename}"
 			
 			echo "[PIPELINE -- deseq]: Running DESeq2 analysis..."

@@ -19,5 +19,7 @@ er_path_output="${workingDir}/${outDir}/${edgOut}/"
 echo "[PIPELINE -- edger]: Running EdgeR analysis..."
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
+	-v ${er_path_contrast}:${er_path_contrast} \
+	-v ${er_path_cond}:${er_path_cond} \
 	pegi3s/r_edger:${rEdgerVersion} \
 		Rscript ${workingDir}/compi_scripts/${edgerRscript} ${er_path_counts} ${er_path_cond} ${er_path_contrast} ${er_path_output}

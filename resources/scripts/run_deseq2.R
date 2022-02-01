@@ -25,13 +25,12 @@ filename=as.character(args[5])
 #Loads the read counts of featureCounts
 cts = read.csv(file = countFile,
                     sep = "\t",
-                    skip = 1,
                     row.names = 1,
                     header = TRUE,
                     check.names=FALSE)
 
 #Keeps only the gene_ids and the quantification results of each sample
-cts = cts[-(1:5)]
+# cts = cts[-(1:5)]
 
 #Loads the annotations of the samples
 coldata = read.csv(file = annotationFile, 
@@ -53,8 +52,15 @@ print(paste0("Rownames of 'condition_file.txt' are the same as colnames of 'all-
 
 # If annotations are incorrect, show both headers
 if (test_col == FALSE){
-  print(paste0("Rownames of 'condition_file.txt': ", rownames(coldata)))
-  print(paste0("Colnames of 'all-counts.txt': ", colnames(cts)))
+  print("[ERROR]: Rownames of 'condition_file.txt' are NOT the same as colnames of 'all-counts.txt'")
+  print("    ROWNAMES of 'condition_file.txt': ")
+  print(paste('         1. ', rownames(coldata)[1], '        '))
+  print(paste('         2. ', rownames(coldata)[2], '        '))
+  print(paste('         3. ', '...', '        '))
+  print("    COLNAMES of 'all-counts.txt': ")
+  print(paste('         1. ', colnames(cts)[1], '        '))
+  print(paste('         2. ', colnames(cts)[2], '        '))
+  print(paste('         3. ', '...', '        '))
   }
 
 #Test if colnames of cts are in the same order that rownames of coldata

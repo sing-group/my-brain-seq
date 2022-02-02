@@ -44,7 +44,7 @@ if [ -s "${dint_output}/coincidences.tsv" ]; then
 			Rscript ${workingDir}/compi_scripts/${deaIntRscript} ${dint_output_dk}/DEmiRNAs_deseq-edger_integrated.tsv ${dint_output_dk}
 
 else
-	echo "[PIPELINE -- dea-integration]: [WARNING]: No coincidences between Edger and DESeq2 results"
+	echo "[PIPELINE -- dea-integration]: [WARNING]: No coincidences between Edger and DESeq2 results for a q-value < 0.05"
 	echo "[PIPELINE -- dea-integration]: [WARNING]: Venn and Volcano plots skipped"
 fi
 

@@ -19,7 +19,7 @@ edger_file="${workingDir}/${outDir}/${edgOut}/EdgeR_${vp_comparison_label}.tsv"
 echo "[PIPELINE -- dea-integration]: Filtering results by q-value"
 #remove header and filters the results by q-value
 cat "${deseq_file}" | tail -n +2 | awk '$7<5e-2' | sort > "${dint_output}/deseq_qval-0.05.tsv"
-cat "${edger_file}" | tail -n +2 | awk '$4<5e-2' | sort > "${dint_output}/edger_qval-0.05.tsv"
+cat "${edger_file}" | tail -n +2 | awk '$5<5e-2' | sort > "${dint_output}/edger_qval-0.05.tsv"
 
 echo "[PIPELINE -- dea-integration]: Saving filtered results"
 #build one file with both results: first column "Feature", second "log2FC" and third "q-value"

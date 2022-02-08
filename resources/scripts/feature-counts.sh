@@ -18,3 +18,6 @@ docker run --rm \
 	-v ${gffFile}:${gffFile} \
 	pegi3s/feature-counts:${featureCountsVersion} \
 	sh -c "featureCounts -F GTF -t miRNA -g 'Name' -a ${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam""
+
+#sh -c "featureCounts -F GFF -t miRNA -g 'product' -a ${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam"" #for NCBI gff
+#sh -c "featureCounts -F GTF -t miRNA -g 'Name' -a ${gffFile} -o "${path_output}/all-counts.txt" "${bam_input}"*".bam"" #for miRBase gff3

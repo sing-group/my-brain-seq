@@ -102,6 +102,7 @@ output_tag = paste('EdgeR_', cond_contrast_label, '-', ref_contrast_label, sep =
 output_file = paste(output_tag, '.tsv', sep = '')
 path_output_file = paste(path_output, output_file, sep='')
 
-dataframe_save = as.data.frame(et$table)
-dataframe_save = cbind(Feature = rownames(et$table), dataframe_save)
+results = topTags(et, nrow(et))$table
+dataframe_save = as.data.frame(results)
+dataframe_save = cbind(Feature = rownames(results), dataframe_save)
 write.table(dataframe_save, path_output_file, row.names = FALSE, col.names = TRUE, sep = '\t')

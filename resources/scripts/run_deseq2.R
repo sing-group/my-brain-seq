@@ -20,7 +20,7 @@ referenceFactor=paste(as.character(args[3]))
 outputDir=as.character(args[4])
 
 #Filename of the output file
-filename=as.character(args[5])
+filename=trimws(as.character(args[5]))
 
 #Loads the read counts of featureCounts
 cts = read.csv(file = countFile,

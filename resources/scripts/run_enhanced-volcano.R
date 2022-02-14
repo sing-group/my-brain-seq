@@ -10,7 +10,7 @@ suppressMessages(library('EnhancedVolcano'))
 #INPUT
 args = commandArgs(trailingOnly = TRUE)
 print("======================================================")
-print('       [PIPELINE -- dea-integration]: Rscript         ')
+print('       [PIPELINE -- enhanced-volcano]: Rscript         ')
 print('......................................................')
 print(paste0("  Input counts file: ", as.character(args[1])))
 print(paste0("  Input output dir:  ", as.character(args[2])))

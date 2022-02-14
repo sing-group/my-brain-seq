@@ -2,6 +2,7 @@
 ##  1.- path_results: path to the file with the results integrated with
 ##                    repetitions (DEmiRNAs_deseq-edger.tsv).
 ##  2.- path_output: path to the directory used to save the results.
+##  3.- contrast_name: name of the contrast to build the output filename.
 
 suppressMessages(library('data.table'))
 
@@ -9,6 +10,7 @@ suppressMessages(library('data.table'))
 args = commandArgs(trailingOnly = TRUE)
 path_results = as.character(args[1])
 path_output = as.character(args[2])
+contrast_name = as.character(args[3])
 
 #READING
 res = read.csv(file = path_results,
@@ -90,10 +92,10 @@ print(integrated_RESULTS)
 
 #SAVE RESULTS
 print('Saving integrated results')
-path_output_file = paste0(path_output, '/', 'DEmiRNAs_deseq-edger_integrated', '.tsv')
+path_output_file = paste0(path_output, '/', 'DEmiRNAs_', contrast_name, '_deseq-edger_integrated', '.tsv')
 write.table(integrated_RESULTS, path_output_file, row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
 print('Saving summary table')
-path_output_file = paste0(path_output, '/', 'DEmiRNAs_deseq-edger_summary', '.tsv')
+path_output_file = paste0(path_output, '/', 'DEmiRNAs_', contrast_name, '_summary', '.tsv')
 write.table(summary_TABLE, path_output_file, row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
 
 

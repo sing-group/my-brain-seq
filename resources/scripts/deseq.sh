@@ -15,12 +15,12 @@ export path_scriptR_docker="${workingDir}/${scriptsDir}/${deSeq2Rscript}"
 conversion_file="${path_output}/conversion_file.txt"
 
 # get the reference factor for the comparison (eg.: control)
-ref_factor=$(tail --lines=+2 ${contrast} | sed 's/".*" = //' | sed 's/".*-//' | sed 's/"$//')
+ref_factor=$(tail --lines=+2 ${contrast}  | head -n1 | cut -d '=' -f2 | xargs | cut -d'-' -f2)
 # get the condition name to adapt the conditions_file.txt
-cond_factor=$(tail --lines=+2 ${contrast} | cut -d '=' -f 2 | cut -d '-' -f 1 | sed 's/.*"//')
+cond_factor=$(tail --lines=+2 ${contrast}  | head -n1 | cut -d '=' -f2 | xargs | cut -d'-' -f1)
 
 # get the contrast name to build the output filename
-contrast_filename=$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
+contrast_filename=$(tail ${contrast} --lines=+2 | head -n1 | cut -d'=' -f1 | xargs | tr -d \")
 
 #--------------------------------------------
 # ADDING FULL PATHS TO FILTERERD CONDITIONS

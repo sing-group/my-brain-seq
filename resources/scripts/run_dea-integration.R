@@ -86,26 +86,21 @@ summary_TABLE$log2FC_EdgeR = as.numeric(ave_FC[ , 3])
 summary_TABLE$log2FC_Average = as.numeric(ave_FC[ , 4])
 summary_TABLE = as.data.frame(summary_TABLE)
 
-print('[PIPELINE -- dea-integration]: Average values calculated: ')
-print(integrated_RESULTS)
-#print(summary_TABLE)
+cat('[PIPELINE -- dea-integration | R]: Average values calculated: ', '\n')
+#order the results by qvalue
+integrated_RESULTS = integrated_RESULTS[order(integrated_RESULTS$q.value),]
+cat('\n')
+print.data.frame(head(integrated_RESULTS), row.names = FALSE)
+cat('\t...', '\n')
+cat('\n')
 
 #SAVE RESULTS
-print('Saving integrated results')
+cat('[PIPELINE -- dea-integration | R]: Saving integrated results', '\n')
 path_output_file = paste0(path_output, '/', 'DEmiRNAs_', contrast_name, '_deseq-edger_integrated', '.tsv')
 write.table(integrated_RESULTS, path_output_file, row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
-print('Saving summary table')
+cat('[PIPELINE -- dea-integration | R]:\tSaved in: ', path_output_file, '\n')
+
+cat('[PIPELINE -- dea-integration | R]: Saving summary table', '\n')
 path_output_file = paste0(path_output, '/', 'DEmiRNAs_', contrast_name, '_summary', '.tsv')
 write.table(summary_TABLE, path_output_file, row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
-
-
-
-
-
-
-
-
-
-
-
-
+cat('[PIPELINE -- dea-integration | R]:\tSaved in: ', path_output_file, '\n')

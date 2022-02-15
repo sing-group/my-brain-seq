@@ -23,7 +23,8 @@ then
 	vp_software="deseq"
 elif [[ ${selectDEAsoftware} = 'both' ]]
 then
-	path_output_docker="${workingDir}/${outDir}/${deaIntOut}/"
+	pipel_dir_name='pipel'
+	path_output_docker="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}/"
 	vp_path_counts="${path_output_docker}/DEmiRNAs_${vp_comparison_label}_deseq-edger_integrated.tsv"
 	vp_software="both"
 fi

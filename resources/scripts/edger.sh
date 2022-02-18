@@ -7,14 +7,18 @@ echo "[PIPELINE -- edger]: Performing differential expression analysis with Edge
 #Makes a copy of the scripts used in the analysis to working-dir
 cp ${scriptsDir}/${edgerRscript} ${workingDir}/compi_scripts/${edgerRscript}
 
-touch "${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
-cat "${workingDir}/${outDir}/${ftqOut}/all-counts.txt" | tail -n +2 > "${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
-
 #Inputs
-er_path_counts="${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
+er_comparison="$(echo ""${comparison}"" | cut -d= -f1 | tr -d \" | xargs)"
+er_path_pipel="${workingDir}/${outDir}/${edgOut}/pipel"
+er_path_counts="${er_path_pipel}/all-counts_edger_${er_comparison}.txt"
 er_path_cond="${conditions}"
 er_path_contrast="${contrast}"
 er_path_output="${workingDir}/${outDir}/${edgOut}/"
+
+mkdir -p "${er_path_pipel}"
+touch "${er_path_counts}"
+cat "${workingDir}/${outDir}/${ftqOut}/all-counts.txt" | tail -n +2 > "${er_path_counts}"
+
 
 echo "[PIPELINE -- edger]: Running EdgeR analysis..."
 docker run --rm \

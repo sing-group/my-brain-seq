@@ -8,7 +8,7 @@
 #	and it will be named as "run_<name of the workingDir>.sh".
 #
 # PARAMETERS:
-#	$1: Path to the compi.parameters file.
+#	$1: Absolute path to the compi.parameters file.
 #
 # USE:
 #	./make_run-sh.sh /path/to/compi.parameters

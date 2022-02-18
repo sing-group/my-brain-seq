@@ -12,8 +12,8 @@ cat "${workingDir}/${outDir}/${ftqOut}/all-counts.txt" | tail -n +2 > "${working
 
 #Inputs
 er_path_counts="${workingDir}/${outDir}/${edgOut}/all-counts_edger.txt"
-er_path_cond=${conditions}
-er_path_contrast=${contrast}
+er_path_cond="${conditions}"
+er_path_contrast="${contrast}"
 er_path_output="${workingDir}/${outDir}/${edgOut}/"
 
 echo "[PIPELINE -- edger]: Running EdgeR analysis..."
@@ -22,4 +22,4 @@ docker run --rm \
 	-v ${er_path_contrast}:${er_path_contrast} \
 	-v ${er_path_cond}:${er_path_cond} \
 	pegi3s/r_edger:${rEdgerVersion} \
-		Rscript ${workingDir}/compi_scripts/${edgerRscript} ${er_path_counts} ${er_path_cond} ${er_path_contrast} ${er_path_output}
+		Rscript ${workingDir}/compi_scripts/${edgerRscript} "${er_path_counts}" "${er_path_cond}" "${comparison}" "${er_path_output}"

@@ -1,7 +1,7 @@
 ## Script input parameters:
 ##  1.- path_counts: path to the counts file (without the first line).
 ##  2.- path_cond: path to the condition file.
-##  3.- path_contrast: path to the contrast file.
+##  3.- input_contrast: A line of the contrast file with one contrast.
 ##  4.- path_output: the output dir for the results.
 
 suppressMessages(library(edgeR))
@@ -17,19 +17,19 @@ getLabel = function(sample_name) {
 args = commandArgs(trailingOnly = TRUE)
 path_counts=as.character(args[1])
 path_cond=as.character(args[2])
-path_contrast=as.character(args[3])
+input_contrast=as.character(args[3])
 path_output=as.character(args[4])
 
-print("  ------------------------------------------------------------------")
-print(paste0("[PIPELINE -- edger]: Input counts file: ", as.character(args[1])))
-print(paste0("[PIPELINE -- edger]: Input condition file: ", as.character(args[2])))
-print(paste0("[PIPELINE -- edger]: Input contrast file: ", as.character(args[3])))
-print(paste0("[PIPELINE -- edger]: Output directory: ", as.character(args[4])))
-print("  ------------------------------------------------------------------")
+cat("  ------------------------------------------------------------------", '\n')
+cat("[PIPELINE -- edger]: Input counts file: ", as.character(args[1]), '\n')
+cat("[PIPELINE -- edger]: Input condition file: ", as.character(args[2]), '\n')
+cat("[PIPELINE -- edger]: Contrast: ", as.character(args[3]), '\n')
+cat("[PIPELINE -- edger]: Output directory: ", as.character(args[4]), '\n')
+cat("  ------------------------------------------------------------------", '\n')
 
 #DETECT FACTORS AND LABELS
 #read the input files
-contrast_table = read.delim(path_contrast, sep = '=')
+contrast_table = read.delim(text = paste('name\n', input_contrast), sep = '=')
 conditions_table = read.delim(path_cond)
 #get the reference factor and the condition (removing trailing/leading whitespaces)
 contrast = strsplit(as.character(contrast_table$name), '-')[[1]]

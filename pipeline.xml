@@ -113,9 +113,9 @@
 		</foreach>
 		
 		<!--Build the Venn diagram with the DESeq2+EdgeR results-->
-		<task id="venn" after="deseq edger dea-integration" params="vennFormat contrast" if="[ -s ${workingDir}/${outDir}/${deaIntOut}/$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \ | xargs)/*/coincidences_$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \ | xargs).tsv ]">
+		<foreach id="venn" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="vennFormat contrast" if="[ -s ${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d'=' -f1 | tr -d \ | xargs)/*/coincidences_$(echo ${comparison} | cut -d'=' -f1 | tr -d \ | xargs).tsv ]">
 			${scriptsDir}/venn.sh
-		</task>
+		</foreach>
 		
 		<!--Build the Volcano Plot with the DESeq2/EdgeR results-->
 		<task id="volcano" after="deseq edger dea-integration" params="conditions contrast" if="[ -s ${workingDir}/${outDir}/${deaIntOut}/$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \ | xargs)/*/coincidences_$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \ | xargs).tsv ]">

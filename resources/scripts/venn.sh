@@ -9,7 +9,7 @@ cp ${scriptsDir}/${vennRscript} ${workingDir}/compi_scripts/${vennRscript}
 
 # find the filenames of filtered DESeq2 and EdgeR results
 echo "[PIPELINE -- venn]: Finding filtered DESeq2 and EdgeR results"
-contrast_filename=$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
+contrast_filename=$(echo "${comparison}" | cut -d'=' -f1 | tr -d \")
 vp_comparison_label="$(echo $contrast_filename | xargs)"
 
 # output dir

@@ -7,7 +7,7 @@ path_counts=as.character(args[1])
 #condition file
 path_cond=as.character(args[2])
 #contrast file
-path_contrast=as.character(args[3])
+comparison=as.character(args[3])
 #output directory
 output_dir=as.character(args[4])
 
@@ -15,7 +15,7 @@ output_dir=as.character(args[4])
 #read the input files
 all_counts = read.delim(path_counts, skip = 1, row.names = 1, check.names=FALSE); counts = all_counts[-1:-5]
 conditions_table = read.delim(path_cond)
-contrast_table = read.delim(path_contrast, sep = '=')
+contrast_table = read.delim(text=paste('name\n', comparison), sep = '=')
 
 #DETECT FACTORS AND LABELS
 #get the condition and control
@@ -40,3 +40,4 @@ write.table(counts, path_output_counts, row.names = FALSE, col.names = TRUE, sep
 # conditions
 path_output_conditions = paste0(output_dir, '/', 'conditions_', cond_factor, '-', ref_factor, '.tsv')
 write.table(conditions_table, path_output_conditions, row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
+cat("[PIPELINE -- deseq | R]: Done", "\n")

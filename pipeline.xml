@@ -98,19 +98,19 @@
 		</task>
 
 		<!--Performs the differential expression analysis with DESeq2-->
-		<task id="deseq" after="feature-counts" params="conditions contrast deSeq2Rscript filterCtsRscript" if="[ ${selectDEAsoftware} = deseq ] || [ ${selectDEAsoftware} = both ]">
+		<foreach id="deseq" after="feature-counts" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast deSeq2Rscript filterCtsRscript" if="[ ${selectDEAsoftware} = deseq ] || [ ${selectDEAsoftware} = both ]">
 			${scriptsDir}/deseq.sh
-		</task>
+		</foreach>
 		
 		<!--Performs the differential expression analysis with EdgeR-->
-		<task id="edger" after="feature-counts" params="conditions contrast edgerRscript" if="[ ${selectDEAsoftware} = edger ] || [ ${selectDEAsoftware} = both ]">
+		<foreach id="edger" after="feature-counts" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast edgerRscript" if="[ ${selectDEAsoftware} = edger ] || [ ${selectDEAsoftware} = both ]">
 			${scriptsDir}/edger.sh
-		</task>
+		</foreach>
 		
 		<!--Compares the results of DESeq2 and EdgeR and builds a result file with the coincidences-->
-		<task id="dea-integration" after="deseq edger" params="conditions contrast" if="[ ${selectDEAsoftware} = both ]">
+		<foreach id="dea-integration" after="deseq edger" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast" if="[ ${selectDEAsoftware} = both ]">
 			${scriptsDir}/dea-integration.sh
-		</task>
+		</foreach>
 		
 		<!--Build the Venn diagram with the DESeq2+EdgeR results-->
 		<task id="venn" after="deseq edger dea-integration" params="vennFormat contrast" if="[ -s ${workingDir}/${outDir}/${deaIntOut}/$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \ | xargs)/*/coincidences_$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \ | xargs).tsv ]">

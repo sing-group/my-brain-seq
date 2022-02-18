@@ -9,7 +9,7 @@ cp ${scriptsDir}/${deaIntRscript} ${workingDir}/compi_scripts/${deaIntRscript}
 
 # find the filenames of DESeq2 and EdgeR results
 echo "[PIPELINE -- dea-integration]: Finding DESeq2 and EdgeR results"
-contrast_filename=$(tail ${contrast} --lines=+2 | cut -d'=' -f1 | tr -d \")
+contrast_filename=$(echo ${comparison} | cut -d'=' -f1 | tr -d \")
 vp_comparison_label="$(echo $contrast_filename | xargs)"
 deseq_file="${workingDir}/${outDir}/${dsqOut}/DESeq2_${vp_comparison_label}.tsv"
 edger_file="${workingDir}/${outDir}/${edgOut}/EdgeR_${vp_comparison_label}.tsv"

@@ -12,6 +12,8 @@
 		<param name="genome" shortName="genome" global="true" defaultValue="">The directory path to the genome to align.</param>
 		<param name="bwtIndex" shortName="bwti" global="true" defaultValue="">The directory path containing the Bowtie index.</param>
 		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome.</param>
+		<param name="gffFeature" shortName="gfft" defaultValue="miRNA">Feature of the .gff file to use for the annotations (eg.: miRNA, gene, transcript...), default miRNA.</param>
+		<param name="gffAttribute" shortName="gffa" defaultValue="Name">Attribute of the .gff to use in the annotations (eg.: Name, gene_id, transcript_id...), default Name.</param>
 		<param name="conditions" shortName="cond">The path to the .tsv file with the rootnames of the samples, conditions and labels.</param>
 		<param name="contrast" shortName="cont">The path to the .tsv file with the contrast DESeq2 has to perform.</param>
 		<param name="vennFormat" shortName="venf" global="true" defaultValue="png">The file format of the Venn diagram (png/svg/tiff), default png.</param>
@@ -93,7 +95,7 @@
 		</foreach>
 
 		<!--Performs the quantification with featureCounts-->
-		<task id="feature-counts" after="bam-stats" params="gffFile">
+		<task id="feature-counts" after="bam-stats" params="gffFile gffFeature gffAttribute">
 			${scriptsDir}/feature-counts.sh
 		</task>
 

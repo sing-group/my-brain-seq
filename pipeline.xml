@@ -2,7 +2,7 @@
 
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<version>0.0.1</version>
+	<version>0.1.0</version>
 
 	<params>
 		<param name="workingDir" shortName="wd" global="true" defaultValue="/working_dir">The working directory of the project. </param>
@@ -50,7 +50,6 @@
 		
 		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
 		<param name="selectDEAsoftware" shortName="dea" defaultValue="both" global="true">Use this param to select the differential expression analysis software (deseq, edger or both).</param>
-		
 	</params>
 
 	<tasks>
@@ -124,6 +123,7 @@
 			${scriptsDir}/volcano.sh
 		</foreach>
 	</tasks>
+
 	<metadata>
 		<task-description id="pull-docker-images">Pull the docker images of the software used for the analysis.</task-description>
 		<task-description id="initialization">Creates the output directories.</task-description>
@@ -136,5 +136,4 @@
 		<task-description id="feature-counts">Performs the quantification with featureCounts.</task-description>
 		<task-description id="deseq">Performs the differential expression analysis with DESeq2.</task-description>
 	</metadata>
-
 </pipeline>

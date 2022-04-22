@@ -1,4 +1,4 @@
 #
 #Wed Jun 23 09:15:25 CEST 2021
 compi.version=1.5.0
-image.name=my-brain-seq
+image.name=singgroup/my-brain-seq

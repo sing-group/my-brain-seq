@@ -259,3 +259,12 @@ Now open compi.parameters (`/working-dir/input`)  and modify the paths to adapt 
 ## Building the Docker image
 
 To build the Docker image, [`compi-dk`](https://www.sing-group.org/compi/#downloads) is required. Once you have it installed, simply run `compi-dk build` from the project directory to build the Docker image. The image will be created with the name specified in the `compi.project` file. This file also specifies the version of compi that goes into the Docker image.
+
+
+# Team 
+
+MyBrain-Seq is a pipeline developed by the SING and NeuroEpigenetics Lab groups.
+
+- Daniel Pérez-Rodríguez [![ORCID](https://info.orcid.org/wp-content/uploads/2020/12/orcid_16x16.gif)](https://orcid.org/0000-0002-8110-3567), daniel.prz.rodriguez@gmail.com 
+- Hugo López-Fernández [![ORCID](https://info.orcid.org/wp-content/uploads/2020/12/orcid_16x16.gif)](https://orcid.org/0000-0002-6476-7206), hlfernandez@uvigo.es
+- Roberto C. Agís-Balboa [![ORCID](https://info.orcid.org/wp-content/uploads/2020/12/orcid_16x16.gif)](https://orcid.org/0000-0001-9899-9569), roberto.carlos.agis.balboa@hotmail.com

@@ -136,7 +136,7 @@ WD=$(cat $COMPI_PARAMETERS | grep 'workingDir' | cut -d'=' -f2)
 sudo docker run --rm --entrypoint /init-working-dir/make_run-sh.sh -v ${WD}:${WD} -v ${COMPI_PARAMETERS}:${WD}/compi.parameters singgroup/my-brain-seq ${WD}/compi.parameters
 ```
 
-The resulting file will be an script saved in the same directoy as the `compi.parameters` file and it will be named as `run_<name of the workingDir>.sh`. To begin with the analysis just run it, for example:
+The resulting file will be an script saved in the working directory and named as `run_<name of the workingDir>.sh`. To begin with the analysis just run it, for example:
 
 ```
 ./run_mbs-project.sh

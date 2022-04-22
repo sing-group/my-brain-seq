@@ -1,5 +1,5 @@
 # myBrain-Seq [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/sing-group/my-brain-seq) [![dockerhub](https://img.shields.io/badge/hub-docker-blue)](https://hub.docker.com/r/sing-group/my-brain-seq) [![compihub](https://img.shields.io/badge/hub-compi-blue)](https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f)
-> **myBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline for miRNA-Seq analysis of neuropsychiatric data . A Docker image is available for this pipeline in [this Docker Hub repository](https://hub.docker.com/r/sing-group/my-brain-seq).
+> **myBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline for miRNA-Seq analysis of neuropsychiatric data. A Docker image is available for this pipeline in [this Docker Hub repository](https://hub.docker.com/r/sing-group/my-brain-seq).
 
 ## myBrain-Seq repositories
 
@@ -38,7 +38,7 @@ In addition, the user can instruct myBrain-Seq to generate a genome index for th
 To start a new analysis, the first thing to do is build the directory tree in your local file system (`mbs_project` in the example). This directory tree will be refered as the "working directory" and its structure is recognized and used by the pipeline during the analysis. It has the following structure: 
 
 ```
-/mbs-project 
+/path/to/mbs-project 
 	|-- input 
 	|   |-- compi.parameters 
 	|   |-- conditions_file.txt 
@@ -54,17 +54,17 @@ Where:
 
  The creations of these files is detailed in the following sections. You may find it convenient to create additional directories and files within the working directory to group all the data related to a particular study.
 
-## Writting the compi.parameters file
+## Writting the `compi.parameters` file
 
-The compi.parameters file is used by myBrain-Seq to locate the files needed for the analysis as well as to define which optional tasks will be run. Here is an example of a compi.parameters file using the working directory created in the previous example:
+The `compi.parameters` file is used by myBrain-Seq to locate the files needed for the analysis as well as to define which optional tasks will be run. Here is an example of a `compi.parameters` file using the working directory created in the previous example:
 
 ```
-workingDir=/mbs-project
-fastqDir=/study_1/data/
-gffFile=/study_1/refs/mirbase_hsa.gff3
-conditions=/mbs-project/input/conditions_file_study_1.txt
-contrast=/mbs-project/input/contrast_file_study_1.txt
-bwtIndex=/study_1/refs/bowtie-index_GRCh38
+workingDir=/path/to/mbs-project
+fastqDir=/path/to/study_1/data/
+gffFile=/path/to/study_1/refs/mirbase_hsa.gff3
+conditions=/path/to/mbs-project/input/conditions_file_study_1.txt
+contrast=/path/to/mbs-project/input/contrast_file_study_1.txt
+bwtIndex=/path/to/study_1/refs/bowtie-index_GRCh38
 adapter=TGGAATTCTCGGGTGCCAAGG
 ```
 
@@ -80,13 +80,13 @@ This file contains the following mandatory parameters:
 
 And the following optional parameters:
 
-- **adapter** *(optional)*: the sequence of the adapter to remove. If this parameter is omitted myBrain-Seq will skip the adapter removal step.
-- **gffFeature** *(optional)*: the name of the feature of the GFF3 file from which the attributes will be obtained; the default value is "miRNA".
-- **gffAttribute** *(optional)*: the name of the attribute in the GFF3 file to use in the annotations; the default value is "Name".
+- **adapter**: the sequence of the adapter to remove. If this parameter is omitted myBrain-Seq will skip the adapter removal step.
+- **gffFeature**: the name of the feature of the GFF3 file from which the attributes will be obtained; the default value is "miRNA".
+- **gffAttribute**: the name of the attribute in the GFF3 file to use in the annotations; the default value is "Name".
 
-## Writting the conditions_file.txt file
+## Writting the `conditions_file.txt` file
 
-The conditions file is a TSV file used by myBrain-Seq to link each fastQ file with its condition. This information will be used to choose the group of samples to compare in the differential expression analysis. Here is an example of a conditions_file:
+The `conditions_file.txt` is a TSV file used by myBrain-Seq to link each fastQ file with its condition. This information will be used to choose the group of samples to compare in the differential expression analysis. Here is an example of a conditions file:
 
 	name	condition	label
 	C019 	control		C_before_treatment
@@ -108,9 +108,9 @@ In order to obtain a file with a valid format, the following considerations must
 - The second row must be the conditions.
  - The third column is the label, which is only used so that the user can identify each sample in case there is more than one condition. It has no impact on the analysis result and can be omitted.
 
-## Writting the contrast_file.txt file
+## Writting the `contrast_file.txt` file
 
-The contrast_file.txt is used by myBrain-Seq to perform the comparisons between samples of two different conditions in the differential expression analysis. Each line on this file corresponds with a contrast that myBrain-Seq has to perform. Here is an example of a contrast_file:
+The `contrast_file.txt` is used by myBrain-Seq to perform the comparisons between samples of two different conditions in the differential expression analysis. Each line on this file corresponds with a contrast that myBrain-Seq has to perform. Here is an example of a contrast file:
 
 ```
 name
@@ -136,7 +136,7 @@ WD=$(cat $COMPI_PARAMETERS | grep 'workingDir' | cut -d'=' -f2)
 sudo docker run --rm --entrypoint /init-working-dir/make_run-sh.sh -v ${WD}:${WD} -v ${COMPI_PARAMETERS}:${WD}/compi.parameters singgroup/my-brain-seq ${WD}/compi.parameters
 ```
 
-The resulting file will be an script saved in the same directoy as the compi.parameters file and it will be named as `run_<name of the workingDir>.sh`. To begin with the analysis just run it, for example:
+The resulting file will be an script saved in the same directoy as the `compi.parameters` file and it will be named as `run_<name of the workingDir>.sh`. To begin with the analysis just run it, for example:
 
 ```
 ./run_mbs-project.sh

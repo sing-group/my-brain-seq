@@ -130,10 +130,10 @@ In order to obtain a file with a valid format, the following considerations must
 Once all the required files were built you need to **build a runner** in order to perform the myBrain-Seq analysis. This can be done using the script `make_run-sh.sh`. This script uses the `compi.parameters` file as reference and will mount all the needed Docker volumes and build a directory for the logs. To use this script **adapt the first line** on the following code:
 
 ```bash
-COMPI_PARAMETERS=/path/to/compi.parameters.txt
+COMPI_PARAMETERS=/path/to/compi.parameters
 
 WD=$(cat $COMPI_PARAMETERS | grep 'workingDir' | cut -d'=' -f2)
-sudo docker run --rm --entrypoint /init-working-dir/make_run-sh.sh -v ${WD}:${WD} -v ${COMPI_PARAMETERS}:${WD}/compi.parameters singgroup/my-brain-seq ${WD}/compi.parameters
+docker run --rm --entrypoint /init-working-dir/make_run-sh.sh -v ${WD}:${WD} -v ${COMPI_PARAMETERS}:${WD}/compi.parameters singgroup/my-brain-seq ${WD}/compi.parameters
 ```
 
 The resulting file will be an script saved in the working directory and named as `run_<name of the workingDir>.sh`. To begin with the analysis just run it, for example:
@@ -234,21 +234,14 @@ These are the pipeline parameters:
 
 - `selectDEAsoftware`: Use this param to select the differential expression analysis software (deseq, edger or both).
 
-  
-
 # Test data
 
-The sample data is available [here](https://github.com/pegi3s/ipssa/raw/master/resources/test-data/ipssa-m-leprae.zip). Download and uncompress it, you will get a directory named `working-dir` : this directory contains an example of a functional working directory, were the data and biological references were grouped within it. Here you can find:
+The sample data is available [here](http://static.sing-group.org/software/myBrainSeq/downloads/test-data-0.1.0.zip). Download and uncompress it, you will get a directory named `working-dir` that contains an example of a functional working directory, were the data and biological references were grouped within it. Here you can find:
 
-- A directory called `input`, with the compi.parameters, condition_file.txt and contrast_file.txt of this particular study.
-- A directory called `output`, where the output files of the analysis will be saved.
+- A directory called `input`, with the `compi.parameters`, `condition_file.txt` and `contrast_file.txt` of this particular study.
 - A directory called `data`, with the fastQ files of the study, the Bowtie index and the miRNA annotations. 
 
-Now open compi.parameters (`/working-dir/input`)  and modify the paths to adapt them to the absolute location of the working directory, i.e.: `workingDir=/working-dir` could be `workingDir=/home/user/working-dir`. After doing this, you need to build the runner of myBrain-Seq by adapting and running the code described in the section "Running the myBrain-Seq analysis". A script called `run_working-dir.sh` should appear inside the working-dir directory. To start the analysis go to the working directory and run the following code:
-
-```bash
-./run_working-dir.sh
-```
+To run the pipeline with this test data, edit the `compi.parameters` (at `/working-dir/input`) and modify the paths to adapt them to the absolute location of the working directory in your computer (e.g.: `workingDir=/working-dir` could be `workingDir=/home/user/working-dir`). After doing this, just run the `run.sh` script included.
 
 ## Running time
 

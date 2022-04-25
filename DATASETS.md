@@ -1,12 +1,11 @@
 # Test data
 
-Test data for the pipeline. Look at the instructions in the README section to see how to use it.
+Test data for the pipeline. Look at the instructions in the README.txt included in it.
 
 ## Download links
 
-- http://path.to/download
+- http://static.sing-group.org/software/myBrainSeq/downloads/test-data-0.1.0.zip
 
 ## Compatible versions
 
-- 1.0.0
-- 0.0.1
+- 0.1.0

@@ -1,10 +1,10 @@
-# myBrain-Seq [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/sing-group/my-brain-seq) [![dockerhub](https://img.shields.io/badge/hub-docker-blue)](https://hub.docker.com/r/sing-group/my-brain-seq) [![compihub](https://img.shields.io/badge/hub-compi-blue)](https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f)
-> **myBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline for miRNA-Seq analysis of neuropsychiatric data. A Docker image is available for this pipeline in [this Docker Hub repository](https://hub.docker.com/r/sing-group/my-brain-seq).
+# myBrain-Seq [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/sing-group/my-brain-seq) [![dockerhub](https://img.shields.io/badge/hub-docker-blue)](https://hub.docker.com/r/singgroup/my-brain-seq) [![compihub](https://img.shields.io/badge/hub-compi-blue)](https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f)
+> **myBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline for miRNA-Seq analysis of neuropsychiatric data. A Docker image is available for this pipeline in [this Docker Hub repository](https://hub.docker.com/r/singgroup/my-brain-seq).
 
 ## myBrain-Seq repositories
 
 - [GitHub](https://github.com/sing-group/my-brain-seq)
-- [Docker Hub](https://hub.docker.com/r/sing-group/my-brain-seq)
+- [Docker Hub](https://hub.docker.com/r/singgroup/my-brain-seq)
 - [CompiHub](https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f)
 
 # What does myBrain-Seq do?

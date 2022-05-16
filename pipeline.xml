@@ -84,7 +84,7 @@
 		</foreach>
 
 		<!--Converts the sam files to bam format-->
-		<foreach id="sam-to-bam" after="bowtie-alignment" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*\.fastq.sam" as="file">
+		<foreach id="sam-to-bam" after="bowtie-alignment" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*.\fastq.*\.sam" as="file">
 			${scriptsDir}/sam-to-bam.sh
 		</foreach>
 

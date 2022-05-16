@@ -89,7 +89,7 @@
 		</foreach>
 
 		<!--Performs the quality control with QualiMap-->
-		<foreach id="bam-stats" after="sam-to-bam" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*\.fastq.bam" as="bamFile">
+		<foreach id="bam-stats" after="sam-to-bam" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*.\fastq.*\.bam" as="bamFile">
 			${scriptsDir}/bam-stats.sh
 		</foreach>
 

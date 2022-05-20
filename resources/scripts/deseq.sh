@@ -24,6 +24,7 @@ contrast_filename=$(echo "${comparison}" | head -n1 | cut -d'=' -f1 | xargs | tr
 export path_output_results="${workingDir}/${outDir}/${dsqOut}"
 export path_output_pipel="${workingDir}/${outDir}/${dsqOut}/pipel"
 export path_scriptR_docker="${workingDir}/${scriptsDir}/${deSeq2Rscript}"
+export path_output_bowtie="${workingDir}/${outDir}/${bwtOut}"
 conversion_file="${path_output_pipel}/conversion_file_${contrast_filename}.txt"
 
 # creates the directory for the pipeline files
@@ -33,15 +34,18 @@ mkdir -p ${path_output_pipel}
 # ADDING FULL PATHS TO FILTERERD CONDITIONS
 #--------------------------------------------
 echo "[PIPELINE -- deseq]: Converting $(basename ${conditions}) format to full paths"
+# get the file extension from the bowtie output files
+dqFilename=$(ls -1 "${path_output_bowtie}" | grep -e "\.fastq\..*\.bam" | head -n1)
+dqExtension=${dqFilename#*.}
 # creates an empty file and adds the header of conditions_file.
 head -n1 ${conditions} > "${conversion_file}"
 # converts the names of the conversion_file to a format recognized by the pipeline
 # if adapter specified, adds trimmed at the beginning of the rootname and ".fastq.bam" at the end
 if [ "${adapter}" != "NA" ]; then
-	tail --lines=+2 ${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.fastq.bam\t/' >> "${conversion_file}"
+	tail --lines=+2 ${conditions} | sed 's/^/trimmed_/' | sed 's/\t/.'"${dqExtension}"'\t/' >> "${conversion_file}"
 #if adapter not specified only adds ".fastq.bam" at the end
 else
-	tail --lines=+2 ${conditions} | sed 's/\t/.fastq.bam\t/' >> "${conversion_file}"
+	tail --lines=+2 ${conditions} | sed 's/\t/.'"${dqExtension}"'\t/' >> "${conversion_file}"
 fi
 
 #Converts the "conditions" file to absolute paths
@@ -55,7 +59,7 @@ cat "${conversion_file}" | sed '2,$s+^+'"${workingDir}/${outDir}/${bwtOut}/"'+' 
 #--------------------------------------------
 #        FILTERING ALL_COUNTS.TXT
 #--------------------------------------------
-echo '[PIPELINE -- deseq]: Filtering conditions based on: "${comparison}"'
+echo '[PIPELINE -- deseq]: Filtering conditions based on: '"${comparison}"
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_deseq2:${rDeseq2Version} \

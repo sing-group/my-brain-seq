@@ -98,7 +98,8 @@ et = exactTest(y)
 print(topTags(et))
 print(summary(decideTests(et)))
 #save results
-output_tag = paste('EdgeR_', cond_contrast_label, '-', ref_contrast_label, sep = '')
+output_label = trimws(as.character(rownames(contrast_table)))
+output_tag = paste('EdgeR_', output_label, sep = '')
 output_file = paste(output_tag, '.tsv', sep = '')
 path_output_file = paste(path_output, output_file, sep='')
 

@@ -9,8 +9,8 @@ cp ${scriptsDir}/${vennRscript} ${workingDir}/compi_scripts/${vennRscript}
 
 # find the filenames of filtered DESeq2 and EdgeR results
 echo "[PIPELINE -- venn]: Finding filtered DESeq2 and EdgeR results"
-contrast_filename=$(echo "${comparison}" | cut -d'=' -f1 | tr -d \")
-vp_comparison_label="$(echo $contrast_filename | xargs)"
+vp_comparison_label=$(echo "${comparison}" | cut -d'"' -f2)
+#vp_comparison_label="$(echo $contrast_filename | xargs)"
 
 # output dir
 pipel_dir_name='pipel'
@@ -26,7 +26,7 @@ echo "[PIPELINE -- venn]:	EdgeR  file: $venn_edg005_path"
 # build a file with the DE features found by DESeq2 (col 1) and EdgeR (col 2)
 join_file="DEmiRNAs_deseq-edger_${vp_comparison_label}_venn.tsv"
 echo "[PIPELINE -- venn]: Joining DESeq2 and EdgeR results in one file"
-paste <(cut -f1 ${venn_des005_path}) <(cut -f1 ${venn_edg005_path}) > ${output_pipel}/${join_file}
+paste <(cut -f1 "${venn_des005_path}") <(cut -f1 "${venn_edg005_path}") > "${output_pipel}/${join_file}"
 echo "[PIPELINE -- venn]:	Done, saved in: ${output_pipel}/${join_file}"
 
 venn_path="${output_pipel}${join_file}"
@@ -37,4 +37,4 @@ echo "[PIPELINE -- venn]: Building the Venn diagram"
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_venn-diagram \
-		Rscript ${workingDir}/compi_scripts/${vennRscript} ${venn_path} ${venn_output} ${venn_output_format} ${vp_comparison_label}
+		Rscript "${workingDir}/compi_scripts/${vennRscript}" "${venn_path}" "${venn_output}" "${venn_output_format}" "${vp_comparison_label}"

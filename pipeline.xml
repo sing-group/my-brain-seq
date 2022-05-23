@@ -114,7 +114,7 @@
 		</foreach>
 		
 		<!--Build the Venn diagram with the DESeq2+EdgeR results-->
-		<foreach id="venn" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="vennFormat contrast" if="[ -s ${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d'=' -f1 | tr -d \ | xargs)/*/coincidences_$(echo ${comparison} | cut -d'=' -f1 | tr -d \ | xargs).tsv ]">
+		<foreach id="venn" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="vennFormat contrast" if="[ -s &quot;${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d '&quot;' -f 2)&quot;/pipel/coincidences_*.\tsv ]">
 			${scriptsDir}/venn.sh
 		</foreach>
 		

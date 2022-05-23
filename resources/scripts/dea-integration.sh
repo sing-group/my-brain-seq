@@ -56,7 +56,7 @@ if [ -s "${output_pipel}/coincidences_${vp_comparison_label}.tsv" ]; then
 	docker run --rm \
 		-v ${workingDir}:${workingDir} \
 		pegi3s/r_data-analysis \
-			Rscript ${workingDir}/compi_scripts/${deaIntRscript} ${output_pipel}/DEmiRNAs_${vp_comparison_label}_deseq-edger_integrated.tsv ${output} ${vp_comparison_label}
+			Rscript ${workingDir}/compi_scripts/${deaIntRscript} "${output_pipel}/DEmiRNAs_${vp_comparison_label}_deseq-edger_integrated.tsv" "${output}" "${vp_comparison_label}"
 
 else
 	echo "[PIPELINE -- dea-integration]:	[WARNING]: No coincidences between EdgeR and DESeq2 results for a q-value < 0.05"

@@ -9,8 +9,8 @@ cp ${scriptsDir}/${deaIntRscript} ${workingDir}/compi_scripts/${deaIntRscript}
 
 # find the filenames of DESeq2 and EdgeR results
 echo "[PIPELINE -- dea-integration]: Finding DESeq2 and EdgeR results"
-contrast_filename=$(echo "${comparison}" | cut -d'=' -f1 | tr -d \")
-vp_comparison_label="$(echo ""${contrast_filename}"" | xargs)"
+contrast_filename=$(echo "${comparison}" | cut -d'=' -f1 | tr -d \" | sed -e 's/ /\\ /g')
+vp_comparison_label="$(echo ${contrast_filename} | xargs)"
 deseq_file="${workingDir}/${outDir}/${dsqOut}/DESeq2_${vp_comparison_label}.tsv"
 edger_file="${workingDir}/${outDir}/${edgOut}/EdgeR_${vp_comparison_label}.tsv"
 echo "[PIPELINE -- dea-integration]:	DESeq2 file: $deseq_file"
@@ -22,7 +22,7 @@ output="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}"
 output_pipel="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}/${pipel_dir_name}"
 
 # make a directory for the pipeline intermediate files
-mkdir -p ${output_pipel}
+mkdir -p "${output_pipel}"
 
 # remove header and filters the results by q-value
 echo '[PIPELINE -- dea-integration]: Filtering results by q-value < 0.05'

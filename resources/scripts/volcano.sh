@@ -8,7 +8,7 @@ echo "[PIPELINE -- volcano]: Building the Volcano Plot..."
 cp ${scriptsDir}/${enhancedVolcanoRscript} ${workingDir}/compi_scripts/${enhancedVolcanoRscript}
 
 # get the contrast name to build the output filename
-contrast_label=$(echo "${comparison}" | cut -d'=' -f1 | tr -d \" | xargs)
+contrast_label=$(echo "${comparison}" | cut -d'"' -f2 )
 
 if [[ ${selectDEAsoftware} == 'edger' ]]
 then
@@ -33,4 +33,4 @@ vp_path_output=${path_output_docker}
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_enhanced-volcano:${rEnhancedVolcanoVersion} \
-		Rscript ${workingDir}/compi_scripts/${enhancedVolcanoRscript} ${vp_path_counts} ${path_output_docker} ${contrast_label} ${vp_software}
+		Rscript "${workingDir}/compi_scripts/${enhancedVolcanoRscript}" "${vp_path_counts}" "${path_output_docker}" "${contrast_label}" "${vp_software}"

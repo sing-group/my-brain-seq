@@ -38,13 +38,9 @@ cond_factor = as.character(trimws(contrast[1]))
 print(paste0('[PIPELINE -- edger]: Reference factor: ', ref_factor))
 print(paste0('[PIPELINE -- edger]: Condition factor: ', cond_factor))
 
-# #get the label of the reference factor
-# ref_index=match(ref_factor, conditions_table$condition)
-# ref_label = as.character(conditions_table$label[ref_index])
+#get the label of the reference factor
 ref_contrast_label=trimws(strsplit(as.character(rownames(contrast_table)), '-')[[1]][2])
-# #get the label of the condition factor
-# cond_index = match(cond_factor, conditions_table$condition)
-# cond_label = as.character(conditions_table$label[cond_index])
+#get the label of the condition factor
 cond_contrast_label=trimws(strsplit(as.character(rownames(contrast_table)), '-')[[1]][1])
 
 #import the read counts and remove the featureCount annotations
@@ -63,6 +59,25 @@ for (i in conditions_table$name){
   user_labels = c(user_labels, getLabel(i))
 }
 
+#PREPARE COFOUNDING FACTORS IF ANY
+# get confounding variables
+default_columns = c('name', 'condition', 'label')
+adjust_for = subset(colnames(conditions_table),
+                    !colnames(conditions_table) %in% default_columns)
+print_adjust = paste(adjust_for, collapse=', ')
+if (length(adjust_for > 1)){
+  print(paste0('[PIPELINE -- edger]: Adjust model for: ', print_adjust))
+}else{
+  print(paste0('[PIPELINE -- edger]: No model adjustment'))
+}
+
+#confounding variables to factors
+if (length(adjust_for > 1)){
+  for (i in adjust_for) {
+    conditions_table[[i]] = factor(conditions_table[[i]])
+  }
+}
+
 #SUBSET THE DESIRED FACTORS
 print('[PIPELINE -- edger]: Subsetting desired factors')
 # samples with the desired factors to compare
@@ -72,22 +87,40 @@ x=x[,(names(x) %in% des_samples)]
 # remove the undesired samples from the conditions_table
 conditions_table=conditions_table[(conditions_table$name %in% des_samples),]
 
-#EDGER ANALYSIS
+#-------------------------------------------------------------------------------
+#                             EDGER ANALYSIS
+#-------------------------------------------------------------------------------
 print('[PIPELINE -- edger]: Performing the differential expression with EdgeR')
-print('')
 #build the group using ref_label as reference factor (first position in vector)
-# group = factor(user_labels, levels = c(ref_label, cond_label))
 group = factor(conditions_table$condition, levels = c(ref_factor, cond_factor))
 #build the DGEList object for the EdgeR analysis
 y = DGEList(counts=x, group=group)
+
+#FILTERING AND NORMALIZATION
 #filter out lowly expressed miRNAs
 keep = filterByExpr(y)
 y = y[keep,,keep.lib.sizes=FALSE]
 #normalization by library size (uses TMM)
 y = calcNormFactors(y)
-#build the model matrix
-design = model.matrix(~group)
+
+#EDGER DESIGN
+#builds the edger model matrix
+if (length(adjust_for > 0)){
+  adjustment = paste('conditions_table$', adjust_for, collapse=' + ', sep = '')
+  design = paste("~group +", adjustment)
+  design = model.matrix(formula(design))
+  # for printing model
+  print_adjustment = paste(adjust_for, collapse=' + ')
+  print_design = paste("~group +", print_adjustment)
+} else {
+  print_design = "~group"
+  design = model.matrix(~group)
+}
 rownames(design) = colnames(x)
+
+print(paste0('[PIPELINE -- edger]: Model: ', print_design))
+print('')
+
 #estimate dispersion
 y = estimateDisp(y,design) 
 #Differential expression analysis using an exact test
@@ -98,8 +131,7 @@ et = exactTest(y)
 print(topTags(et))
 print(summary(decideTests(et)))
 #save results
-output_label = trimws(as.character(rownames(contrast_table)))
-output_tag = paste('EdgeR_', output_label, sep = '')
+output_tag = paste('EdgeR_', cond_contrast_label, '-', ref_contrast_label, sep = '')
 output_file = paste(output_tag, '.tsv', sep = '')
 path_output_file = paste(path_output, output_file, sep='')
 

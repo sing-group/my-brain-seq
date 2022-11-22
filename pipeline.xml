@@ -99,7 +99,7 @@
 		</task>
 
 		<!--Performs the differential expression analysis with DESeq2-->
-		<foreach id="deseq" after="feature-counts" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast deSeq2Rscript filterCtsRscript" if="[ ${selectDEAsoftware} = deseq ] || [ ${selectDEAsoftware} = both ]">
+		<foreach id="deseq" after="feature-counts" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast deSeq2Rscript" if="[ ${selectDEAsoftware} = deseq ] || [ ${selectDEAsoftware} = both ]">
 			${scriptsDir}/deseq.sh
 		</foreach>
 		

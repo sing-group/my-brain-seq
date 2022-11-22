@@ -6,7 +6,7 @@ set -o errexit
 echo "[PIPELINE -- deseq]: Performing differential expression analysis with DESeq2..."
 
 #Makes a copy of the scripts used in the analysis to working-dir
-cp ${scriptsDir}/${Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
+cp ${scriptsDir}/${deSeq2Rscript} ${workingDir}/compi_scripts/${deSeq2Rscript}
 
 #INPUTS
 #common

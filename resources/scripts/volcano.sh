@@ -38,7 +38,7 @@ then
 	run_volcano "${vp_path_counts}" "${path_output_docker}" "${contrast_label}" "${vp_software}"
 fi
 
-if [[ ${selectDEAsoftware} = 'both' ]]
+if [[ ${selectDEAsoftware} == 'both' ]]
 then
 	pipel_dir_name='pipel'
 	path_output_docker="${workingDir}/${outDir}/${deaIntOut}/${contrast_label}/"

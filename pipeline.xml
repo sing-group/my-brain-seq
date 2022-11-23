@@ -27,7 +27,7 @@
 		<param name="edgOut" shortName="edgo" global="true" defaultValue="6_edger">The relative path to the directory containing the EdgeR results.</param>
 		<param name="deaIntOut" shortName="dinto" global="true" defaultValue="6_deseq2+edger">The relative path to the directory containing the results of the DESeq2 and EdgeR integration.</param>
 
-		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
+		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R scripts.</param>
 		<param name="testAdapterBashScript" shortName="tabs" global="true" defaultValue="test_isadapter.sh">The relative path to the directory containing the R script to get the path of the aligned/unaligned data.</param>
 		<param name="deSeq2Rscript" shortName="rdes" global="true" defaultValue="run_deseq2.R">The relative path to the directory containing the R script to run the DESeq2 analysis.</param>
 		<param name="filterCtsRscript" shortName="fcrs" global="true" defaultValue="filter_counts.R">The relative path to the directory containing the R script used to filter all-counts.txt and conditions_file.</param>

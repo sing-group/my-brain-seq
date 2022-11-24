@@ -8,7 +8,7 @@ cp ${scriptsDir}/${hclustMakeTableRscript} ${workingDir}/compi_scripts/${hclustM
 # get the contrast name to build the output filename
 contrast_label=$(echo "${comparison}" | cut -d'"' -f2 )
 
-# function to perform the volcano analysis
+# function to perform the hierarchical clustering analysis
 function run_hclust {
 # $1 : ${dea_results}
 # $2 : ${path_counts}
@@ -21,13 +21,13 @@ echo "[PIPELINE -- hclust]: Building the hierarchical clustering table for ${4} 
   docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_data-analysis:${rdatanalysisVersion} \
-		Rscript "${workingDir}/compi_scripts/${enhancedVolcanoRscript}" "${1}" "${2}" "${3}" "${4}" "${5}" "${6}"
+		Rscript "${workingDir}/compi_scripts/${hclustMakeTableRscript}" "${1}" "${2}" "${3}" "${4}" "${5}" "${6}"
 }
 
 path_conditions="${conditions}"
 input_contrast="${comparison}"
 
-# perform the volcano plot on the corresponding data
+# perform the hierarchical clustering on the corresponding data
 if [[ ${selectDEAsoftware} == 'edger' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
 	path_output_docker="${workingDir}/${outDir}/${edgOut}/"
@@ -50,10 +50,8 @@ if [[ ${selectDEAsoftware} == 'both' ]]
 then
 	path_output_docker="${workingDir}/${outDir}/${deaIntOut}/${contrast_label}/"
 	dea_results="${path_output_docker}/DEmiRNAs_${contrast_label}_deseq-edger_integrated.tsv"
-	path_counts="${path_output_docker}/pipel/DEmiRNAs_${contrast_label}_deseq-edger_integrated.tsv"
+	# uses the counts of EdgeR DESeq2 and
+	path_counts="${workingDir}/${outDir}/${edgOut}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
 	software="DESeq2-EdgeR"
 	run_hclust "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}"
 fi
-
-#vp_path_output=${path_output_docker}
-

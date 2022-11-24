@@ -46,9 +46,8 @@
 		<param name="featureCountsVersion" shortName="fqv" defaultValue="2.0.0" global="true">Version of the pegi3s/feature-counts Docker image to use.</param>
 		<param name="samtoolsVersion" shortName="stv" defaultValue="1.9" global="true">Version of the pegi3s/samtools_bcftools Docker image to use.</param>
 		<param name="samtoolsBamstatsVersion" shortName="spb" defaultValue="1.10" global="true">Version of the pegi3s/samtools_bcftools Docker image to use for bam analysis.</param>
-		<param name="rdatanalysisVersion" shortName="rdav" defaultValue="4.1.1" global="true">Version of the pegi3s/r_data-analysis Docker image to use.</param>
+		<param name="rdatanalysisVersion" shortName="rdav" defaultValue="4.1.1_v1" global="true">Version of the pegi3s/r_data-analysis Docker image to use.</param>
 		<param name="rVennVersion" shortName="rvv" defaultValue="1.7.0" global="true">Version of the pegi3s/r_venn-diagram Docker image to use.</param>
-		<param name="rDataAnalysisVersion" shortName="rvv" defaultValue="1.7.0" global="true">Version of the pegi3s/r_venn-diagram Docker image to use.</param>
 		
 		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
 		<param name="selectDEAsoftware" shortName="dea" defaultValue="both" global="true">Use this param to select the differential expression analysis software (deseq, edger or both).</param>
@@ -123,6 +122,11 @@
 		<!--Build the Volcano Plot with the DESeq2/EdgeR results-->
 		<foreach id="volcano" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast" if="[ -s &quot;${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d '&quot;' -f 2)&quot;/pipel/coincidences_*.\tsv ]">
 			${scriptsDir}/volcano.sh
+		</foreach>
+		
+		<!--Build a Hierarchical Clustering using the DESeq2/EdgeR results-->
+		<foreach id="hclust" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast" if="[ -s &quot;${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d '&quot;' -f 2)&quot;/pipel/coincidences_*.\tsv ]">
+			${scriptsDir}/hclust.sh
 		</foreach>
 	</tasks>
 

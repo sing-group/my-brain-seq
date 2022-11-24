@@ -89,11 +89,13 @@ summary_TABLE = as.data.frame(summary_TABLE)
 cat('[PIPELINE -- dea-integration | R]: Average values calculated: ', '\n')
 #order the results by qvalue
 integrated_RESULTS = integrated_RESULTS[order(integrated_RESULTS$q.value),]
+#change de colnames to the same as DESeq2 and EdgeR
+
 cat('\n')
 print.data.frame(head(integrated_RESULTS), row.names = FALSE)
 cat('\t...', '\n')
 cat('\n')
-
+colnames(integrated_RESULTS) = c('Feature',	'log2FC',	'qvalue')
 #SAVE RESULTS
 cat('[PIPELINE -- dea-integration | R]: Saving integrated results', '\n')
 path_output_file = paste0(path_output, '/', 'DEmiRNAs_', contrast_name, '_deseq-edger_integrated', '.tsv')

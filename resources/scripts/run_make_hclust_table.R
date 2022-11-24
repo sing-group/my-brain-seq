@@ -35,7 +35,7 @@ print('......................................................')
 #                                FUNCTIONS
 #-------------------------------------------------------------------------------
 print('[PIPELINE -- hclust]: Loading functions')
-library(dplyr)
+suppressMessages(library(dplyr))
 
 read_tsv = function(file, skip = 0, rowname = NULL) {
   # Read a tsv file
@@ -90,7 +90,7 @@ print('[PIPELINE -- hclust]: Loading files')
 #DEA results
 dea_results = read_tsv(path_dea_results)
 #Counts
-cts = read_tsv(path_counts, skip = 1, rowname="Geneid")
+cts = read_tsv(path_counts, rowname="Geneid")
 cts = cts[-1:-5]
 #Conditions
 conditions = read_tsv(path_conditions)
@@ -99,14 +99,20 @@ conditions = read_tsv(path_conditions)
 #                             GET MIRNA LIST
 #-------------------------------------------------------------------------------
 print('[PIPELINE -- hclust]: Getting miRNA profile')
-#filter by q-value and FDR
-q_value = 0.05
-fold_change = 0.5
-dea_results_filtered = filter(dea_results,
-                              padj<q_value & (log2FoldChange>fold_change | log2FoldChange< -fold_change))
-
-#get the miRNA list
-mirna_profile = dea_results_filtered$Feature
+# if integrated results, then miRNA profile = first column of dea_results
+if (software == "DESeq2-EdgeR"){
+  mirna_profile = as.list(dea_results$Feature)
+# else filter the miRNAs by q_value and FC
+}else{
+  #filter by q-value and FDR
+  q_value = 0.05
+  fold_change = 0.5
+  dea_results_filtered = filter(dea_results,
+                                qvalue<q_value & (log2FC>fold_change | log2FC< -fold_change))
+  
+  #get the miRNA list
+  mirna_profile = dea_results_filtered$Feature
+}
 
 #-------------------------------------------------------------------------------
 #                          PREPARE HCLUST TABLE

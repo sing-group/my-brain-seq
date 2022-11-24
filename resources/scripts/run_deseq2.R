@@ -148,6 +148,7 @@ path_output_file = paste(path_output, output_file, sep='')
 # results = topTags(et, nrow(et))$table # Line exclusive of EdgeR analysis
 dataframe_save = as.data.frame(resOrdered)
 dataframe_save = cbind(Feature = rownames(resOrdered), dataframe_save)
+colnames(dataframe_save) = c('Feature', 'baseMean', 'log2FC', 'lfcSE', 'stat', 'pvalue', 'qvalue')
 write.table(dataframe_save,
             path_output_file,
             row.names = FALSE,

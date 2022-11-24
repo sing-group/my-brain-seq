@@ -138,4 +138,5 @@ path_output_file = paste(path_output, output_file, sep='')
 results = topTags(et, nrow(et))$table
 dataframe_save = as.data.frame(results)
 dataframe_save = cbind(Feature = rownames(results), dataframe_save)
+colnames(dataframe_save) = c('Feature', 'log2FC', 'logCPM', 'pvalue', 'qvalue') # logFC = log2FC, see: https://www.biostars.org/p/303806/#303829
 write.table(dataframe_save, path_output_file, row.names = FALSE, col.names = TRUE, sep = '\t')

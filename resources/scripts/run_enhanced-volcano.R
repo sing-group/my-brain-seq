@@ -30,16 +30,12 @@ res = read.csv(file = path_counts,
                header = TRUE)
 
 #CREATING VARIABLES
-vol_x = 'log2FoldChange'
-vol_y = 'padj'
+vol_x = 'log2FC'
+vol_y = 'qvalue'
 sfw_name = 'DESeq2: '
 if (software == 'edger') {
-  vol_x = 'logFC'
-  vol_y = 'PValue'
   sfw_name = 'EdgeR: '
 } else if (software == 'both') {
-  vol_x = 'log2FC'
-  vol_y = 'q.value'
   sfw_name = 'DESeq2-EdgeR: '
 }
 titl = paste0(sfw_name, 'Differential expression')

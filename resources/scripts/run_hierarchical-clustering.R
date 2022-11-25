@@ -22,7 +22,17 @@ traspose_dendrogram = F
 #-------------------------------------------------------------------------------
 #                                 CODE
 #-------------------------------------------------------------------------------
-print('  Loading libraries')
+# to print bare text without "[1]"
+pt = function(text){
+  cat(text, sep='\n')
+}
+# to print messages
+ptm = function(text){
+  header = '[PIPELINE -- hclust -- run_hierarchical-clustering.R]:'
+  cat(paste(header, text), sep='\n')
+}
+
+ptm('Loading libraries')
 suppressMessages(library('dplyr'))
 suppressMessages(library('tibble'))
 suppressMessages(library('RColorBrewer'))
@@ -42,7 +52,7 @@ get_contrast_factors = function(input_contrast) {
 #-------------------------------------------------------------------------------
 #                         PREPARES THE COUNTS
 #-------------------------------------------------------------------------------
-print('  Loading hclust file')
+ptm('Loading hclust file')
 #Loads the counts data
 cts = read.csv(file = path_hclust_file,
                sep = "\t",
@@ -63,7 +73,7 @@ if (traspose_dendrogram == TRUE){
 #-------------------------------------------------------------------------------
 #                             DISTANCE MATRIX
 #-------------------------------------------------------------------------------
-print('  Computing distance matrix')
+ptm('Computing distance matrix')
 # Calculated the distances using one of the following methods:
 #   "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski". 
 dist_mat <- dist(cts_scaled, method = "euclidean")
@@ -71,7 +81,7 @@ dist_mat <- dist(cts_scaled, method = "euclidean")
 #-------------------------------------------------------------------------------
 #                         HIERARCHICAL CLUSTERING
 #-------------------------------------------------------------------------------
-print('  Building hierarchical clustering')
+ptm('Building hierarchical clustering')
 # Build the hclust choosing a method, options below:
 #   method: complete / average / single / ward.D2
 hclust_avg <- hclust(dist_mat, method = clustering_method)
@@ -81,7 +91,7 @@ cut_avg <- cutree(hclust_avg, k = cluster_number)
 #-------------------------------------------------------------------------------
 #                              DENDROGRAM
 #-------------------------------------------------------------------------------
-print('  Building dendrogram')
+ptm('Building dendrogram')
 # plot the dendogram
 avg_dend_obj <- as.dendrogram(hclust_avg)
 avg_col_dend <- color_branches(avg_dend_obj, k = cluster_number)
@@ -89,7 +99,7 @@ avg_col_dend <- color_branches(avg_dend_obj, k = cluster_number)
 #-------------------------------------------------------------------------------
 #                             HEAT MAP
 #-------------------------------------------------------------------------------
-print('  Building heat map')
+ptm('Building heat map')
 # color scale
 color_scale <- c("black", "blue", "green", "yellow", "orange", "red")
 pal <- colorRampPalette(color_scale)(100)
@@ -98,7 +108,7 @@ x=as.matrix(t(cts_scaled))
 #-------------------------------------------------------------------------------
 #                         PREPARE LABELS
 #-------------------------------------------------------------------------------
-print('  Making Labels')
+ptm('Making Labels')
 # make the label with the contrast, for the output files
 contrast_factors = get_contrast_factors(input_contrast)
 contrast_label = paste0(contrast_factors$condition, '-'
@@ -119,7 +129,7 @@ margins = round(longer_label - (longer_label / 5))
 #-------------------------------------------------------------------------------
 #                         EXPORT DENDROGRAM
 #-------------------------------------------------------------------------------
-print('  Exporting Dendrogram')
+ptm('Exporting Dendrogram')
 filename_dendrogram = paste0('dendrogram', '_', software, '_', contrast_label, '.pdf')
 path_figure = paste(path_output, filename_dendrogram, sep = '')
 pdf(file = path_figure)
@@ -130,13 +140,13 @@ plot(avg_col_dend,
      ylab="Euclidean distance",
      sub=NULL)
 
-dev.off()
+silence <- dev.off()
 
 #-------------------------------------------------------------------------------
 #                         EXPORT HEATMAP
 #-------------------------------------------------------------------------------
 # see https://www.rdocumentation.org/packages/gplots/versions/3.1.3/topics/heatmap.2
-print('  Building Heatmap')
+ptm('Building Heatmap')
 filename_heatmap = paste0('heatmap', '_', software, '_', contrast_label, '.pdf')
 path_figure = paste(path_output, filename_heatmap, sep = '')
 pdf(file = path_figure)
@@ -155,4 +165,4 @@ heat_map = heatmap.2(x,
                      key.xlab = 'Fold change',
                      key.ylab = 'Counts')
 
-dev.off()
+silence <- dev.off()

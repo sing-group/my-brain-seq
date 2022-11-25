@@ -75,12 +75,18 @@ fix_cts_colnames = function(counts_table, conditions_table) {
 get_contrast_factors = function(input_contrast) {
   #Get the reference and condition factors from the input_contrast (pipeline)
   #Get the current contrast
-  contrast_table = read.delim(text = paste('name\n', input_contrast), sep = '=')
+  contrast_table = read.delim(text = paste('name\n', input_contrast), sep = '=', header = F, skip = 1)
   #get the reference factor and the condition (removing trailing/leading white spaces)
-  contrast = strsplit(as.character(contrast_table$name), '-')[[1]]
+  contrast = strsplit((contrast_table$V2), '-')[[1]]
+  label_contrast = strsplit((contrast_table$V1), '-')[[1]]
   ref_factor = trimws(contrast[2])
   cond_factor = as.character(trimws(contrast[1]))
-  result = list("reference" = ref_factor, "condition" = cond_factor)
+  label_reference_factor = trimws(label_contrast[2])
+  label_condition_factor = as.character(trimws(label_contrast[1]))
+  result = list("reference" = ref_factor, 
+                "condition" = cond_factor,
+                "label_reference" = label_reference_factor,
+                "label_condition" = label_condition_factor)
 }
 
 #-------------------------------------------------------------------------------
@@ -132,9 +138,9 @@ contrast_factors = get_contrast_factors(input_contrast)
 output_file = paste('hclust_',
                     software,
                     '_',
-                    contrast_factors$condition,
+                    contrast_factors$label_condition,
                     '-',
-                    contrast_factors$reference,
+                    contrast_factors$label_reference,
                     '.tsv',
                     sep = '')
 print(paste0('                      - filename: ', output_file))

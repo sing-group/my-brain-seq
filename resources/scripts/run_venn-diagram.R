@@ -10,6 +10,11 @@ suppressMessages(library('VennDiagram'))
 pt = function(text){
   cat(text, sep='\n')
 }
+# to print messages
+ptm = function(text){
+  header = '[PIPELINE -- venn -- run_venn-diagram.R]:'
+  cat(paste(header, text), sep='\n')
+}
 
 #INPUTS
 args = commandArgs(trailingOnly = TRUE)
@@ -42,8 +47,8 @@ myCol = c('#459991', '#FF972F')
 
 #build venn chart
 setwd(venn_output)
-pt('[PIPELINE -- venn]: Saving venn diagram')
-venn.diagram(
+ptm('Saving venn diagram')
+silence <- venn.diagram(
   x = list(deseq, edger),
   category.names = colnames(venn_table),
   imagetype=venn_output_format,
@@ -83,4 +88,4 @@ venn.diagram(
   cat.default.pos = "outer",
   cat.fontfamily = "sans",
 )
-pt('[PIPELINE -- venn]: Done')
+ptm('Done')

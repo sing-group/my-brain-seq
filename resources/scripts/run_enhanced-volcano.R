@@ -5,36 +5,38 @@
 ##                        and in the output filename.
 ##  4.- software: the software that produced the tsv file (deseq/edger).
 
+#-------------------------------------------------------------------------------
+#                               INPUT
+#-------------------------------------------------------------------------------
 suppressMessages(library('EnhancedVolcano'))
+
+args = commandArgs(trailingOnly = TRUE)
+path_counts = as.character(args[1])
+path_output = as.character(args[2])
+comparison_label = as.character(args[3])
+software = as.character(args[4])
 
 # to print bare text without "[1]"
 pt = function(text){
   cat(text, sep='\n')
 }
 # to print messages
-ptm = function(text){
-  header = '[PIPELINE -- volcano -- run_enhanced-volcano.R]:'
+ptm = function(text, sft = software){
+  header = '[PIPELINE -- volcano -- run_enhanced-volcano.R > '
+  header = paste0(header, sft, ']: ')
   cat(paste(header, text), sep='\n')
 }
 
-#INPUT
-args = commandArgs(trailingOnly = TRUE)
+ptm("======================================================")
+ptm('     [PIPELINE -- volcano]: run_enhanced-volcano.R    ')
+ptm('......................................................')
+ptm(paste0("  Input counts file: ", as.character(args[1])))
+ptm(paste0("  Input output dir:  ", as.character(args[2])))
+ptm(paste0("  Title:             ", as.character(args[3])))
+ptm(paste0("  Software:          ", as.character(args[4])))
+ptm("======================================================")
 
-pt(''); pt('')
-pt("======================================================")
-pt('     [PIPELINE -- volcano]: run_enhanced-volcano.R    ')
-pt('......................................................')
-pt(paste0("  Input counts file: ", as.character(args[1])))
-pt(paste0("  Input output dir:  ", as.character(args[2])))
-pt(paste0("  Title:             ", as.character(args[3])))
-pt(paste0("  Software:          ", as.character(args[4])))
-pt("======================================================")
-pt(''); pt('')
 
-path_counts = as.character(args[1])
-path_output = as.character(args[2])
-comparison_label = as.character(args[3])
-software = as.character(args[4])
 
 #READING
 res = read.csv(file = path_counts, 

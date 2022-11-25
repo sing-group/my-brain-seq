@@ -9,16 +9,6 @@
 ##  5.- path_output: the output dir for the results.
 ##  6.- software: the software that produced the tsv file (deseq/edger/both).
 
-# to print bare text without "[1]"
-pt = function(text){
-  cat(text, sep='\n')
-}
-# to print messages
-ptm = function(text){
-  header = '[PIPELINE -- hclust -- run_make_hclust_tables.R]:'
-  cat(paste(header, text), sep='\n')
-}
-
 #INPUTS
 args = commandArgs(trailingOnly = TRUE)
 path_dea_results=as.character(args[1])
@@ -28,20 +18,27 @@ input_contrast=as.character(args[4])
 path_output=as.character(args[5])
 software=as.character(args[6])
 
-#INPUT
-args = commandArgs(trailingOnly = TRUE)
-pt(''); pt('')
-pt("======================================================")
-pt('   [PIPELINE -- hclust]: run_make_hclust_table.R      ')
-pt('......................................................')
-pt(paste0("  DEA file:        ", as.character(args[1])))
-pt(paste0("  Counts file:     ", as.character(args[2])))
-pt(paste0("  Conditions file: ", as.character(args[3])))
-pt(paste0("  Contrast file:   ", as.character(args[4])))
-pt(paste0("  Output dir:      ", as.character(args[5])))
-pt(paste0("  Software:        ", as.character(args[6])))
-pt('......................................................')
-pt(''); pt('')
+# to print bare text without "[1]"
+pt = function(text){
+  cat(text, sep='\n')
+}
+# to print messages
+ptm = function(text, sft = software){
+  header = '[PIPELINE -- hclust -- run_make_hclust_table.R > '
+  header = paste0(header, sft, ']: ')
+  cat(paste(header, text), sep='\n')
+}
+
+ptm("======================================================")
+ptm('   [PIPELINE -- hclust]: run_make_hclust_table.R      ')
+ptm('......................................................')
+ptm(paste0("  DEA file:        ", as.character(args[1])))
+ptm(paste0("  Counts file:     ", as.character(args[2])))
+ptm(paste0("  Conditions file: ", as.character(args[3])))
+ptm(paste0("  Contrast file:   ", as.character(args[4])))
+ptm(paste0("  Output dir:      ", as.character(args[5])))
+ptm(paste0("  Software:        ", as.character(args[6])))
+ptm("======================================================")
 
 #-------------------------------------------------------------------------------
 #                                FUNCTIONS

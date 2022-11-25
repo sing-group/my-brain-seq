@@ -6,6 +6,16 @@
 
 suppressMessages(library("DESeq2"))
 
+# to print without "[1]"
+pt = function(text){
+  cat(text, sep='\n')
+}
+# to print messages
+ptm = function(text){
+  header = '[PIPELINE -- deseq -- run_deseq2.R]:'
+  cat(paste(header, text), sep='\n')
+}
+
 getLabel = function(sample_name) {
   #Uses conditions_table to get the label corresponding to a value in column$name
   index=match(sample_name, conditions_table$name)
@@ -20,6 +30,16 @@ path_cond=as.character(args[2])
 input_contrast=as.character(args[3])
 path_output=as.character(args[4])
 
+ptm("======================================================")
+ptm('        [PIPELINE -- deseq]: run_deseq2.R        ')
+ptm('......................................................')
+ptm(paste0("  Counts file:     ", as.character(args[1])))
+ptm(paste0("  Condition file:  ", as.character(args[2])))
+ptm(paste0("  Input contrast:  ", as.character(args[3])))
+ptm(paste0("  Output path:     ", as.character(args[4])))
+ptm("======================================================")
+
+
 #DETECT FACTORS AND LABELS
 #read the input files
 contrast_table = read.delim(text = paste('name\n', input_contrast), sep = '=')
@@ -29,8 +49,8 @@ rownames(conditions_table) = conditions_table$name
 contrast = strsplit(as.character(contrast_table$name), '-')[[1]]
 ref_factor = trimws(contrast[2])
 cond_factor = as.character(trimws(contrast[1]))
-print(paste0('[PIPELINE -- edger]: Reference factor: ', ref_factor))
-print(paste0('[PIPELINE -- edger]: Condition factor: ', cond_factor))
+ptm(paste0('Reference factor: ', ref_factor))
+ptm(paste0('Condition factor: ', cond_factor))
 
 #get the label of the reference factor
 ref_contrast_label=trimws(strsplit(as.character(rownames(contrast_table)), '-')[[1]][2])
@@ -60,9 +80,9 @@ adjust_for = subset(colnames(conditions_table),
                     !colnames(conditions_table) %in% default_columns)
 print_adjust = paste(adjust_for, collapse=', ')
 if (length(adjust_for > 1)){
-  print(paste0('[PIPELINE -- edger]: Adjust model for: ', print_adjust))
+  ptm(paste0('Adjust model for: ', print_adjust))
 }else{
-  print(paste0('[PIPELINE -- edger]: No model adjustment'))
+  ptm(paste0('No model adjustment'))
 }
 
 #confounding variables to factors
@@ -73,7 +93,7 @@ if (length(adjust_for > 1)){
 }
 
 #SUBSET THE DESIRED FACTORS
-print('[PIPELINE -- edger]: Subsetting desired factors')
+ptm('Subsetting desired factors')
 # samples with the desired factors to compare
 des_samples = as.vector(subset(conditions_table, conditions_table$condition == ref_factor | conditions_table$condition == cond_factor )$name)
 # remove the undesired samples from the counts
@@ -86,19 +106,19 @@ conditions_table=conditions_table[(conditions_table$name %in% des_samples),]
 
 # Checking that the cts and annotations are correct
 test_col = all(rownames(conditions_table) %in% colnames(cts))
-print(paste0("Rownames of 'condition_file.txt' are the same as colnames of 'all-counts.txt': ", test_col))
+ptm(paste0("Rownames of 'condition_file.txt' are the same as colnames of 'all-counts.txt': ", test_col))
 
 # If annotations are incorrect, show both headers
 if (test_col == FALSE){
-  print("[ERROR]: Rownames of 'condition_file.txt' are NOT the same as colnames of 'all-counts.txt'")
-  print("    ROWNAMES of 'condition_file.txt': ")
-  print(paste('         1. ', rownames(conditions_table)[1], '        '))
-  print(paste('         2. ', rownames(conditions_table)[2], '        '))
-  print(paste('         3. ', '...', '        '))
-  print("    COLNAMES of 'all-counts.txt': ")
-  print(paste('         1. ', colnames(cts)[1], '        '))
-  print(paste('         2. ', colnames(cts)[2], '        '))
-  print(paste('         3. ', '...', '        '))
+  ptm("[ERROR]: Rownames of 'condition_file.txt' are NOT the same as colnames of 'all-counts.txt'")
+  pt("    ROWNAMES of 'condition_file.txt': ")
+  pt(paste('         1. ', rownames(conditions_table)[1], '        '))
+  pt(paste('         2. ', rownames(conditions_table)[2], '        '))
+  pt(paste('         3. ', '...', '        '))
+  pt("    COLNAMES of 'all-counts.txt': ")
+  pt(paste('         1. ', colnames(cts)[1], '        '))
+  pt(paste('         2. ', colnames(cts)[2], '        '))
+  pt(paste('         3. ', '...', '        '))
 }
 
 #Test if colnames of cts are in the same order that rownames of conditions_table
@@ -118,8 +138,8 @@ if (length(adjust_for > 0)){
   design = "~condition"
 }
 
-print(paste0('[PIPELINE -- edger]: Model: ', design))
-print('')
+ptm(paste0('Model: ', design))
+pt('')
 
 #Construct DESeq2 dataset
 dds = DESeqDataSetFromMatrix(countData = cts,
@@ -141,6 +161,8 @@ resOrdered
 ################# BEGINNING OF THE COMMON PART (DESEQ2 EDGER) ##################
 
 #SAVE RESULTS
+pt('')
+ptm('Saving results')
 output_tag = paste('DESeq2_', cond_contrast_label, '-', ref_contrast_label, sep = '')
 output_file = paste(output_tag, '.tsv', sep = '')
 path_output_file = paste(path_output, output_file, sep='')
@@ -154,3 +176,4 @@ write.table(dataframe_save,
             row.names = FALSE,
             col.names = TRUE, 
             sep = '\t')
+ptm('Done')

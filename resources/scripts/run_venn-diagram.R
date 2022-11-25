@@ -11,8 +11,9 @@ pt = function(text){
   cat(text, sep='\n')
 }
 # to print messages
-ptm = function(text){
-  header = '[PIPELINE -- venn -- run_venn-diagram.R]:'
+ptm = function(text, sft = software){
+  header = '[PIPELINE -- venn -- run_venn-diagram.R > '
+  header = paste0(header, sft, ']: ')
   cat(paste(header, text), sep='\n')
 }
 
@@ -23,16 +24,15 @@ venn_output = as.character(args[2])
 venn_output_format = as.character(args[3])
 venn_contrast_label = as.character(args[4])
 output_filename = paste0('DESeq2-EdgeR_', venn_contrast_label, '_results_venn.', venn_output_format)
-pt(''); pt('')
-pt("======================================================")
-pt('        [PIPELINE -- venn]: run_venn-diagram.R        ')
-pt('......................................................')
-pt(paste0("  Input venn file:   ", as.character(args[1])))
-pt(paste0("  Input output dir:  ", as.character(args[2])))
-pt(paste0("  Output file:      ", output_filename))
-pt(paste0("  Image format:      ", as.character(args[3])))
-pt('......................................................')
-pt(''); pt('')
+
+ptm("======================================================")
+ptm('        [PIPELINE -- venn]: run_venn-diagram.R        ')
+ptm('......................................................')
+ptm(paste0("  Input venn file:   ", as.character(args[1])))
+ptm(paste0("  Input output dir:  ", as.character(args[2])))
+ptm(paste0("  Output file:      ", output_filename))
+ptm(paste0("  Image format:      ", as.character(args[3])))
+ptm("======================================================")
 
 #LOADING FILE
 venn_table = read.delim(venn_path, header = FALSE, col.names = c('DESeq2','EdgeR'))

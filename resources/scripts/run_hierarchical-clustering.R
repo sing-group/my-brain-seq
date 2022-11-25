@@ -27,10 +27,20 @@ pt = function(text){
   cat(text, sep='\n')
 }
 # to print messages
-ptm = function(text){
-  header = '[PIPELINE -- hclust -- run_hierarchical-clustering.R]:'
+ptm = function(text, sft = software){
+  header = '[PIPELINE -- hclust -- run_hierarchical-clustering.R > '
+  header = paste0(header, sft, ']: ')
   cat(paste(header, text), sep='\n')
 }
+
+ptm("======================================================")
+ptm(' [PIPELINE -- hclust]: run_hierarchical-clustering.R  ')
+ptm('......................................................')
+ptm(paste0("  Hclust file:     ", as.character(args[1])))
+ptm(paste0("  Input contrast:  ", as.character(args[2])))
+ptm(paste0("  Output dir:      ", as.character(args[3])))
+ptm(paste0("  Software:        ", as.character(args[4])))
+ptm("======================================================")
 
 ptm('Loading libraries')
 suppressMessages(library('dplyr'))

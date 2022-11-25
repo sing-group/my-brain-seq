@@ -4,7 +4,17 @@
 ##  3.- input_contrast: A line of the contrast file with one contrast.
 ##  4.- path_output: the output dir for the results.
 
-suppressMessages(library(edgeR))
+suppressMessages(library('edgeR'))
+
+# to print without "[1]"
+pt = function(text){
+  cat(text, sep='\n')
+}
+# to print messages
+ptm = function(text){
+  header = '[PIPELINE -- edger -- run_edger_exact-test.R]:'
+  cat(paste(header, text), sep='\n')
+}
 
 getLabel = function(sample_name) {
   #Uses conditions_table to get the label corresponding to a value in column$name
@@ -20,12 +30,14 @@ path_cond=as.character(args[2])
 input_contrast=as.character(args[3])
 path_output=as.character(args[4])
 
-cat("  ------------------------------------------------------------------", '\n')
-cat("[PIPELINE -- edger]: Input counts file: ", as.character(args[1]), '\n')
-cat("[PIPELINE -- edger]: Input condition file: ", as.character(args[2]), '\n')
-cat("[PIPELINE -- edger]: Contrast: ", as.character(args[3]), '\n')
-cat("[PIPELINE -- edger]: Output directory: ", as.character(args[4]), '\n')
-cat("  ------------------------------------------------------------------", '\n')
+ptm("======================================================")
+ptm('    [PIPELINE -- edger]: run_edger_exact-test.R       ')
+ptm('......................................................')
+ptm(paste0("  Input counts file:    ", as.character(args[1])))
+ptm(paste0("  Input condition file: ", as.character(args[2])))
+ptm(paste0("  Contrast:             ", as.character(args[3])))
+ptm(paste0("  Output path:          ", as.character(args[4])))
+ptm("======================================================")
 
 #DETECT FACTORS AND LABELS
 #read the input files
@@ -35,8 +47,8 @@ conditions_table = read.delim(path_cond)
 contrast = strsplit(as.character(contrast_table$name), '-')[[1]]
 ref_factor = trimws(contrast[2])
 cond_factor = as.character(trimws(contrast[1]))
-print(paste0('[PIPELINE -- edger]: Reference factor: ', ref_factor))
-print(paste0('[PIPELINE -- edger]: Condition factor: ', cond_factor))
+ptm(paste0('Reference factor: ', ref_factor))
+ptm(paste0('Condition factor: ', cond_factor))
 
 #get the label of the reference factor
 ref_contrast_label=trimws(strsplit(as.character(rownames(contrast_table)), '-')[[1]][2])
@@ -66,9 +78,9 @@ adjust_for = subset(colnames(conditions_table),
                     !colnames(conditions_table) %in% default_columns)
 print_adjust = paste(adjust_for, collapse=', ')
 if (length(adjust_for > 1)){
-  print(paste0('[PIPELINE -- edger]: Adjust model for: ', print_adjust))
+  ptm(paste0('Adjust model for: ', print_adjust))
 }else{
-  print(paste0('[PIPELINE -- edger]: No model adjustment'))
+  ptm(paste0('No model adjustment'))
 }
 
 #confounding variables to factors
@@ -79,7 +91,7 @@ if (length(adjust_for > 1)){
 }
 
 #SUBSET THE DESIRED FACTORS
-print('[PIPELINE -- edger]: Subsetting desired factors')
+ptm('Subsetting desired factors')
 # samples with the desired factors to compare
 des_samples = as.vector(subset(conditions_table, conditions_table$condition == ref_factor | conditions_table$condition == cond_factor )$name)
 # remove the undesired samples from the counts
@@ -90,7 +102,7 @@ conditions_table=conditions_table[(conditions_table$name %in% des_samples),]
 #-------------------------------------------------------------------------------
 #                             EDGER ANALYSIS
 #-------------------------------------------------------------------------------
-print('[PIPELINE -- edger]: Performing the differential expression with EdgeR')
+ptm('Performing the differential expression with EdgeR')
 #build the group using ref_label as reference factor (first position in vector)
 group = factor(conditions_table$condition, levels = c(ref_factor, cond_factor))
 #build the DGEList object for the EdgeR analysis
@@ -118,8 +130,8 @@ if (length(adjust_for > 0)){
 }
 rownames(design) = colnames(x)
 
-print(paste0('[PIPELINE -- edger]: Model: ', print_design))
-print('')
+ptm(paste0('Model: ', print_design))
+pt('')
 
 #estimate dispersion
 y = estimateDisp(y,design) 
@@ -129,8 +141,11 @@ et = exactTest(y)
 #RESULTS
 #summary of the results
 print(topTags(et))
+pt('')
 print(summary(decideTests(et)))
 #save results
+pt('')
+ptm('Saving results')
 output_tag = paste('EdgeR_', cond_contrast_label, '-', ref_contrast_label, sep = '')
 output_file = paste(output_tag, '.tsv', sep = '')
 path_output_file = paste(path_output, output_file, sep='')
@@ -140,3 +155,4 @@ dataframe_save = as.data.frame(results)
 dataframe_save = cbind(Feature = rownames(results), dataframe_save)
 colnames(dataframe_save) = c('Feature', 'log2FC', 'logCPM', 'pvalue', 'qvalue') # logFC = log2FC, see: https://www.biostars.org/p/303806/#303829
 write.table(dataframe_save, path_output_file, row.names = FALSE, col.names = TRUE, sep = '\t')
+ptm('Done')

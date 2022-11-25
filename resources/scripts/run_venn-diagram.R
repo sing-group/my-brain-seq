@@ -6,6 +6,11 @@
 
 suppressMessages(library('VennDiagram'))
 
+# to print without "[1]"
+pt = function(text){
+  cat(text, sep='\n')
+}
+
 #INPUTS
 args = commandArgs(trailingOnly = TRUE)
 venn_path = as.character(args[1])
@@ -13,14 +18,16 @@ venn_output = as.character(args[2])
 venn_output_format = as.character(args[3])
 venn_contrast_label = as.character(args[4])
 output_filename = paste0('DESeq2-EdgeR_', venn_contrast_label, '_results_venn.', venn_output_format)
-print("======================================================")
-print('             [PIPELINE -- venn]: Rscript              ')
-print('......................................................')
-print(paste0("  Input venn file:   ", as.character(args[1])))
-print(paste0("  Input output dir:  ", as.character(args[2])))
-print(paste0("  Output file:      ", output_filename))
-print(paste0("  Image format:      ", as.character(args[3])))
-print('......................................................')
+pt(''); pt('')
+pt("======================================================")
+pt('        [PIPELINE -- venn]: run_venn-diagram.R        ')
+pt('......................................................')
+pt(paste0("  Input venn file:   ", as.character(args[1])))
+pt(paste0("  Input output dir:  ", as.character(args[2])))
+pt(paste0("  Output file:      ", output_filename))
+pt(paste0("  Image format:      ", as.character(args[3])))
+pt('......................................................')
+pt(''); pt('')
 
 #LOADING FILE
 venn_table = read.delim(venn_path, header = FALSE, col.names = c('DESeq2','EdgeR'))
@@ -35,7 +42,7 @@ myCol = c('#459991', '#FF972F')
 
 #build venn chart
 setwd(venn_output)
-print('  Saving Venn diagram')
+pt('[PIPELINE -- venn]: Saving venn diagram')
 venn.diagram(
   x = list(deseq, edger),
   category.names = colnames(venn_table),
@@ -76,5 +83,4 @@ venn.diagram(
   cat.default.pos = "outer",
   cat.fontfamily = "sans",
 )
-print('  Done')
-print("======================================================")
+pt('[PIPELINE -- venn]: Done')

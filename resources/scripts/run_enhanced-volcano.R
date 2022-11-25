@@ -7,16 +7,29 @@
 
 suppressMessages(library('EnhancedVolcano'))
 
+# to print bare text without "[1]"
+pt = function(text){
+  cat(text, sep='\n')
+}
+# to print messages
+ptm = function(text){
+  header = '[PIPELINE -- volcano -- run_enhanced-volcano.R]:'
+  cat(paste(header, text), sep='\n')
+}
+
 #INPUT
 args = commandArgs(trailingOnly = TRUE)
-print("======================================================")
-print('       [PIPELINE -- enhanced-volcano]: Rscript         ')
-print('......................................................')
-print(paste0("  Input counts file: ", as.character(args[1])))
-print(paste0("  Input output dir:  ", as.character(args[2])))
-print(paste0("  Title:             ", as.character(args[3])))
-print(paste0("  Software:          ", as.character(args[4])))
-print('......................................................')
+
+pt(''); pt('')
+pt("======================================================")
+pt('     [PIPELINE -- volcano]: run_enhanced-volcano.R    ')
+pt('......................................................')
+pt(paste0("  Input counts file: ", as.character(args[1])))
+pt(paste0("  Input output dir:  ", as.character(args[2])))
+pt(paste0("  Title:             ", as.character(args[3])))
+pt(paste0("  Software:          ", as.character(args[4])))
+pt("======================================================")
+pt(''); pt('')
 
 path_counts = as.character(args[1])
 path_output = as.character(args[2])
@@ -41,7 +54,7 @@ if (software == 'edger') {
 titl = paste0(sfw_name, 'Differential expression')
 
 #PLOT: Volcano plot
-print('  Building Volcano plot')
+ptm('Building Volcano plot')
 volcano_name = paste0(comparison_label, '_volcano', '.pdf')
 vol_path = paste0(path_output, volcano_name)
 pdf(file=vol_path)
@@ -53,5 +66,5 @@ EnhancedVolcano(res,
                 lab = rownames(res),
                 x = vol_x,
                 y = vol_y)
-dev.off()
-print("======================================================")
+silence <- dev.off()
+ptm('Done')

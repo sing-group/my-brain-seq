@@ -36,6 +36,7 @@
 		<param name="deaIntRscript" shortName="deais" global="true" defaultValue="run_dea-integration.R">The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.</param>
 		<param name="vennRscript" shortName="rven" global="true" defaultValue="run_venn-diagram.R">The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.</param>
 		<param name="hclustMakeTableRscript" shortName="hmk" global="true" defaultValue="run_make_hclust_table.R">The relative path to the directory containing the R script for the creation of the hclust table.</param>
+		<param name="hclustRscript" shortName="hcr" global="true" defaultValue="run_hierarchical-clustering.R">The relative path to the directory containing the R script for the hierarchical clustering analysis.</param>
 		
 		<param name="rDeseq2Version" shortName="rdv" defaultValue="1.32.0" global="true">Version of the pegi3s/r_deseq2 Docker image to use.</param>
 		<param name="rEdgerVersion" shortName="redv" defaultValue="3.36.0" global="true">Version of the pegi3s/r_edger Docker image to use.</param>

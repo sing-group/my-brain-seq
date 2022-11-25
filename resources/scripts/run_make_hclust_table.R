@@ -9,6 +9,11 @@
 ##  5.- path_output: the output dir for the results.
 ##  6.- software: the software that produced the tsv file (deseq/edger/both).
 
+# to print without "[1]"
+pt = function(text){
+  cat(text, sep='\n')
+}
+
 #INPUTS
 args = commandArgs(trailingOnly = TRUE)
 path_dea_results=as.character(args[1])
@@ -20,21 +25,23 @@ software=as.character(args[6])
 
 #INPUT
 args = commandArgs(trailingOnly = TRUE)
-print("======================================================")
-print('   [PIPELINE -- hclust]: run_make_hclust_table.R      ')
-print('......................................................')
-print(paste0("  DEA file:        ", as.character(args[1])))
-print(paste0("  Counts file:     ", as.character(args[2])))
-print(paste0("  Conditions file: ", as.character(args[3])))
-print(paste0("  Contrast file:   ", as.character(args[4])))
-print(paste0("  Output dir:      ", as.character(args[5])))
-print(paste0("  Software:        ", as.character(args[6])))
-print('......................................................')
+pt(''); pt('')
+pt("======================================================")
+pt('   [PIPELINE -- hclust]: run_make_hclust_table.R      ')
+pt('......................................................')
+pt(paste0("  DEA file:        ", as.character(args[1])))
+pt(paste0("  Counts file:     ", as.character(args[2])))
+pt(paste0("  Conditions file: ", as.character(args[3])))
+pt(paste0("  Contrast file:   ", as.character(args[4])))
+pt(paste0("  Output dir:      ", as.character(args[5])))
+pt(paste0("  Software:        ", as.character(args[6])))
+pt('......................................................')
+pt(''); pt('')
 
 #-------------------------------------------------------------------------------
 #                                FUNCTIONS
 #-------------------------------------------------------------------------------
-print('[PIPELINE -- hclust]: Loading functions')
+pt('[PIPELINE -- hclust]: Loading functions')
 suppressMessages(library(dplyr))
 
 read_tsv = function(file, skip = 0, rowname = NULL) {
@@ -92,7 +99,7 @@ get_contrast_factors = function(input_contrast) {
 #-------------------------------------------------------------------------------
 #                               LOAD TABLES
 #-------------------------------------------------------------------------------
-print('[PIPELINE -- hclust]: Loading files')
+pt('[PIPELINE -- hclust]: Loading files')
 #DEA results
 dea_results = read_tsv(path_dea_results)
 #Counts
@@ -104,7 +111,7 @@ conditions = read_tsv(path_conditions)
 #-------------------------------------------------------------------------------
 #                             GET MIRNA LIST
 #-------------------------------------------------------------------------------
-print('[PIPELINE -- hclust]: Getting miRNA profile')
+pt('[PIPELINE -- hclust]: Getting miRNA profile')
 # if integrated results, then miRNA profile = first column of dea_results
 if (software == "DESeq2-EdgeR"){
   mirna_profile = as.list(dea_results$Feature)
@@ -123,7 +130,7 @@ if (software == "DESeq2-EdgeR"){
 #-------------------------------------------------------------------------------
 #                          PREPARE HCLUST TABLE
 #-------------------------------------------------------------------------------
-print('[PIPELINE -- hclust]: Preparing hclust table')
+pt('[PIPELINE -- hclust]: Preparing hclust table')
 #Change the colnames of cts from paths to the name of the samples
 cts = fix_cts_colnames(cts, conditions)
 #Get the expression of the miRNA profile
@@ -132,7 +139,7 @@ hclust_table = filter(cts, rownames(cts) %in% mirna_profile)
 #-------------------------------------------------------------------------------
 #                             SAVE RESULTS
 #-------------------------------------------------------------------------------
-print('[PIPELINE -- hclust]: Saving hclust results')
+pt('[PIPELINE -- hclust]: Saving hclust results')
 #Output file name considering the software
 contrast_factors = get_contrast_factors(input_contrast)
 output_file = paste('hclust_',
@@ -143,7 +150,7 @@ output_file = paste('hclust_',
                     contrast_factors$label_reference,
                     '.tsv',
                     sep = '')
-print(paste0('                      - filename: ', output_file))
+pt(paste('[PIPELINE -- hclust]: Results file:', output_file))
 #Full output path
 path_output_file = paste(path_output, output_file, sep='')
 #Save table
@@ -153,4 +160,4 @@ write.table(hclust_table,
             col.names = TRUE,
             sep = '\t')
 
-print('[PIPELINE -- hclust]: run_make_hclust_table.R -- Done')
+pt('[PIPELINE -- hclust]: run_make_hclust_table.R -- Done')

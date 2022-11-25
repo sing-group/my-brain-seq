@@ -4,6 +4,7 @@ set -o errexit
 
 #Makes a copy of the scripts used in the analysis to working-dir
 cp ${scriptsDir}/${hclustMakeTableRscript} ${workingDir}/compi_scripts/${hclustMakeTableRscript}
+cp ${scriptsDir}/${hclustRscript} ${workingDir}/compi_scripts/${hclustRscript}
 
 # get the contrast name to build the output filename
 contrast_label=$(echo "${comparison}" | cut -d'"' -f2 )

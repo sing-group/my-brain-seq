@@ -9,9 +9,14 @@
 ##  5.- path_output: the output dir for the results.
 ##  6.- software: the software that produced the tsv file (deseq/edger/both).
 
-# to print without "[1]"
+# to print bare text without "[1]"
 pt = function(text){
   cat(text, sep='\n')
+}
+# to print messages
+ptm = function(text){
+  header = '[PIPELINE -- hclust -- run_make_hclust_tables.R]:'
+  cat(paste(header, text), sep='\n')
 }
 
 #INPUTS
@@ -41,7 +46,7 @@ pt(''); pt('')
 #-------------------------------------------------------------------------------
 #                                FUNCTIONS
 #-------------------------------------------------------------------------------
-pt('[PIPELINE -- hclust]: Loading functions')
+ptm('Loading functions')
 suppressMessages(library(dplyr))
 
 read_tsv = function(file, skip = 0, rowname = NULL) {
@@ -99,7 +104,7 @@ get_contrast_factors = function(input_contrast) {
 #-------------------------------------------------------------------------------
 #                               LOAD TABLES
 #-------------------------------------------------------------------------------
-pt('[PIPELINE -- hclust]: Loading files')
+ptm('Loading files')
 #DEA results
 dea_results = read_tsv(path_dea_results)
 #Counts
@@ -111,7 +116,7 @@ conditions = read_tsv(path_conditions)
 #-------------------------------------------------------------------------------
 #                             GET MIRNA LIST
 #-------------------------------------------------------------------------------
-pt('[PIPELINE -- hclust]: Getting miRNA profile')
+ptm('Getting miRNA profile')
 # if integrated results, then miRNA profile = first column of dea_results
 if (software == "DESeq2-EdgeR"){
   mirna_profile = as.list(dea_results$Feature)
@@ -130,7 +135,7 @@ if (software == "DESeq2-EdgeR"){
 #-------------------------------------------------------------------------------
 #                          PREPARE HCLUST TABLE
 #-------------------------------------------------------------------------------
-pt('[PIPELINE -- hclust]: Preparing hclust table')
+ptm('Preparing hclust table')
 #Change the colnames of cts from paths to the name of the samples
 cts = fix_cts_colnames(cts, conditions)
 #Get the expression of the miRNA profile
@@ -139,7 +144,7 @@ hclust_table = filter(cts, rownames(cts) %in% mirna_profile)
 #-------------------------------------------------------------------------------
 #                             SAVE RESULTS
 #-------------------------------------------------------------------------------
-pt('[PIPELINE -- hclust]: Saving hclust results')
+ptm('Saving hclust results')
 #Output file name considering the software
 contrast_factors = get_contrast_factors(input_contrast)
 output_file = paste('hclust_',
@@ -150,7 +155,7 @@ output_file = paste('hclust_',
                     contrast_factors$label_reference,
                     '.tsv',
                     sep = '')
-pt(paste('[PIPELINE -- hclust]: Results file:', output_file))
+ptm(paste('Results file:', output_file))
 #Full output path
 path_output_file = paste(path_output, output_file, sep='')
 #Save table
@@ -160,4 +165,4 @@ write.table(hclust_table,
             col.names = TRUE,
             sep = '\t')
 
-pt('[PIPELINE -- hclust]: run_make_hclust_table.R -- Done')
+ptm('Done')

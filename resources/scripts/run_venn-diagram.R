@@ -11,9 +11,8 @@ pt = function(text){
   cat(text, sep='\n')
 }
 # to print messages
-ptm = function(text, sft = software){
-  header = '[PIPELINE -- venn -- run_venn-diagram.R > '
-  header = paste0(header, sft, ']: ')
+ptm = function(text){
+  header = '[PIPELINE -- venn -- run_venn-diagram.R > deseq + edger]: '
   cat(paste(header, text), sep='\n')
 }
 

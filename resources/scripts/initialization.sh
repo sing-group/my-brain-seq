@@ -43,3 +43,6 @@ build_dir ${deaIntOut} "DEA integration"
 
 rm -rf ${workingDir}/compi_scripts
 mkdir -p ${workingDir}/compi_scripts
+
+rm -rf ${workingDir}/compi_databases
+mkdir -p ${workingDir}/compi_databases

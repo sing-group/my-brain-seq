@@ -2,7 +2,7 @@
 ##  1.- venn_path: path to a file with the DE features returned by DESeq2 + EdgeR, one per line.
 ##  2.- venn_output: path to the output directory for the graph.
 ##  3.- venn_output_format: file format of the output image (png, svg or tiff).
-##  4.- venn_contrast_label: label with the contrast performed, to name the file.
+##  4.- input_contrast : a line of the contrast_file.
 
 suppressMessages(library('VennDiagram'))
 
@@ -21,35 +21,48 @@ args = commandArgs(trailingOnly = TRUE)
 venn_path = as.character(args[1])
 venn_output = as.character(args[2])
 venn_output_format = as.character(args[3])
-venn_contrast_label = as.character(args[4])
-output_filename = paste0('DESeq2-EdgeR_', venn_contrast_label, '_results_venn.', venn_output_format)
+input_contrast = as.character(args[4])
 
 ptm("======================================================")
 ptm('        [PIPELINE -- venn]: run_venn-diagram.R        ')
 ptm('......................................................')
 ptm(paste0("  Input venn file:   ", as.character(args[1])))
 ptm(paste0("  Input output dir:  ", as.character(args[2])))
-ptm(paste0("  Output file:      ", output_filename))
 ptm(paste0("  Image format:      ", as.character(args[3])))
 ptm("======================================================")
 
+# FUNCTIONS
+# to get the reference and condition factors from the input_contrast (pipeline)
+get_contrast_factors = function(input_contrast) {
+  contrast_table = read.delim(text = paste('name\n', input_contrast), sep = '=')
+  contrast = strsplit(as.character(contrast_table$name), '-')[[1]]
+  ref_factor = trimws(contrast[2])
+  cond_factor = as.character(trimws(contrast[1]))
+  result = list("reference" = ref_factor, "condition" = cond_factor)
+}
+
 #LOADING FILE
-venn_table = read.delim(venn_path, header = FALSE, col.names = c('DESeq2','EdgeR'))
+venn_table = read.delim(venn_path)
 
 #VENN DIAGRAM
 #venn variables
-deseq = venn_table$DESeq2
-edger = venn_table$EdgeR
+deseq = venn_table$deseq
+edger = venn_table$edger
 
 #colors of the venn diagram
 myCol = c('#459991', '#FF972F')
+
+# building the name of the output file
+factors = get_contrast_factors(input_contrast)
+venn_contrast_label = paste0(factors$condition, '-', factors$reference)
+output_filename = paste0('DESeq2-EdgeR_', venn_contrast_label, '_results_venn.', venn_output_format)
 
 #build venn chart
 setwd(venn_output)
 ptm('Saving venn diagram')
 silence <- venn.diagram(
   x = list(deseq, edger),
-  category.names = colnames(venn_table),
+  category.names = c('DESeq2', 'EdgeR'),
   imagetype=venn_output_format,
   filename = output_filename,
   output=TRUE,

@@ -10,6 +10,7 @@ cp ${scriptsDir}/${vennRscript} ${workingDir}/compi_scripts/${vennRscript}
 # find the filenames of filtered DESeq2 and EdgeR results
 echo "[PIPELINE -- venn]: Finding filtered DESeq2 and EdgeR results"
 vp_comparison_label=$(echo "${comparison}" | cut -d'"' -f2)
+vp_comparison_label_file=$(echo "${comparison}" | cut -d'"' -f4)
 #vp_comparison_label="$(echo $contrast_filename | xargs)"
 
 # output dir
@@ -17,24 +18,22 @@ pipel_dir_name='pipel'
 output="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}/"
 output_pipel="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}/${pipel_dir_name}/"
 
-venn_des005_path=$(echo "${output_pipel}/deseq_${vp_comparison_label}_qval-0.05.tsv")
-venn_edg005_path=$(echo "${output_pipel}/edger_${vp_comparison_label}_qval-0.05.tsv")
-echo "[PIPELINE -- venn]:	DESeq2 file: $venn_des005_path"
-echo "[PIPELINE -- venn]:	EdgeR  file: $venn_edg005_path"
-
-
-# build a file with the DE features found by DESeq2 (col 1) and EdgeR (col 2)
-join_file="DEmiRNAs_deseq-edger_${vp_comparison_label}_venn.tsv"
-echo "[PIPELINE -- venn]: Joining DESeq2 and EdgeR results in one file"
-paste <(cut -f1 "${venn_des005_path}") <(cut -f1 "${venn_edg005_path}") > "${output_pipel}/${join_file}"
-echo "[PIPELINE -- venn]:	Done, saved in: ${output_pipel}/${join_file}"
-
-venn_path="${output_pipel}${join_file}"
-venn_output="${output}"
+## Script input parameters:
+##  1.- venn_path: path to a file with the DE features returned by DESeq2 + EdgeR, one per line.
+##  2.- venn_output: path to the output directory for the graph.
+##  3.- venn_output_format: file format of the output image (png, svg or tiff).
+##  4.- input_contrast : a line of the contrast_file.
+#
+# Inputs
+venn_path=$(echo "${output_pipel}/DEmiRNAs_${vp_comparison_label_file}_deseq-edger_venn.tsv")
+venn_output="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}/"
 venn_output_format="${vennFormat}"
+input_contrast="${comparison}"
 
+# Run the R script
 echo "[PIPELINE -- venn]: Building the Venn diagram"
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_venn-diagram \
-		Rscript "${workingDir}/compi_scripts/${vennRscript}" "${venn_path}" "${venn_output}" "${venn_output_format}" "${vp_comparison_label}"
+		Rscript "${workingDir}/compi_scripts/${vennRscript}" "${venn_path}" "${venn_output}" "${venn_output_format}" "${input_contrast}"
+

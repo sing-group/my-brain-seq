@@ -38,8 +38,13 @@ q_value_filter = 0.05
 
 # to print messages
 ptm = function(text){
-  header = '[PIPELINE -- functional-enrichment -- run_functional-enrichment-analysis.R]:'
+  header = paste0('[PIPELINE -- functional-enrichment -- run_functional-enrichment-analysis.R > ', software, ']: ')
   cat(paste(header, text), sep='\n')
+}
+
+# to print bare messages
+pt = function(text){
+  cat(text)
 }
 
 ptm("============================================================================")
@@ -267,8 +272,10 @@ print_enriched = enrichment_table %>%
   arrange(qvalue)
 
 print_enriched = head(print_enriched, n = 10)
-print('TOP 10 ENRICHED PATHWAYS')
+pt('\n')
+pt('TOP 10 ENRICHED PATHWAYS\n')
 print(print_enriched, right = F)
+pt('\n')
 
 #-------------------------------------------------------------------------------
 #                             PLOTTING
@@ -284,7 +291,7 @@ text = enrichment_table %>%
 # split the text in words and remove stop words using tidytext
 text_table = text %>% 
   unnest_tokens(word, description) %>%
-  anti_join(stop_words)
+  anti_join(stop_words, by = 'word')
 
 # removes words shorter than 2 characters
 text_table = text_table %>% 

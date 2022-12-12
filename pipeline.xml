@@ -5,9 +5,10 @@
 	<version>0.1.0</version>
 
 	<params>
-		<param name="workingDir" shortName="wd" global="true" defaultValue="/working_dir">The working directory of the project. </param>
+		<param name="workingDir" shortName="wd" global="true" defaultValue="/working_dir">The working directory of the project.</param>
 		<param name="fastqDir" shortName="dd" global="true" defaultValue="input/fastq">The directory containing the fastq files (default is relative to workingDir).</param>
 		<param name="outDir" shortName="o" global="true" defaultValue="output">The directory containing the pipeline outputs (relative to workingDir).</param>
+		<param name="organism" shortName="ogn" global="true" defaultValue="Homo sapiens">The organism from which the data was obtained, needed for the functional enrichment analysis.</param>
 		<param name="adapter" shortName="adp" global="true" defaultValue="NA">The sequence of the adapter to remove.</param>
 		<param name="genome" shortName="genome" global="true" defaultValue="">The directory path to the genome to align.</param>
 		<param name="bwtIndex" shortName="bwti" global="true" defaultValue="">The directory path containing the Bowtie index.</param>
@@ -37,6 +38,7 @@
 		<param name="vennRscript" shortName="rven" global="true" defaultValue="run_venn-diagram.R">The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.</param>
 		<param name="hclustMakeTableRscript" shortName="hmk" global="true" defaultValue="run_make_hclust_table.R">The relative path to the directory containing the R script for the creation of the hclust table.</param>
 		<param name="hclustRscript" shortName="hcr" global="true" defaultValue="run_hierarchical-clustering.R">The relative path to the directory containing the R script for the hierarchical clustering analysis.</param>
+		<param name="functionalEnrichmentRscript" shortName="fers" global="true" defaultValue="run_functional-enrichment-analysis.R">The relative path to the directory containing the R script for the functional enrichment analysis.</param>
 		
 		<param name="databasesDir" shortName="db" global="true" defaultValue="/databases/">The relative path to the directory containing the TarBase and Reactome databases.</param>
 		<param name="tarbaseDB" shortName="tbdb" global="true" defaultValue="TarBase_v8_download.txt">The relative path to the TarBase file.</param>
@@ -108,30 +110,35 @@
 		<foreach id="deseq" after="feature-counts" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast deSeq2Rscript" if="[ ${selectDEAsoftware} = deseq ] || [ ${selectDEAsoftware} = both ]">
 			${scriptsDir}/deseq.sh
 		</foreach>
-		
+
 		<!--Performs the differential expression analysis with EdgeR-->
 		<foreach id="edger" after="feature-counts" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast edgerRscript" if="[ ${selectDEAsoftware} = edger ] || [ ${selectDEAsoftware} = both ]">
 			${scriptsDir}/edger.sh
 		</foreach>
-		
+
 		<!--Compares the results of DESeq2 and EdgeR and builds a result file with the coincidences-->
 		<foreach id="dea-integration" after="deseq edger" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast" if="[ ${selectDEAsoftware} = both ]">
 			${scriptsDir}/dea-integration.sh
 		</foreach>
-		
+
 		<!--Build the Venn diagram with the DESeq2+EdgeR results-->
-		<foreach id="venn" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="vennFormat contrast" if="[ -s &quot;${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d '&quot;' -f 2)&quot;/pipel/coincidences_*.\tsv ]">
+		<foreach id="venn" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="vennFormat contrast" if="[ -s &quot;${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d '&quot;' -f 2)&quot;/pipel/*_venn.\tsv ]">
 			${scriptsDir}/venn.sh
 		</foreach>
-		
+
 		<!--Build the Volcano Plot with the DESeq2/EdgeR results-->
-		<foreach id="volcano" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast" if="[ -s &quot;${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d '&quot;' -f 2)&quot;/pipel/coincidences_*.\tsv ]">
+		<foreach id="volcano" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast">
 			${scriptsDir}/volcano.sh
 		</foreach>
-		
+
 		<!--Build a Hierarchical Clustering using the DESeq2/EdgeR results-->
 		<foreach id="hclust" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast" if="[ -s &quot;${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d '&quot;' -f 2)&quot;/pipel/coincidences_*.\tsv ]">
 			${scriptsDir}/hclust.sh
+		</foreach>
+
+		<!--Performs a Functional Enrichment Analysis using the DESeq2/EdgeR results-->
+		<foreach id="functional-enrichment" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast">
+			${scriptsDir}/functional-enrichment.sh
 		</foreach>
 	</tasks>
 

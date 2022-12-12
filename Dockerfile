@@ -14,8 +14,9 @@ RUN apt-get install -y python3
 #installs pip
 RUN apt install -y python3-pip 
 
-#adds additional scripts
+#adds additional scripts and databases
 ADD resources/scripts /scripts
+ADD resources/databases /databases
 ADD resources/init-working-dir /init-working-dir
 
 # ADD PIPELINE

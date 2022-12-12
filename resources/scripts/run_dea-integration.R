@@ -1,108 +1,179 @@
 ## Script input parameters:
-##  1.- path_results: path to the file with the results integrated with
-##                    repetitions (DEmiRNAs_deseq-edger.tsv).
-##  2.- path_output: path to the directory used to save the results.
-##  3.- contrast_name: name of the contrast to build the output filename.
+##  1.- path_deseq        : the file resulting from the DESeq2 analysis.
+##  2.- path_edger        : the file resulting from the EdgeR analysis.
+##  3.- input_contrast    : a line of the contrast_file.
+##  4.- path_output       : output path to save the results.
+##  5.- path_output_pipel : output path to save additional results.
 
-suppressMessages(library('data.table'))
-
-#INPUTS
-args = commandArgs(trailingOnly = TRUE)
-path_results = as.character(args[1])
-path_output = as.character(args[2])
-contrast_name = as.character(args[3])
-
-#READING
-res = read.csv(file = path_results,
-               sep = "\t",
-               header = TRUE)
-
-ordered = res[order(res$Feature),]
-
-#ESTIMATION OF THE AVERAGE VALUE
-#number of different features
-n_feat = length(levels(as.factor(res$Feature)))
-#empty matrix to build results
-  #for the volcano
-data = matrix(NA, n_feat, 3)
-colnames(data) <- colnames(res)
-
-  #for summarize qvals
-ave_QVAL = matrix(NA, n_feat, 4)
-colnames(ave_QVAL) = c('Feature', 'qval:Deseq', 'qval:EdgeR', 'Mean')
-  #for summarize log2FC
-ave_FC = matrix(NA, n_feat, 4)
-colnames(ave_FC) = c('Feature', 'log2FC:Deseq', 'log2FC:EdgeR', 'Mean')
-
-last = ''
-counter=1
-#parses res getting each row index
-for (i in 1:nrow(ordered)) {
-  feat = as.character(ordered$Feature[i])
-  fc = as.numeric(ordered$log2FC[i])
-  qval = ordered$q.value[i]
-  # if current value is a duplicate averages values
-  if (feat == last) {
-    row1 = c(fc, qval) # row i values
-    row2 = c(ordered$log2FC[i-1], ordered$q.value[i-1]) #row i-1 values
-    #means between DESeq and EdgeR values
-    row12_FC = mean(c(row1[1], row2[1]))
-    row12_QVAL = mean(c(row1[2], row2[2]))
-    rowM = c(feat, row12_FC, row12_QVAL)
-    #builds the matrix each iteration
-    data[counter, ] = rowM
-    ave_QVAL[counter, ] = c(feat, row2[2], row1[2], row12_QVAL)
-    ave_FC[counter, ] = c(feat, row2[1], row1[1], row12_FC)
-    
-    # EdgeR:
-    #   log2FC ---> row1[1]
-    #   qval -----> row1[2]
-    #
-    # DESeq2:
-    #   log2FC ---> row2[1]
-    #   qval -----> row2[2]
-  
-    counter=counter+1
-  }
-  last = feat
+# to print messages
+ptm = function(text){
+  header = '[PIPELINE -- dea-integration -- run_dea-integration.R]:'
+  cat(paste(header, text), sep='\n')
 }
 
-#BUILD THE RESULTS
-#integrated results
-integrated_RESULTS = as.data.frame(data)
-# integrated_RESULTS = cbind(Feature = as.character(data[ , 1]), integrated_RESULTS)
-# integrated_RESULTS$Feature = as.character(data[ , 1])
-# integrated_RESULTS$log2FC = as.numeric(data[ , 2])
-# integrated_RESULTS$qval = as.numeric(data[ , 3])
-  
-#summary table
-summary_TABLE = data.table()
-summary_TABLE$Feature = as.character(ave_QVAL[ , 1])
-summary_TABLE$qval_Deseq = as.numeric(ave_QVAL[ , 2])
-summary_TABLE$qval_EdgeR = as.numeric(ave_QVAL[ , 3])
-summary_TABLE$qval_Average = as.numeric(ave_QVAL[ , 4])
-summary_TABLE$log2FC_Deseq = as.numeric(ave_FC[ , 2])
-summary_TABLE$log2FC_EdgeR = as.numeric(ave_FC[ , 3])
-summary_TABLE$log2FC_Average = as.numeric(ave_FC[ , 4])
-summary_TABLE = as.data.frame(summary_TABLE)
+#-------------------------------------------------------------------------------
+#                                 INPUTS
+#-------------------------------------------------------------------------------
+args = commandArgs(trailingOnly = TRUE)
+path_deseq = as.character(args[1])
+path_edger = as.character(args[2])
+input_contrast = as.character(args[3])
+path_output = as.character(args[4])
+path_output_pipel = as.character(args[5])
 
-cat('[PIPELINE -- dea-integration | R]: Average values calculated: ', '\n')
-#order the results by qvalue
-integrated_RESULTS = integrated_RESULTS[order(integrated_RESULTS$q.value),]
-#change de colnames to the same as DESeq2 and EdgeR
+q_value_filter = 0.05
 
-cat('\n')
-print.data.frame(head(integrated_RESULTS), row.names = FALSE)
-cat('\t...', '\n')
-cat('\n')
-colnames(integrated_RESULTS) = c('Feature',	'log2FC',	'qvalue')
-#SAVE RESULTS
-cat('[PIPELINE -- dea-integration | R]: Saving integrated results', '\n')
-path_output_file = paste0(path_output, '/', 'DEmiRNAs_', contrast_name, '_deseq-edger_integrated', '.tsv')
-write.table(integrated_RESULTS, path_output_file, row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
-cat('[PIPELINE -- dea-integration | R]:\tSaved in: ', path_output_file, '\n')
+#-------------------------------------------------------------------------------
+#                                FUNCTIONS
+#-------------------------------------------------------------------------------
+ptm('Loading functions')
+# to get the reference and condition factors from the input_contrast (pipeline)
+get_contrast_factors = function(input_contrast) {
+  contrast_table = read.delim(text = paste('name\n', input_contrast), sep = '=')
+  contrast = strsplit(as.character(contrast_table$name), '-')[[1]]
+  ref_factor = trimws(contrast[2])
+  cond_factor = as.character(trimws(contrast[1]))
+  result = list("reference" = ref_factor, "condition" = cond_factor)
+}
 
-cat('[PIPELINE -- dea-integration | R]: Saving summary table', '\n')
-path_output_file = paste0(path_output, '/', 'DEmiRNAs_', contrast_name, '_summary', '.tsv')
-write.table(summary_TABLE, path_output_file, row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
-cat('[PIPELINE -- dea-integration | R]:\tSaved in: ', path_output_file, '\n')
+# to print messages
+ptm = function(text){
+  header = '[PIPELINE -- dea-integration -- run_dea-integration.R]:'
+  cat(paste(header, text), sep='\n')
+}
+
+# to print bare messages
+pt = function(text){
+  cat(text)
+}
+
+#-------------------------------------------------------------------------------
+#                               READ FILES
+#-------------------------------------------------------------------------------
+ptm('Reading DEA files')
+suppressMessages(library('data.table'))
+suppressMessages(library('dplyr'))
+
+# reading
+deseq = read.delim(path_deseq)
+edger = read.delim(path_edger)
+
+#-------------------------------------------------------------------------------
+#                           PREPARE DEA TABLES
+#-------------------------------------------------------------------------------
+ptm('Preparing DEA tables for the integration')
+# keep only Feature, pvalue and qvalue columns and rename
+pval_d = 'pvalue_deseq'; qval_d = 'qvalue_deseq'
+pval_e = 'pvalue_edger'; qval_e = 'qvalue_edger'
+
+deseq = deseq %>%
+  select(Feature, pvalue, qvalue)
+colnames(deseq) = c('Feature', pval_d, qval_d)
+
+edger = edger %>%
+  select(Feature, pvalue, qvalue)
+colnames(edger) = c('Feature', pval_e, qval_e)
+
+#-------------------------------------------------------------------------------
+#                   DESEQ-EDGER COINCIDENCES AFTER QVALUE FILTER
+#-------------------------------------------------------------------------------
+# First apply the qvalue filter to the dea files independently, then search for
+# miRNA coincidences
+
+ptm('Finding coincidences between DESeq2 and EdgeR after filtering by qvalue')
+# filter the files by qvalue
+deseq_filtered = deseq %>% filter(qvalue_deseq < q_value_filter)
+edger_filtered = edger %>% filter(qvalue_edger < q_value_filter)
+
+# search for coincidences miRNA between the two tables, then averages p/qvalues
+coincidences_full = inner_join(deseq_filtered, edger_filtered, by = 'Feature') %>%
+  mutate(pvalue = (pvalue_deseq + pvalue_edger)/2, 
+         qvalue = (qvalue_deseq + qvalue_edger)/2)
+
+coincidences = coincidences_full %>% select(Feature, pvalue, qvalue)
+
+# print a summary and save venn table
+if (length(coincidences$Feature) > 0){
+  # prepare the table for the venn diagram
+  venn_d = deseq_filtered$Feature
+  venn_e = edger_filtered$Feature
+  max_length = max(c(length(venn_d), length(venn_e))) 
+  venn_table = data.frame(
+    deseq = c(venn_d,
+              rep('', max_length - length(venn_d))),
+    edger = c(venn_e,
+              rep('', max_length - length(venn_e))))
+  # summary
+  pt('\n')
+  pt('MiRNAs differentially expressed in DESeq and EdgeR results\n')
+  cat(coincidences$Feature, sep = '\n')
+  pt('\n')
+} else {
+  ptm(paste0('[WARNING]: No coincidences between EdgeR and DESeq2 results for a q-value < ', q_value_filter))
+  ptm('[WARNING]: Venn plot skipped"')
+}
+
+#-------------------------------------------------------------------------------
+#                            P/QVALUE AVERAGE
+#-------------------------------------------------------------------------------
+# Join the deseq and edger files by miRNA (keeping only coincidences) and then
+# calculates the average qvalue and pvalue per miRNA, e.g.:
+#    Average pvalue for the miRNA "a":
+#        ave_pvalue(a) = (pvalue_deseq(a) + pvalue_edger(a))/2
+
+ptm('Averaging miRNAs DESeq2 and EdgeR pvalues and q-values')
+# perform the integration
+integrated_full = deseq %>%
+  inner_join(edger, by = 'Feature') %>%
+  mutate(pvalue = (pvalue_deseq + pvalue_edger)/2, 
+         qvalue = (qvalue_deseq + qvalue_edger)/2)
+
+# table with just Features, pvalue and qvalue columns
+integrated = integrated_full %>%
+  select(Feature, pvalue, qvalue)
+
+# print a summary
+if (length(integrated$Feature) > 0){
+  pt('\n')
+  pt('Top integrated values\n')
+  print(head(integrated %>% arrange(qvalue), n = 10))
+  pt('\n')
+} else {
+  ptm('[WARNING]: No coincidences between EdgeR and DESeq2 results')
+}
+
+#-------------------------------------------------------------------------------
+#                            SAVE RESULTS
+#-------------------------------------------------------------------------------
+ptm('Saving integrated results')
+# build the label for the contrast
+factors = get_contrast_factors(input_contrast)
+contrast_name = paste0(factors$condition, '-', factors$reference)
+# build the paths for the output files
+path_output_integrated = paste0(path_output, '/', 'DEmiRNAs_', contrast_name, 
+                                '_deseq-edger_integrated', '.tsv')
+path_output_integrated_full = paste0(path_output_pipel, '/', 'DEmiRNAs_', 
+                                     contrast_name, 
+                                     '_deseq-edger_integrated_full', '.tsv')
+path_output_coincidences = paste0(path_output_pipel, '/', 'DEmiRNAs_', 
+                                  contrast_name, 
+                                  '_deseq-edger_coincidences', '.tsv')
+path_output_venn = paste0(path_output_pipel, '/', 'DEmiRNAs_', 
+                                  contrast_name, 
+                                  '_deseq-edger_venn', '.tsv')
+# write integrated
+if (length(integrated$Feature) > 0){
+  write.table(integrated, path_output_integrated, 
+              row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
+  write.table(integrated_full, path_output_integrated_full, 
+              row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
+}
+# write coincidences
+if (length(coincidences$Feature) > 0){
+  write.table(coincidences, path_output_coincidences, 
+              row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
+  write.table(venn_table, path_output_venn, 
+              row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
+}
+
+ptm('Done')

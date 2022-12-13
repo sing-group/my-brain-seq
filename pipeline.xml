@@ -132,7 +132,7 @@
 		</foreach>
 
 		<!--Build a Hierarchical Clustering using the DESeq2/EdgeR results-->
-		<foreach id="hclust" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast" if="[ -s &quot;${workingDir}/${outDir}/${deaIntOut}/$(echo ${comparison} | cut -d '&quot;' -f 2)&quot;/pipel/coincidences_*.\tsv ]">
+		<foreach id="hclust" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast">
 			${scriptsDir}/hclust.sh
 		</foreach>
 

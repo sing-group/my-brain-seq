@@ -18,10 +18,14 @@ input_contrast=as.character(args[4])
 path_output=as.character(args[5])
 software=as.character(args[6])
 
+q_value = 0.05
+fold_change = 0.5
+
 # to print bare text without "[1]"
 pt = function(text){
   cat(text, sep='\n')
 }
+
 # to print messages
 ptm = function(text, sft = software){
   header = '[PIPELINE -- hclust -- run_make_hclust_table.R > '
@@ -99,7 +103,7 @@ get_contrast_factors = function(input_contrast) {
 }
 
 #-------------------------------------------------------------------------------
-#                               LOAD TABLES
+#                           LOAD TABLES AND LABELS
 #-------------------------------------------------------------------------------
 ptm('Loading files')
 #DEA results
@@ -109,24 +113,37 @@ cts = read_tsv(path_counts, rowname="Geneid")
 cts = cts[-1:-5]
 #Conditions
 conditions = read_tsv(path_conditions)
+#Labels
+contrast_factors = get_contrast_factors(input_contrast)
+contrast_label = paste0(contrast_factors$label_condition, '-', 
+                        contrast_factors$label_reference)
 
 #-------------------------------------------------------------------------------
 #                             GET MIRNA LIST
 #-------------------------------------------------------------------------------
 ptm('Getting miRNA profile')
 # if integrated results, then miRNA profile = first column of dea_results
-if (software == "DESeq2-EdgeR"){
+if (software == "DESeq2-EdgeR"){                                                # fix this step when dea-integration task average the log2FC values too
   mirna_profile = as.list(dea_results$Feature)
-# else filter the miRNAs by q_value and FC
-}else{
   #filter by q-value and FDR
-  q_value = 0.05
-  fold_change = 0.5
   dea_results_filtered = filter(dea_results,
-                                qvalue<q_value & (log2FC>fold_change | log2FC< -fold_change))
-  
+                                qvalue<q_value)
   #get the miRNA list
   mirna_profile = dea_results_filtered$Feature
+  # else filter the miRNAs by q_value and FC
+}else{
+  #filter by q-value and FDR
+  dea_results_filtered = filter(dea_results,
+                                qvalue<q_value & (log2FC>fold_change | log2FC< -fold_change))
+  #get the miRNA list
+  mirna_profile = dea_results_filtered$Feature
+}
+
+# if no miRNAs met the statistical thresholds ends the script
+if (length(mirna_profile) == 0){
+  ptm(paste0('No miRNAs with a qvalue < ', q_value, ' and a log2FC < -', fold_change, ' or log2FC > ', fold_change))
+  ptm(paste0('Hierarchical clustering of "', contrast_label, '" results skipped.'))
+  quit(save = 'no')
 }
 
 #-------------------------------------------------------------------------------
@@ -136,14 +153,22 @@ ptm('Preparing hclust table')
 #Change the colnames of cts from paths to the name of the samples
 cts = fix_cts_colnames(cts, conditions)
 #Get the expression of the miRNA profile
-hclust_table = filter(cts, rownames(cts) %in% mirna_profile)
+hclust_table = cts %>% filter(rownames(cts) %in% mirna_profile)
+#Subset the desired samples for the comparison (reference)
+subset_table = conditions %>% filter(condition == contrast_factors$condition |
+                                       condition == contrast_factors$reference)
+#Subset the hclust_table using the subset_table (need to transpose two times)
+hclust_table = as.data.frame(t(hclust_table))
+hclust_table$name = rownames(hclust_table)
+hclust_table = hclust_table %>% filter(name %in% subset_table$name) %>%
+  select(-name)
+hclust_table = as.data.frame(t(hclust_table))
 
 #-------------------------------------------------------------------------------
 #                             SAVE RESULTS
 #-------------------------------------------------------------------------------
 ptm('Saving hclust results')
 #Output file name considering the software
-contrast_factors = get_contrast_factors(input_contrast)
 output_file = paste('hclust_',
                     software,
                     '_',

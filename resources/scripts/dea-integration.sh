@@ -28,6 +28,9 @@ input_contrast="${comparison}"
 path_output="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}"
 path_output_pipel="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}/${pipel_dir_name}"
 
+# make the directory for the results of the contrast and the pipeline files
+mkdir -p "${path_output_pipel}"
+
 echo "[PIPELINE -- dea-integration]:	DESeq2 file: $path_deseq"
 echo "[PIPELINE -- dea-integration]:	EdgeR  file: $path_edger"
 
@@ -37,6 +40,5 @@ docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_data-analysis \
 		Rscript ${workingDir}/compi_scripts/${deaIntRscript} "${path_deseq}" "${path_edger}" "${input_contrast}" "${path_output}" "${path_output_pipel}"
-
 
 echo "[PIPELINE -- dea-integration]: Done!"

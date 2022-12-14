@@ -114,8 +114,8 @@ get_genes_in_pathway = function(reactomeId){
   }
 }
 
+#Get the reference and condition factors from the input_contrast (pipeline)
 get_contrast_factors = function(input_contrast) {
-  #Get the reference and condition factors from the input_contrast (pipeline)
   #Get the current contrast
   contrast_table = read.delim(text = paste('name\n', input_contrast), sep = '=')
   #get the reference factor and the condition (removing trailing/leading white spaces)
@@ -124,6 +124,26 @@ get_contrast_factors = function(input_contrast) {
   cond_factor = as.character(trimws(contrast[1]))
   result = list("reference" = ref_factor, "condition" = cond_factor)
 }
+
+# Raises "message" if "column_test" is empty, then stops the script execution
+# messages must be stored in a vector.
+check_to_continue = function(column_test, message = NA) {
+  if (length(column_test) == 0){
+    if (!is.na(message[1])){
+      ptm(paste0('No ', message[1], ' with a qvalue < ', q_value_filter, '.'))
+      ptm(paste0(message[2], ' of "', contrast_label, '" results skipped.'))
+      ptm('Done')
+    }
+    quit(save = 'no')
+  }
+}
+
+#-------------------------------------------------------------------------------
+#                        PREPARE USEFUL VARIABLES
+#-------------------------------------------------------------------------------
+# build the labels of the contrast
+contrast = get_contrast_factors(input_contrast)
+contrast_label = paste0(contrast$condition, '-', contrast$reference)
 
 #-------------------------------------------------------------------------------
 #                           TARGET PREDICTION
@@ -141,6 +161,10 @@ conversion_db = tarbase_db %>%
 # find differentially expressed miRNAs (DE miRNAs)
 de_mirnas = dea_result_table %>% filter(qvalue < q_value_filter) %>% select(Feature)
 colnames(de_mirnas) = 'mirna'
+
+# stops the execution if no DE miRNAs
+msg_no_de = c('miRNAs', 'Functional enrichment analysis')
+check_to_continue(de_mirnas$mirna, msg_no_de)
 
 # all miRNAs tested for differential expression analysis (DEA)
 all_tested_mirna = dea_result_table %>% select(Feature)
@@ -265,11 +289,20 @@ for (pth in 1:dim(enrichment_table)[1]){
   enrichment_table$DE_mirnas[pth] = mirnas_id_in_DE_pathway
 }
 
-# terminal output with top 10 enriched pathways
+# save the results of the enrichment analysis
+output_table_filename = paste0('enrichment_table_', software, '_', contrast_label, '.tsv')
+path_table = paste0(path_output, output_table_filename)
+write.table(enrichment_table, path_table, row.names = FALSE, col.names = TRUE, sep = '\t')
+
+# prepare the terminal output with top 10 enriched pathways
 print_enriched = enrichment_table %>%
   filter(qvalue < q_value_filter) %>%
   select(description, qvalue) %>%
   arrange(qvalue)
+
+# stops the execution if no DE pathways
+msg_chart = c('enriched pathways', 'Lolipop chart')
+check_to_continue(print_enriched$description, msg_chart)
 
 print_enriched = head(print_enriched, n = 10)
 pt('\n')
@@ -317,9 +350,6 @@ n_top_words = 50
 reduced_words_frequency = head(word_frequencies, n = n_top_words)
 
 # build the title of the graph
-contrast = get_contrast_factors(input_contrast)
-contrast_label = paste0(contrast$condition, '-'
-                        , contrast$reference)
 graph_subtitle = paste0('Top ', n_top_words, ' repeated words in the description of Reactome pathways (qvalue < ', q_value_filter,')')
 graph_caption = paste0("To calculate word repetitions, first Reactome pathways were filtered by a qvalue < ", q_value_filter,". Second, descriptions of those enriched pathway were joined and splitted into words. Third, the resulting text was cleaned by removing english stop words and performing lemmatisation. Finally, repetitions of the same words were calculated. The top ", n_top_words, " are presented in the graph.")
 graph_caption = str_wrap(graph_caption, 100)
@@ -344,13 +374,5 @@ reduced_words_frequency %>%
         plot.caption = element_text(hjust = 1))
 
 silence <- dev.off()
-
-#-------------------------------------------------------------------------------
-#                                OUTPUT
-#-------------------------------------------------------------------------------
-output_table_filename = paste0('enrichment_table_', software, '_', contrast_label, '.tsv')
-path_table = paste0(path_output, output_table_filename)
-  
-write.table(enrichment_table, path_table, row.names = FALSE, col.names = TRUE, sep = '\t')
 
 ptm('Done')

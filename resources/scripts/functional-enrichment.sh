@@ -18,7 +18,7 @@ cp ${scriptsDir}/${functionalEnrichmentRscript} ${workingDir}/compi_scripts/${fu
 cp ${databasesDir}/${tarbaseDB} ${workingDir}/compi_databases/${tarbaseDB}
 cp ${databasesDir}/${reactomeDB} ${workingDir}/compi_databases/${reactomeDB}
 
-# function to perform the volcano analysis
+# function to perform the enrichment analysis
 function run_functional_enrichment {
 # $1 : ${tarbase_db_file}    $5 : ${software}
 # $2 : ${reactome_db_file}   $6 : ${db_organism}

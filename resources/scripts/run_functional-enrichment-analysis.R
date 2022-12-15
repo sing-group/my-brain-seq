@@ -92,7 +92,7 @@ if (db_organism %in% options$species){
   ptm(paste0('filtering Reactome annotations by "', db_organism, '"'))
   reactome_db = reactome_db %>% filter(organism == db_organism)
 }else{
-  error_msg = paste0('[ERROR]: "', db_organism, '" is not a valid value for "db_organism", it must be one of the following: ', options)
+  error_msg = paste0('[ERROR]: "', db_organism, '" is not a valid value for "db_organism", it must be one of the following: ', options$species)
   stop(error_msg)
 }
 
@@ -303,6 +303,11 @@ print_enriched = enrichment_table %>%
 # stops the execution if no DE pathways
 msg_chart = c('enriched pathways', 'Lolipop chart')
 check_to_continue(print_enriched$description, msg_chart)
+
+# truncate the descriptions to 60 characters
+print_enriched = print_enriched %>%
+  mutate(pathway = str_trunc(description, 60)) %>%
+  select(pathway, qvalue)
 
 print_enriched = head(print_enriched, n = 10)
 pt('\n')

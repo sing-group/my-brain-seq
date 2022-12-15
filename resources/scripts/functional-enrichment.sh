@@ -13,10 +13,24 @@ set -o errexit
 
 echo "[PIPELINE -- functional-enrichment]: Starting the functional enrichment analysis..."
 
-#Makes a copy of the scripts used in the analysis to working-dir
-cp ${scriptsDir}/${functionalEnrichmentRscript} ${workingDir}/compi_scripts/${functionalEnrichmentRscript}
-cp ${databasesDir}/${tarbaseDB} ${workingDir}/compi_databases/${tarbaseDB}
-cp ${databasesDir}/${reactomeDB} ${workingDir}/compi_databases/${reactomeDB}
+# test if file is locked, then cp the script to working-dir or omit
+function cp_and_lock {
+# $1 : script to copy  $3 : 'script'/'database'
+# $2 : task name 
+	(
+	flock -n 200 || echo "[PIPELINE -- "${2}"]: ${1} is locked, cp omitted."
+	if [[ $3 == 'script' ]]; then
+		cp ${scriptsDir}/${1} ${workingDir}/compi_scripts/${1}
+	elif [[ $3 == 'database' ]]; then
+		cp ${databasesDir}/${1} ${workingDir}/compi_databases/${1}
+	fi
+	) 200>/var/lock/${1}.lock
+}
+
+# lock Rscript before copying to avoid errors when parallel tasks are running
+cp_and_lock ${functionalEnrichmentRscript} 'functional-enrichment' 'script'
+cp_and_lock ${tarbaseDB} 'functional-enrichment' 'database'
+cp_and_lock ${reactomeDB} 'functional-enrichment' 'database'
 
 # function to perform the enrichment analysis
 function run_functional_enrichment {

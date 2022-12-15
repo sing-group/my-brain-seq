@@ -4,8 +4,18 @@ set -o errexit
 
 echo "[PIPELINE -- venn]: Building a file for the Venn diagram"
 
-# makes a copy of the scripts used in the analysis to working-dir
-cp ${scriptsDir}/${vennRscript} ${workingDir}/compi_scripts/${vennRscript}
+# test if file is locked, then cp the script to working-dir
+function cp_and_lock {
+# $1 : script to copy  # $2 : task name
+	(
+	flock -n 200 || echo "[PIPELINE -- "${2}"]: ${1} is locked, cp omitted."
+	#Makes a copy of the scripts used in the analysis to working-dir
+	cp ${scriptsDir}/${1} ${workingDir}/compi_scripts/${1}
+	) 200>/var/lock/${1}.lock
+}
+
+# lock Rscript before copying to avoid errors when parallel tasks are running
+cp_and_lock ${vennRscript} 'venn'
 
 # find the filenames of filtered DESeq2 and EdgeR results
 echo "[PIPELINE -- venn]: Finding filtered DESeq2 and EdgeR results"

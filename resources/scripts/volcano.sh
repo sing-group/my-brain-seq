@@ -2,8 +2,18 @@
 set -o nounset
 set -o errexit
 
-#Makes a copy of the scripts used in the analysis to working-dir
-cp ${scriptsDir}/${enhancedVolcanoRscript} ${workingDir}/compi_scripts/${enhancedVolcanoRscript}
+# test if file is locked, then cp the script to working-dir
+function cp_and_lock {
+# $1 : script to copy  # $2 : task name
+	(
+	flock -n 200 || echo "[PIPELINE -- "${2}"]: ${1} is locked, cp omitted."
+	#Makes a copy of the scripts used in the analysis to working-dir
+	cp ${scriptsDir}/${1} ${workingDir}/compi_scripts/${1}
+	) 200>/var/lock/${1}.lock
+}
+
+# lock Rscript before copying to avoid errors when parallel tasks are running
+cp_and_lock ${enhancedVolcanoRscript} 'volcano'
 
 # get the contrast name to build the output filename
 contrast_label=$(echo "${comparison}" | cut -d'"' -f2 )

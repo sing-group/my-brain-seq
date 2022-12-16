@@ -137,7 +137,7 @@
 		</foreach>
 
 		<!--Performs a Functional Enrichment Analysis using the DESeq2/EdgeR results-->
-		<foreach id="functional-enrichment" after="deseq edger dea-integration" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast">
+		<foreach id="functional-enrichment" after="hclust" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast">
 			${scriptsDir}/functional-enrichment.sh
 		</foreach>
 	</tasks>

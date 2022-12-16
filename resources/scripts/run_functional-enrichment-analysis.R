@@ -92,7 +92,8 @@ if (db_organism %in% options$species){
   ptm(paste0('filtering Reactome annotations by "', db_organism, '"'))
   reactome_db = reactome_db %>% filter(organism == db_organism)
 }else{
-  error_msg = paste0('[ERROR]: "', db_organism, '" is not a valid value for "db_organism", it must be one of the following: ', options$species)
+  species_msg = paste0(options$species, collapse = ', ')
+  error_msg = paste0('[ERROR]: "', db_organism, '" is not a valid value for "db_organism", it must be one of the following: ', species_msg, '.')
   stop(error_msg)
 }
 

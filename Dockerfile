@@ -14,10 +14,16 @@ RUN apt-get install -y python3
 #installs pip
 RUN apt install -y python3-pip 
 
-#adds additional scripts and databases
+#adds additional scripts
 ADD resources/scripts /scripts
-ADD resources/databases /databases
 ADD resources/init-working-dir /init-working-dir
+
+#adds files from the remote database and decompress it
+RUN mkdir ./databases
+RUN curl -O "http://static.sing-group.org/software/myBrainSeq/docker/TarBase_v8_download.zip"
+RUN curl -O "http://static.sing-group.org/software/myBrainSeq/docker/Ensembl2Reactome.zip"
+RUN gunzip -S .zip -c "TarBase_v8_download.zip" > "./databases/TarBase_v8_download.txt"
+RUN gunzip -S .zip -c "Ensembl2Reactome.zip" > "./databases/Ensembl2Reactome.txt"
 
 # ADD PIPELINE
 ADD pipeline.xml /pipeline.xml

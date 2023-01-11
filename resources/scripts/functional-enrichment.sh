@@ -18,11 +18,11 @@ function cp_and_lock {
 # $1 : script to copy  $3 : 'script'/'database'
 # $2 : task name 
 	(
-	flock -n 200 || echo "[PIPELINE -- "${2}"]: ${1} is locked, cp omitted."
+	flock 200 || echo "[PIPELINE -- "${2}"]: ${1} is locked, cp omitted."
 	if [[ $3 == 'script' ]]; then
-		cp ${scriptsDir}/${1} ${workingDir}/compi_scripts/${1}
+		cp -n ${scriptsDir}/${1} ${workingDir}/compi_scripts/${1}
 	elif [[ $3 == 'database' ]]; then
-		cp ${databasesDir}/${1} ${workingDir}/compi_databases/${1}
+		cp -n ${databasesDir}/${1} ${workingDir}/compi_databases/${1}
 	fi
 	) 200>/var/lock/${1}.lock
 }

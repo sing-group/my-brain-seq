@@ -4,15 +4,8 @@ set -o errexit
 
 echo "[PIPELINE -- dea-integration]: Integrating DESeq2 and EdgeR results..."
 
-# test if file is locked, then cp the script to working-dir
-function cp_and_lock {
-# $1 : script to copy  # $2 : task name
-	(
-	flock 200 || echo "[PIPELINE -- "${2}"]: ${1} is locked, cp omitted."
-	#Makes a copy of the scripts used in the analysis to working-dir
-	cp -n ${scriptsDir}/${1} ${workingDir}/compi_scripts/${1}
-	) 200>/var/lock/${1}.lock
-}
+SCRIPT_DIR=$(dirname "$0")
+source ${SCRIPT_DIR}/functions.sh
 
 # lock Rscript before copying to avoid errors when parallel tasks are running
 cp_and_lock ${deaIntRscript} 'dea-integration'

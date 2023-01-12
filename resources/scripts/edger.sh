@@ -8,7 +8,7 @@ SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
 
 # lock Rscript before copying to avoid errors when parallel tasks are running
-cp_and_lock ${edgerRscript} 'edger'
+cp_and_lock ${edgerRscript} 'edger' ${scriptsDir}
 
 #Inputs
 er_comparison="$(echo ""${comparison}"" | cut -d= -f1 | tr -d \" | xargs)"

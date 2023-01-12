@@ -8,7 +8,7 @@ SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
 
 # lock Rscript before copying to avoid errors when parallel tasks are running
-cp_and_lock ${deaIntRscript} 'dea-integration'
+cp_and_lock ${deaIntRscript} 'dea-integration' ${scriptsDir}
 
 # find the filenames of DESeq2 and EdgeR results
 echo "[PIPELINE -- dea-integration]: Finding DESeq2 and EdgeR results"

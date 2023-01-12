@@ -8,7 +8,7 @@ SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
 
 # lock Rscript before copying to avoid errors when parallel tasks are running
-cp_and_lock ${vennRscript} 'venn'
+cp_and_lock ${vennRscript} 'venn' ${scriptsDir}
 
 # find the filenames of filtered DESeq2 and EdgeR results
 echo "[PIPELINE -- venn]: Finding filtered DESeq2 and EdgeR results"

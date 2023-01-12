@@ -6,7 +6,7 @@ SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
 
 # lock Rscript before copying to avoid errors when parallel tasks are running
-cp_and_lock ${enhancedVolcanoRscript} 'volcano'
+cp_and_lock ${enhancedVolcanoRscript} 'volcano' ${scriptsDir}
 
 # get the contrast name to build the output filename
 contrast_label=$(echo "${comparison}" | cut -d'"' -f2 )

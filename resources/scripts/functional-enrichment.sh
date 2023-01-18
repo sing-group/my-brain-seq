@@ -61,7 +61,7 @@ db_organism="${organism}"
 # Build the inputs
 if [[ ${selectDEAsoftware} == 'edger' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
-	path_output="${workingDir}/${outDir}/${edgOut}/"
+	path_output=$(get_output_dir edger ${comparison})
 	dea_result_file="${path_output}/$(echo EdgeR_${contrast_label} | xargs).tsv"
 	software="EdgeR"
 	test_and_run "${tarbase_db_file}" "${reactome_db_file}" "${dea_result_file}" "${input_contrast}" "${software}" "${db_organism}" "${path_output}" 'EdgeR'
@@ -69,7 +69,7 @@ fi
 
 if [[ ${selectDEAsoftware} == 'deseq' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
-	path_output="${workingDir}/${outDir}/${dsqOut}/"
+	path_output=$(get_output_dir deseq ${comparison})
 	dea_result_file="${path_output}/$(echo DESeq2_${contrast_label} | xargs).tsv"
 	software="DESeq2"
 	test_and_run "${tarbase_db_file}" "${reactome_db_file}" "${dea_result_file}" "${input_contrast}" "${software}" "${db_organism}" "${path_output}" 'DESeq2'

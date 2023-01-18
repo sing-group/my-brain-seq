@@ -51,13 +51,14 @@ fi
 
 # function to test if dea file exists and run all the Rscripts
 function test_and_run() {
-# $1 : ${dea_results}      $5 : ${path_output_docker}
-# $2 : ${path_counts}      $6 : ${software}
-# $3 : ${path_conditions}  $7 : Text "DESeq2", "EdgeR" or "integrated"
-# $4 : ${input_contrast}   $8 : ${path_hclust_file}
+# $1 : ${dea_results}         $6 : ${software}
+# $2 : ${path_counts}         $7 : Text "DESeq2", "EdgeR" or "integrated"
+# $3 : ${path_conditions}     $8 : ${path_hclust_file}
+# $4 : ${input_contrast}      $9 : ${path_output_pipel}
+# $5 : ${path_output_docker}
 if [[ -f "$1" ]]
 then
-	run_hclust_make-table "${1}" "${2}" "${3}" "${4}" "${5}" "${6}"
+	run_hclust_make-table "${1}" "${2}" "${3}" "${4}" "${9}" "${6}"
 	test_and_run_hclust "${8}" "${4}" "${5}" "${6}"
 else
 	echo "[PIPELINE -- hclust > $6]: No $7 results."
@@ -71,34 +72,37 @@ input_contrast="${comparison}"
 # perform the hierarchical clustering on the corresponding data
 if [[ ${selectDEAsoftware} == 'edger' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
-	path_output_docker="${workingDir}/${outDir}/${edgOut}/"
+	path_output_docker=$(get_output_dir edger ${comparison})
+	path_output_pipel="${path_output_docker}/pipel/"
 	dea_results="${path_output_docker}/$(echo EdgeR_${contrast_label} | xargs).tsv"
 	path_counts="${path_output_docker}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
 	software="EdgeR"
-	path_hclust_file="${path_output_docker}/$(echo hclust_EdgeR_${contrast_label} | xargs).tsv"
+	path_hclust_file="${path_output_pipel}/$(echo hclust_EdgeR_${contrast_label} | xargs).tsv"
 	# run the analysis
-	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}"
+	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}"
 fi
 
 if [[ ${selectDEAsoftware} == 'deseq' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
-	path_output_docker="${workingDir}/${outDir}/${dsqOut}/"
+	path_output_docker=$(get_output_dir deseq ${comparison})
+	path_output_pipel="${path_output_docker}/pipel/"
 	dea_results="${path_output_docker}/$(echo DESeq2_${contrast_label} | xargs).tsv"
 	path_counts="${path_output_docker}/pipel/$(echo all-counts_deseq_${contrast_label} | xargs).txt"
 	software="DESeq2"
-	path_hclust_file="${path_output_docker}/$(echo hclust_DESeq2_${contrast_label} | xargs).tsv"
+	path_hclust_file="${path_output_pipel}/$(echo hclust_DESeq2_${contrast_label} | xargs).tsv"
 	# run the analysis
-	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}"
+	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}"
 fi
 
 if [[ ${selectDEAsoftware} == 'both' ]]
 then
 	path_output_docker="${workingDir}/${outDir}/${deaIntOut}/${contrast_label}/"
+	path_output_pipel="${path_output_docker}/pipel/"
 	dea_results="${path_output_docker}/DEmiRNAs_${contrast_label_samples}_deseq-edger_integrated.tsv"
 	# uses the counts of EdgeR (data is the same for both software)
-	path_counts="${workingDir}/${outDir}/${edgOut}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
+	path_counts="${workingDir}/${outDir}/${edgOut}/${contrast_label}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
 	software="DESeq2-EdgeR"
-	path_hclust_file="${path_output_docker}/$(echo hclust_DESeq2-EdgeR_${contrast_label} | xargs).tsv"
+	path_hclust_file="${path_output_pipel}/$(echo hclust_DESeq2-EdgeR_${contrast_label} | xargs).tsv"
 	# run the analysis
-	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}"
+	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}"
 fi

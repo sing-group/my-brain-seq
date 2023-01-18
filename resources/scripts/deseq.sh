@@ -16,9 +16,9 @@ dea_comparison="$(echo ""${comparison}"" | cut -d= -f1 | tr -d \" | xargs)"
 dea_path_cond="${conditions}"
 dea_path_contrast="${contrast}"
 #deseq
-dea_path_pipel="${workingDir}/${outDir}/${dsqOut}/pipel"
+dea_path_output=$(get_output_dir deseq ${comparison})
+dea_path_pipel="${dea_path_output}/pipel"
 dea_path_counts="${dea_path_pipel}/all-counts_deseq_${dea_comparison}.txt"
-dea_path_output="${workingDir}/${outDir}/${dsqOut}/"
 
 mkdir -p "${dea_path_pipel}"
 touch "${dea_path_counts}"

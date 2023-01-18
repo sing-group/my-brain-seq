@@ -12,11 +12,11 @@ cp_and_lock ${edgerRscript} 'edger' ${scriptsDir}
 
 #Inputs
 er_comparison="$(echo ""${comparison}"" | cut -d= -f1 | tr -d \" | xargs)"
-er_path_pipel="${workingDir}/${outDir}/${edgOut}/pipel"
+er_path_output=$(get_output_dir edger ${comparison})
+er_path_pipel="${er_path_output}/pipel"
 er_path_counts="${er_path_pipel}/all-counts_edger_${er_comparison}.txt"
 er_path_cond="${conditions}"
 er_path_contrast="${contrast}"
-er_path_output="${workingDir}/${outDir}/${edgOut}/"
 
 mkdir -p "${er_path_pipel}"
 touch "${er_path_counts}"

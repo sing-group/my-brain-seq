@@ -25,8 +25,8 @@ pipel_dir_name='pipel'
 ##  5.- path_output_pipel : output path to save additional results.
 
 # Inputs of the R script
-path_deseq="${workingDir}/${outDir}/${dsqOut}/DESeq2_${vp_comparison_label}.tsv"
-path_edger="${workingDir}/${outDir}/${edgOut}/EdgeR_${vp_comparison_label}.tsv"
+path_deseq="${workingDir}/${outDir}/${dsqOut}/${vp_comparison_label}/DESeq2_${vp_comparison_label}.tsv"
+path_edger="${workingDir}/${outDir}/${edgOut}/${vp_comparison_label}/EdgeR_${vp_comparison_label}.tsv"
 input_contrast="${comparison}"
 path_output="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}"
 path_output_pipel="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}/${pipel_dir_name}"

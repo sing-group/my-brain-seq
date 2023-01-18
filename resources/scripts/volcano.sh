@@ -43,7 +43,7 @@ fi
 # perform the volcano plot on the corresponding data
 if [[ ${selectDEAsoftware} == 'edger' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
-	path_output_docker="${workingDir}/${outDir}/${edgOut}/"
+	path_output_docker=$(get_output_dir edger ${comparison})
 	vp_path_counts="${path_output_docker}/$(echo EdgeR_${contrast_label} | xargs).tsv"
 	vp_software="edger"
 	test_and_run "${vp_path_counts}" "${path_output_docker}" "${contrast_label}" "${vp_software}" "EdgeR"
@@ -51,7 +51,7 @@ fi
 
 if [[ ${selectDEAsoftware} == 'deseq' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
-	path_output_docker="${workingDir}/${outDir}/${dsqOut}/"
+	path_output_docker=$(get_output_dir deseq ${comparison})
 	vp_path_counts="${path_output_docker}/$(echo DESeq2_${contrast_label} | xargs).tsv"
 	vp_software="deseq"
 	test_and_run "${vp_path_counts}" "${path_output_docker}" "${contrast_label}" "${vp_software}" "DESeq2"

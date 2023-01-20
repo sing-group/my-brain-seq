@@ -30,6 +30,8 @@ path_cond=as.character(args[2])
 input_contrast=as.character(args[3])
 path_output=as.character(args[4])
 
+padj = 0.05
+
 ptm("======================================================")
 ptm('    [PIPELINE -- edger]: run_edger_exact-test.R       ')
 ptm('......................................................')
@@ -143,13 +145,22 @@ et = exactTest(y)
 print(topTags(et))
 pt('')
 print(summary(decideTests(et)))
+#get a list with the DE miRNAs (p.value cut-off refers to adjusted pvalue)
+DE_miRNAs = rownames(topTags(et, nrow(et), adjust.method="BH", sort.by="PValue", p.value=padj))
 #save results
 pt('')
 ptm('Saving results')
 output_tag = paste('EdgeR_', cond_contrast_label, '-', ref_contrast_label, sep = '')
 output_file = paste(output_tag, '.tsv', sep = '')
 path_output_file = paste(path_output, output_file, sep='')
-
+#save DE miRNA list
+output_file_DEmiRNAs = paste('differentially-expressed-miRNAs_', output_file, sep = '')
+path_output_file_DEmiRNAs = paste(path_output, output_file_DEmiRNAs, sep='')
+write.table(DE_miRNAs,
+            path_output_file_DEmiRNAs,
+            row.names = FALSE,
+            col.names = FALSE)
+#save the whole EdgeR table
 results = topTags(et, nrow(et))$table
 dataframe_save = as.data.frame(results)
 dataframe_save = cbind(Feature = rownames(results), dataframe_save)

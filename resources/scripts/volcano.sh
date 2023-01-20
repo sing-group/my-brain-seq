@@ -59,9 +59,10 @@ fi
 
 if [[ ${selectDEAsoftware} == 'both' ]]
 then
+	contrast_name=$(echo "${comparison}" | cut -d'"' -f4 )
 	pipel_dir_name='pipel'
 	path_output_docker="${workingDir}/${outDir}/${deaIntOut}/${contrast_label}/"
-	vp_path_counts="${path_output_docker}/DEmiRNAs_${contrast_label}_deseq-edger_integrated.tsv"
+	vp_path_counts="${path_output_docker}/DEmiRNAs_${contrast_name}_deseq-edger_integrated.tsv"
 	vp_software="both"
 	test_and_run "${vp_path_counts}" "${path_output_docker}" "${contrast_label}" "${vp_software}" "integrated"
 fi

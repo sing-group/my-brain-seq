@@ -63,16 +63,16 @@ edger = read.delim(path_edger)
 #-------------------------------------------------------------------------------
 ptm('Preparing DEA tables for the integration')
 # keep only Feature, pvalue and qvalue columns and rename
-pval_d = 'pvalue_deseq'; qval_d = 'qvalue_deseq'
-pval_e = 'pvalue_edger'; qval_e = 'qvalue_edger'
+pval_d = 'pvalue_deseq'; qval_d = 'qvalue_deseq'; fc_d = 'log2FC_deseq'
+pval_e = 'pvalue_edger'; qval_e = 'qvalue_edger'; fc_e = 'log2FC_edger'
 
 deseq = deseq %>%
-  select(Feature, pvalue, qvalue)
-colnames(deseq) = c('Feature', pval_d, qval_d)
+  select(Feature, pvalue, qvalue, log2FC)
+colnames(deseq) = c('Feature', pval_d, qval_d, fc_d)
 
 edger = edger %>%
-  select(Feature, pvalue, qvalue)
-colnames(edger) = c('Feature', pval_e, qval_e)
+  select(Feature, pvalue, qvalue, log2FC)
+colnames(edger) = c('Feature', pval_e, qval_e, fc_e)
 
 #-------------------------------------------------------------------------------
 #                   DESEQ-EDGER COINCIDENCES AFTER QVALUE FILTER
@@ -126,11 +126,12 @@ ptm('Averaging miRNAs DESeq2 and EdgeR pvalues and q-values')
 integrated_full = deseq %>%
   inner_join(edger, by = 'Feature') %>%
   mutate(pvalue = (pvalue_deseq + pvalue_edger)/2, 
-         qvalue = (qvalue_deseq + qvalue_edger)/2)
+         qvalue = (qvalue_deseq + qvalue_edger)/2,
+         log2FC = (log2FC_deseq + log2FC_edger)/2)
 
 # table with just Features, pvalue and qvalue columns
 integrated = integrated_full %>%
-  select(Feature, pvalue, qvalue)
+  select(Feature, pvalue, qvalue, log2FC)
 
 # print a summary
 if (length(integrated$Feature) > 0){

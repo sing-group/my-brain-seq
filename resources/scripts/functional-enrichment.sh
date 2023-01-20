@@ -49,7 +49,7 @@ else
 fi
 }
 
-# get the contrast name to build the output filename
+# get the contrast label to build the output filename
 contrast_label=$(echo "${comparison}" | cut -d'"' -f2 )
 
 # Inputs
@@ -77,8 +77,10 @@ fi
 
 if [[ ${selectDEAsoftware} == 'both' ]]
 then
+	#get the contrast name to find the integrated file
+	contrast_name=$(echo "${comparison}" | cut -d'"' -f4 )
 	path_output="${workingDir}/${outDir}/${deaIntOut}/${contrast_label}/"
-	dea_result_file="${path_output}/DEmiRNAs_${contrast_label}_deseq-edger_integrated.tsv"
+	dea_result_file="${path_output}/DEmiRNAs_${contrast_name}_deseq-edger_integrated.tsv"
 	software='DESeq2-EdgeR'
 	test_and_run "${tarbase_db_file}" "${reactome_db_file}" "${dea_result_file}" "${input_contrast}" "${software}" "${db_organism}" "${path_output}" 'integrated'
 fi

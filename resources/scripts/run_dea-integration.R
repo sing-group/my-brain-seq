@@ -129,9 +129,12 @@ integrated_full = deseq %>%
          qvalue = (qvalue_deseq + qvalue_edger)/2,
          log2FC = (log2FC_deseq + log2FC_edger)/2)
 
-# table with just Features, pvalue and qvalue columns
+# table with just Features, pvalue, qvalue and log2FC columns
 integrated = integrated_full %>%
   select(Feature, pvalue, qvalue, log2FC)
+
+# table with just the DEmiRNAs
+DEmiRNAs = integrated %>% filter(qvalue < q_value_filter)
 
 # print a summary
 if (length(integrated$Feature) > 0){
@@ -156,6 +159,9 @@ path_output_integrated = paste0(path_output, '/', 'DEmiRNAs_', contrast_name,
 path_output_integrated_full = paste0(path_output_pipel, '/', 'DEmiRNAs_', 
                                      contrast_name, 
                                      '_deseq-edger_integrated_full', '.tsv')
+path_output_DEmiRNAs = paste0(path_output, '/', 'differentially-expressed-miRNAs_',
+                              contrast_name,
+                              '_deseq-edger_integrated', '.tsv')
 path_output_coincidences = paste0(path_output_pipel, '/', 'DEmiRNAs_', 
                                   contrast_name, 
                                   '_deseq-edger_coincidences', '.tsv')
@@ -164,11 +170,16 @@ path_output_venn = paste0(path_output_pipel, '/', 'DEmiRNAs_',
                                   '_deseq-edger_venn', '.tsv')
 # write integrated
 if (length(integrated$Feature) > 0){
-  write.table(integrated, path_output_integrated, 
-              row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
-  write.table(integrated_full, path_output_integrated_full, 
+write.table(integrated, path_output_integrated, 
+            row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
+write.table(integrated_full, path_output_integrated_full, 
               row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
 }
+
+# write integrated DE miRNAs
+write.table(DEmiRNAs$Feature, path_output_DEmiRNAs, 
+            row.names = FALSE, col.names = FALSE, sep="\t", quote = TRUE)
+
 # write coincidences
 if (length(coincidences$Feature) > 0){
   write.table(coincidences, path_output_coincidences, 

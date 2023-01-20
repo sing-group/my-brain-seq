@@ -30,6 +30,8 @@ path_cond=as.character(args[2])
 input_contrast=as.character(args[3])
 path_output=as.character(args[4])
 
+padj = 0.05
+
 ptm("======================================================")
 ptm('        [PIPELINE -- deseq]: run_deseq2.R        ')
 ptm('......................................................')
@@ -158,6 +160,10 @@ res <- results(dds)
 resOrdered <- res[order(res$pvalue),]
 resOrdered
 
+#Get a list with the DE miRNAs
+DE_miRNAs = res[!is.na(res$padj),]
+DE_miRNAs = DE_miRNAs[DE_miRNAs$padj < padj,]
+
 ################# BEGINNING OF THE COMMON PART (DESEQ2 EDGER) ##################
 
 #SAVE RESULTS
@@ -166,6 +172,14 @@ ptm('Saving results')
 output_tag = paste('DESeq2_', cond_contrast_label, '-', ref_contrast_label, sep = '')
 output_file = paste(output_tag, '.tsv', sep = '')
 path_output_file = paste(path_output, output_file, sep='')
+
+# save DE miRNA list
+output_file_DEmiRNAs = paste('differentially-expressed-miRNAs_', output_file, sep = '')
+path_output_file_DEmiRNAs = paste(path_output, output_file_DEmiRNAs, sep='')
+write.table(rownames(DE_miRNAs),
+            path_output_file_DEmiRNAs,
+            row.names = FALSE,
+            col.names = FALSE)
 
 # results = topTags(et, nrow(et))$table # Line exclusive of EdgeR analysis
 dataframe_save = as.data.frame(resOrdered)

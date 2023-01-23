@@ -10,7 +10,7 @@ else
 		/compi resume -p /pipeline*.xml "${@:2}"
 	else
 		if [ $# -gt 0 ] && [ "$1" == "init_working_dir.sh" ]; then
-			/scripts/init-working-dir.sh "${@:2}"
+			/scripts/init_working_dir.sh "${@:2}"
 		else
 			if [ $# -gt 0 ] && [ "$1" == "process_logs.sh" ]; then
 				process_logs.sh "${@:2}"

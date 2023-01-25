@@ -39,7 +39,8 @@
 		<param name="hclustMakeTableRscript" shortName="hmk" global="true" defaultValue="run_make_hclust_table.R">The relative path to the directory containing the R script for the creation of the hclust table.</param>
 		<param name="hclustRscript" shortName="hcr" global="true" defaultValue="run_hierarchical-clustering.R">The relative path to the directory containing the R script for the hierarchical clustering analysis.</param>
 		<param name="functionalEnrichmentRscript" shortName="fers" global="true" defaultValue="run_functional-enrichment-analysis.R">The relative path to the directory containing the R script for the functional enrichment analysis.</param>
-		
+		<param name="networkRscript" shortName="nrs" global="true" defaultValue="run_network_plot.R">The relative path to the directory containing the R script for the network creation.</param>
+
 		<param name="databasesDir" shortName="db" global="true" defaultValue="/databases/">The relative path to the directory containing the TarBase and Reactome databases.</param>
 		<param name="tarbaseDB" shortName="tbdb" global="true" defaultValue="TarBase_v8_download.txt">The relative path to the TarBase file.</param>
 		<param name="reactomeDB" shortName="rcdb" global="true" defaultValue="Ensembl2Reactome.txt">The relative path to a Reactome file with Ensembl IDs and Reactome IDs.</param>
@@ -139,6 +140,11 @@
 		<!--Performs a Functional Enrichment Analysis using the DESeq2/EdgeR results-->
 		<foreach id="functional-enrichment" after="hclust" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast">
 			${scriptsDir}/functional-enrichment.sh
+		</foreach>
+
+		<!--Build the network of interactions with the most enriched pathway of the functional-enrichment task-->
+		<foreach id="network" after="functional-enrichment" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast">
+			${scriptsDir}/network.sh
 		</foreach>
 	</tasks>
 

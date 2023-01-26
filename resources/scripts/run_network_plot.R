@@ -23,12 +23,11 @@ path_output                = as.character(args[8])
 
 # the number of row from enrichment table from which the data should be taken
 # this row number should be taken from a higer-low-pvalue-ordered table (top X).
-nth_reactome_id = 22
+nth_reactome_id = 1
 
 #-------------------------------------------------------------------------------
 #                     LIBRARIES, FUNCTIONS, HEADER
 #-------------------------------------------------------------------------------
-ptm('Loading libraries and functions')
 #libraries
 suppressMessages(library(dplyr))
 suppressMessages(library(tidyr))
@@ -257,7 +256,7 @@ p <- forceNetwork(Links = edges, Nodes = nodes,
                   colourScale = JS(ColourScale),
                   opacityNoHover = 0.8)
 
-# ADD NETWORK CAPTIONS
+#------------------------------------------------------------------------------- ADD NETWORK CAPTIONS
 #title and subtitle
 title_label       = paste0(sel_pathway_id, ':')
 description_label = reactome_db[reactome_db$reactome_id == sel_pathway_id,]$description[1]

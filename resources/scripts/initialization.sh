@@ -4,8 +4,10 @@ set -o errexit
 
 echo "[PIPELINE -- initialization]: Building the directory tree..."
 
-#Function for the directory creation: first arg=${xOut}, second arg=name of the software
+# function for the directory creation
 build_dir () {
+	# $1 : ${xOut}, pipeline parameter with the output directory.
+	# $2 : Name of the software, e.g.: DESeq2.
 	if [ ! -d "${workingDir}/${outDir}/$1" ]; then
 		echo "[PIPELINE -- initialization]: Creating the directory for the $2 results"
 		mkdir -p ${workingDir}/${outDir}/$1/
@@ -40,6 +42,9 @@ build_dir ${edgOut} "EdgeR"
 
 #DEA integration folder
 build_dir ${deaIntOut} "DEA integration"
+
+#MultiQC folder
+build_dir ${mqcOut} "MultiQC"
 
 rm -rf ${workingDir}/compi_scripts
 mkdir -p ${workingDir}/compi_scripts

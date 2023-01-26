@@ -29,10 +29,10 @@ function run_functional_enrichment {
 # $2 : ${path_reactome_db}            $6 : ${software}
 # $3 : ${path_enrichment_table}       $7 : ${db_organism}
 # $4 : ${path_reactome_interaction}   $8 : ${path_output}
-echo "[PIPELINE -- network > ${6}]: Performing the functional enrichment analysis of ${6} results..."
+echo "[PIPELINE -- network > ${6}]: Creating the network of ${6} results..."
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
-	pegi3s/r_data-analysis:${rdatanalysisVersion} \ # TODO: add the correct pegi3s image 
+	pegi3s/r_network:${rNetworkVersion} \
 	Rscript ${workingDir}/compi_scripts/${networkRscript} "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 }
 
@@ -46,8 +46,8 @@ if [[ -f "$3" ]]
 then
 	run_functional_enrichment "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 else
-	echo "[PIPELINE -- functional-enrichment > $6]: No $9 results."
-	echo "[PIPELINE -- functional-enrichment > $6]: Done."
+	echo "[PIPELINE -- network > $6]: No $9 results."
+	echo "[PIPELINE -- network > $6]: Done."
 fi
 }
 
@@ -83,7 +83,7 @@ if [[ ${selectDEAsoftware} == 'both' ]]
 then
 	#get the contrast name to find the integrated file
 	path_output="${workingDir}/${outDir}/${deaIntOut}/${contrast_label}/"
-	path_enrichment_table="${path_output}/DEmiRNAs_${contrast_name}_deseq-edger_integrated.tsv"
+	path_enrichment_table="${path_output}/enrichment_table_DESeq2-EdgeR_${contrast_name}.tsv"
 	software='DESeq2-EdgeR'
 	test_and_run "${path_tarbase_db}" "${path_reactome_db}" "${path_enrichment_table}" "${path_reactome_interaction}" "${input_contrast}" "${software}" "${db_organism}" "${path_output}" 'integrated'
 fi

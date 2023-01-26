@@ -23,6 +23,7 @@ RUN mkdir ./databases
 RUN curl -O "http://static.sing-group.org/software/myBrainSeq/docker/TarBase_v8_download.zip"
 RUN curl -O "http://static.sing-group.org/software/myBrainSeq/docker/Ensembl2Reactome.zip"
 RUN curl -O "http://static.sing-group.org/software/myBrainSeq/docker/reactome.all_species.interactions.tab-delimited.txt"
+RUN mv "reactome.all_species.interactions.tab-delimited.txt" "./databases/reactome.all_species.interactions.tab-delimited.txt"
 RUN gunzip -S .zip -c "TarBase_v8_download.zip" > "./databases/TarBase_v8_download.txt"
 RUN gunzip -S .zip -c "Ensembl2Reactome.zip" > "./databases/Ensembl2Reactome.txt"
 

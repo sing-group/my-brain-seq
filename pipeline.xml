@@ -27,6 +27,7 @@
 		<param name="dsqOut" shortName="dsqo" global="true" defaultValue="6_deseq2">The relative path to the directory containing the DESeq2 results.</param>
 		<param name="edgOut" shortName="edgo" global="true" defaultValue="6_edger">The relative path to the directory containing the EdgeR results.</param>
 		<param name="deaIntOut" shortName="dinto" global="true" defaultValue="6_deseq2+edger">The relative path to the directory containing the results of the DESeq2 and EdgeR integration.</param>
+		<param name="mqcOut" shortName="mqco" global="true" defaultValue="7_multiqc">The relative path to the directory containing the MultiQC report.</param>
 
 		<param name="scriptsDir" shortName="sd" global="true" defaultValue="/scripts/">The relative path to the directory containing the R scripts.</param>
 		<param name="testAdapterBashScript" shortName="tabs" global="true" defaultValue="test_isadapter.sh">The relative path to the directory containing the R script to get the path of the aligned/unaligned data.</param>
@@ -57,6 +58,8 @@
 		<param name="samtoolsBamstatsVersion" shortName="spb" defaultValue="1.10" global="true">Version of the pegi3s/samtools_bcftools Docker image to use for bam analysis.</param>
 		<param name="rdatanalysisVersion" shortName="rdav" defaultValue="4.1.1_v2" global="true">Version of the pegi3s/r_data-analysis Docker image to use.</param>
 		<param name="rVennVersion" shortName="rvv" defaultValue="1.7.0" global="true">Version of the pegi3s/r_venn-diagram Docker image to use.</param>
+		<param name="rNetworkVersion" shortName="rntv" defaultValue="4.1.1_v2" global="true">Version of the pegi3s/r_network Docker image to use.</param>
+		<param name="multiqcVersion" shortName="mqv" defaultValue="1.14.0" global="true">Version of the pegi3s/multiqc Docker image to use.</param>
 		
 		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>
 		<param name="selectDEAsoftware" shortName="dea" defaultValue="both" global="true">Use this param to select the differential expression analysis software (deseq, edger or both).</param>
@@ -147,6 +150,11 @@
 		<foreach id="network" after="functional-enrichment" of="command" in="tail -n+2 ${contrast}" as="comparison" params="conditions contrast">
 			${scriptsDir}/network.sh
 		</foreach>
+
+		<!--Create a MultiQC report with the results-->
+		<task id="multiqc" after="network">
+			${scriptsDir}/multiqc.sh
+		</task>
 	</tasks>
 
 	<metadata>

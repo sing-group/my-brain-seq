@@ -58,7 +58,7 @@
 		<param name="samtoolsBamstatsVersion" shortName="spb" defaultValue="1.10" global="true">Version of the pegi3s/samtools_bcftools Docker image to use for bam analysis.</param>
 		<param name="rdatanalysisVersion" shortName="rdav" defaultValue="4.1.1_v2" global="true">Version of the pegi3s/r_data-analysis Docker image to use.</param>
 		<param name="rVennVersion" shortName="rvv" defaultValue="1.7.0" global="true">Version of the pegi3s/r_venn-diagram Docker image to use.</param>
-		<param name="rNetworkVersion" shortName="rntv" defaultValue="4.1.1_v2" global="true">Version of the pegi3s/r_network Docker image to use.</param>
+		<param name="rNetworkVersion" shortName="rntv" defaultValue="4.1.1_v2_v3" global="true">Version of the pegi3s/r_network Docker image to use.</param>
 		<param name="multiqcVersion" shortName="mqv" defaultValue="1.14.0" global="true">Version of the pegi3s/multiqc Docker image to use.</param>
 		
 		<flag name="skipPullDockerImages" shortName="sdi">Use this flag to skip the pull-docker-images task.</flag>

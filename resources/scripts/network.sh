@@ -34,6 +34,7 @@ docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_network:${rNetworkVersion} \
 	Rscript ${workingDir}/compi_scripts/${networkRscript} "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+rm -rf "${8}"/network__R-HSA-*[!\.html]
 }
 
 # function to test if dea file exists and run analysis
@@ -66,16 +67,16 @@ db_organism="${organism}"
 if [[ ${selectDEAsoftware} == 'edger' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
 	path_output=$(get_output_dir edger ${comparison})
-	path_enrichment_table="${path_output}/$(echo enrichment_table_${contrast_name} | xargs).tsv"
 	software="EdgeR"
+	path_enrichment_table="${path_output}/$(echo enrichment_table_${software}_${contrast_name} | xargs).tsv"
 	test_and_run "${path_tarbase_db}" "${path_reactome_db}" "${path_enrichment_table}" "${path_reactome_interaction}" "${input_contrast}" "${software}" "${db_organism}" "${path_output}" 'EdgeR'
 fi
 
 if [[ ${selectDEAsoftware} == 'deseq' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
 	path_output=$(get_output_dir deseq ${comparison})
-	path_enrichment_table="${path_output}/$(echo enrichment_table_${contrast_name} | xargs).tsv"
 	software="DESeq2"
+	path_enrichment_table="${path_output}/$(echo enrichment_table_${software}_${contrast_name} | xargs).tsv"
 	test_and_run "${path_tarbase_db}" "${path_reactome_db}" "${path_enrichment_table}" "${path_reactome_interaction}" "${input_contrast}" "${software}" "${db_organism}" "${path_output}" 'DESeq2'
 fi
 

@@ -28,25 +28,39 @@
 
 #---------------------------------------------------------------------------------------
 
+# function to perform the enrichment analysis
+# to use: parameter_value=$(get_compi_parameter X Y)
+function get_compi_parameter {
+# $1 : ${1}   # $2 : compi parameter name  
+    cat "${1}" | grep "${2}" | cut -d'=' -f2
+}
+
 # get the paths from the compi.parameters file
-workingDir="$(cat ${1} | grep "workingDir" | cut -d'=' -f2)"
-fastqDir="$(cat ${1} | grep "fastqDir" | cut -d'=' -f2)"
-bwtIndex="$(cat ${1} | grep "bwtIndex" | cut -d'=' -f2)"
-gffFile="$(cat ${1} | grep "gffFile" | cut -d'=' -f2)"
-conditions="$(cat ${1} | grep "conditions" | cut -d'=' -f2)"
-contrast="$(cat ${1} | grep "contrast" | cut -d'=' -f2)"
+workingDir="$(get_compi_parameter ${1} "workingDir")"
+fastqDir="$(get_compi_parameter ${1} "fastqDir")"
+genome="$(get_compi_parameter ${1} "genome")"
+bwtIndex="$(get_compi_parameter ${1} "bwtIndex")"
+gffFile="$(get_compi_parameter ${1} "gffFile")"
+conditions="$(get_compi_parameter ${1} "conditions")"
+contrast="$(get_compi_parameter ${1} "contrast")"
 
 studyName="$(basename ${workingDir})"
 
 # write the workingDir in the runner
 printf "workingDir=\"${workingDir}\"\n" > "${workingDir}/.run_${studyName}.sh"
 
-# write the make the directory for the pipeline logs using the timestamp
+# write the "make the directory for the pipeline logs using the timestamp"
 printf "timestamp=\$(date +\"%%Y-%%m-%%d_%%H:%%M:%%S\")\n" >> "${workingDir}/.run_${studyName}.sh"
 printf "mkdir -p \${workingDir}/logs/\${timestamp}\n" >> "${workingDir}/.run_${studyName}.sh"
 
 # write create the run.sh file
+if [[ ! -z "${bwtIndex}" ]]; then
+# if bowtie index
 printf "docker run -it --rm @\n\t\t-v /var/run/docker.sock:/var/run/docker.sock @\n\t\t-v ${workingDir}:${workingDir} @\n\t\t-v ${fastqDir}:${fastqDir} @\n\t\t-v ${bwtIndex}:${bwtIndex} @\n\t\t-v ${gffFile}:${gffFile} @\n\t\t-v ${conditions}:${conditions} @\n\t\t-v ${contrast}:${contrast} @\n\t\tsinggroup/my-brain-seq @\n\t\t\t--logs ${workingDir}/logs/${timestamp}/tasks @\n\t\t\t-pa ${1} @\n\t\t\t-o @\n\t\t\t--num-tasks 5 @\n\t\t\t-- --dea both @\n\t\t2>&1 | tee ${workingDir}/logs/\${timestamp}/compi.log" >> "${workingDir}/.run_${studyName}.sh"
+elif [[ ! -z "${genome}" ]]; then
+# if genome
+printf "docker run -it --rm @\n\t\t-v /var/run/docker.sock:/var/run/docker.sock @\n\t\t-v ${workingDir}:${workingDir} @\n\t\t-v ${fastqDir}:${fastqDir} @\n\t\t-v ${genome}:${genome} @\n\t\t-v ${gffFile}:${gffFile} @\n\t\t-v ${conditions}:${conditions} @\n\t\t-v ${contrast}:${contrast} @\n\t\tsinggroup/my-brain-seq @\n\t\t\t--logs ${workingDir}/logs/${timestamp}/tasks @\n\t\t\t-pa ${1} @\n\t\t\t-o @\n\t\t\t--num-tasks 5 @\n\t\t\t-- --dea both @\n\t\t2>&1 | tee ${workingDir}/logs/\${timestamp}/compi.log" >> "${workingDir}/.run_${studyName}.sh"
+fi
 
 # put backslashes instead of @
 cat ${workingDir}/.run_${studyName}.sh | tr '@' '\' > ${workingDir}/run_${studyName}.sh

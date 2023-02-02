@@ -293,7 +293,4 @@ write.table(cytoscape_table, output_table_path, row.names = FALSE,
 output_network_path = paste0(path_output, 'network_', label, '.html')
 suppressWarnings(saveWidget(p, file=output_network_path))
 
-# remove temporary files of the html widget
-unlink(paste0(path_output, 'network_', label), recursive = TRUE)
-
 ptm('Done')

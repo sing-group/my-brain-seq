@@ -56,7 +56,8 @@ printf "mkdir -p \${workingDir}/logs/\${timestamp}\n" >> "${workingDir}/.run_${s
 # write create the run.sh file
 if [[ ! -z "${bwtIndex}" ]]; then
 # if bowtie index
-printf "docker run -it --rm @\n\t\t-v /var/run/docker.sock:/var/run/docker.sock @\n\t\t-v ${workingDir}:${workingDir} @\n\t\t-v ${fastqDir}:${fastqDir} @\n\t\t-v ${bwtIndex}:${bwtIndex} @\n\t\t-v ${gffFile}:${gffFile} @\n\t\t-v ${conditions}:${conditions} @\n\t\t-v ${contrast}:${contrast} @\n\t\tsinggroup/my-brain-seq @\n\t\t\t--logs ${workingDir}/logs/${timestamp}/tasks @\n\t\t\t-pa ${1} @\n\t\t\t-o @\n\t\t\t--num-tasks 5 @\n\t\t\t-- --dea both @\n\t\t2>&1 | tee ${workingDir}/logs/\${timestamp}/compi.log" >> "${workingDir}/.run_${studyName}.sh"
+bowtie_dir="$(dirname ${bwtIndex})"
+printf "docker run -it --rm @\n\t\t-v /var/run/docker.sock:/var/run/docker.sock @\n\t\t-v ${workingDir}:${workingDir} @\n\t\t-v ${fastqDir}:${fastqDir} @\n\t\t-v ${bowtie_dir}:${bowtie_dir} @\n\t\t-v ${gffFile}:${gffFile} @\n\t\t-v ${conditions}:${conditions} @\n\t\t-v ${contrast}:${contrast} @\n\t\tsinggroup/my-brain-seq @\n\t\t\t--logs ${workingDir}/logs/${timestamp}/tasks @\n\t\t\t-pa ${1} @\n\t\t\t-o @\n\t\t\t--num-tasks 5 @\n\t\t\t-- --dea both @\n\t\t2>&1 | tee ${workingDir}/logs/\${timestamp}/compi.log" >> "${workingDir}/.run_${studyName}.sh"
 elif [[ ! -z "${genome}" ]]; then
 # if genome
 printf "docker run -it --rm @\n\t\t-v /var/run/docker.sock:/var/run/docker.sock @\n\t\t-v ${workingDir}:${workingDir} @\n\t\t-v ${fastqDir}:${fastqDir} @\n\t\t-v ${genome}:${genome} @\n\t\t-v ${gffFile}:${gffFile} @\n\t\t-v ${conditions}:${conditions} @\n\t\t-v ${contrast}:${contrast} @\n\t\tsinggroup/my-brain-seq @\n\t\t\t--logs ${workingDir}/logs/${timestamp}/tasks @\n\t\t\t-pa ${1} @\n\t\t\t-o @\n\t\t\t--num-tasks 5 @\n\t\t\t-- --dea both @\n\t\t2>&1 | tee ${workingDir}/logs/\${timestamp}/compi.log" >> "${workingDir}/.run_${studyName}.sh"

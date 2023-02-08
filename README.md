@@ -9,9 +9,11 @@
 
 # What does myBrain-Seq do?
 
-**MyBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline to automatically identify differentially expressed microRNAs (miRNAs) between two conditions. It combines two differential expression analysis software, namely DESeq2 and EdgeR, to offer an integrated results suitable for experimental validation. Its features and analysis are designed and tuned to improve its performance with neuropsychiatric data, but it can also be used with any other type of miRNA data.
+**MyBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline to automatically identify differentially expressed microRNAs (DE miRNAs) between two conditions. It combines two differential expression analysis software, namely DESeq2 and EdgeR, to offer an integrated result suitable for experimental validation. Additionally, a functional analysis module put biological meaning behind the list of DE miRNAs and eases the process of biomarker identification. Its features and analysis are designed and tuned to work with miRNA data. We designed myBrain-Seq with the particularities of neuropsychiatric data in mind. In this way, myBrain-Seq addresses its most common limitations while offering results that help the investigator to identify potential biomarkers and molecular mechanisms for the studied condition. A typical analysis with myBrain-Seq comprisess the following steps:
 
-MyBrain-Seq preprocess each input FastQ file separately before the differential expression analysis. This process comprises:
+### Preprocessing
+
+Prepare the input FastQ files for the differential expression analysis. This process comprises:
 
 1. Quality control of the sequences using FastQC.
 2. Trimming of the adapter sequences using Cutadapt (optional).
@@ -20,25 +22,51 @@ MyBrain-Seq preprocess each input FastQ file separately before the differential 
 5. Quality control of the alignments with sam-tools. 
 6. Quantification and annotation with featureCounts.
 
-After all this steps were completed for each sample, myBrain-Seq performs the differential expression analysis. This process comprises:
+### Differential expression analysis
 
-1. Differential expression analysis with DESeq2. 
-2. Differential expression analysis with EdgeR.
+After the preprocessing was completed, myBrain-Seq performs the differential expression analysis. This process comprises:
+
+1. Differential expression analysis with DESeq2 (with/without factor correction). 
+
+2. Differential expression analysis with EdgeR (with/without factor correction).
+
 3. Intersection of the DESeq2 and EdgeR results and averagement of their q-values and fold change (optional).
+
 4. Creation of a venn diagram with the integrated results using VennDiagram.
+
 5. Creation of a volcano plot with the results using EnhancedVolcano.
 
-In addition, the user can instruct myBrain-Seq to generate a genome index for the Bowtie alignment; this index will be built in parallel with the initialization tasks.
+In addition, the user can instruct myBrain-Seq to generate a genome index for the Bowtie alignment; this index will be built in parallel with the preprocessing tasks.
+
+### Functional analysis
+
+After the differential expression analysis, myBrain-Seq performs a functional analysis. This process comprises:
+
+1. Hierarchical clustering of the samples using the expression of the DE miRNAs.
+2. Functional enrichment analysis of the DE miRNAs using Diana Tarbase and Reactome databases as reference.
+3. Creation of a miRNA-target network, expanded using Reactome protein-protein interactions.
+
+### Results summarization
+
+Finally, a single MultiQC report is generated to summarize the results of the quality, alignment, assignment and quantification of all the samples. 
 
 
 
 # Using the myBrain-Seq image in Linux
 ## Building the directory tree
 
-To start a new analysis, the first thing to do is build the directory tree in your local file system (`mbs_project` in the example). This directory tree will be refered as the "working directory" and its structure is recognized and used by the pipeline during the analysis. It has the following structure: 
+To start a new analysis, the first thing to do is build the directory tree in your local file system. This directory tree will be referred as the "working directory" and its structure is recognized and used by the pipeline during the analysis. To build the working directory adapt the first line of the following code and run it:
+
+```bash
+WORKING_DIRECTORY=/path/to/the/working-directory
+docker run --rm -v ${WORKING_DIRECTORY}:${WORKING_DIRECTORY} singgroup/my-brain-seq init_working_dir.sh ${WORKING_DIRECTORY}
+```
+
+After running the above code, the selected working-directory (`mbs_project` in this example) should have the following structure: 
 
 ```
-/path/to/mbs-project 
+/home/user/mbs-project 
+	|-- README.txt
 	|-- input 
 	|   |-- compi.parameters 
 	|   |-- conditions_file.txt 
@@ -48,11 +76,12 @@ To start a new analysis, the first thing to do is build the directory tree in yo
 
 Where:
 
+- **README.txt** contains the next steps you need to do to run the analysis. 
 - **compi.parameters** contains the paths and parameters needed for the analysis.
 - **conditions_file.txt** contains the names and conditions of each fastQ file. 
 - **contrast_file.txt** contains the names and labels of the conditions to compare in the differential expression analysis.
 
- The creations of these files is detailed in the following sections. You may find it convenient to create additional directories and files within the working directory to group all the data related to a particular study.
+The creations of these files is detailed in the following sections as well as briefly indicated in the `README.txt` file. You may find it convenient to create additional directories and files within the working directory to group all the data related to a particular study.
 
 ## Writting the `compi.parameters` file
 
@@ -66,6 +95,7 @@ conditions=/path/to/mbs-project/input/conditions_file_study_1.txt
 contrast=/path/to/mbs-project/input/contrast_file_study_1.txt
 bwtIndex=/path/to/study_1/refs/bowtie-index_GRCh38
 adapter=TGGAATTCTCGGGTGCCAAGG
+organism=Homo sapiens
 ```
 
 This file contains the following mandatory parameters:
@@ -77,6 +107,7 @@ This file contains the following mandatory parameters:
 - **contrast**: the path to contrast_file.txt.
 - **genome** *(optional if bwtIndex is provided)*: the path to the reference genome in FASTA from which the Bowtie index will be built.
 - **bwtIndex** *(optional if genome is provided)*: the path to a directory containing a Bowtie index. If this parameter is omitted myBrain-Seq will build a new index using a genome in FASTA provided in the genome parameter.
+- **organism**: the organism used in the study. This parameter is used for the functional enrichment analysis and for the network construction. Available organisms are: *Mus musculus, Homo sapiens, Caenorhabditis elegans, Danio rerio, Rattus norvegicus, Gallus gallus, Drosophila melanogaster*.
 
 And the following optional parameters:
 
@@ -88,25 +119,26 @@ And the following optional parameters:
 
 The `conditions_file.txt` is a TSV file used by myBrain-Seq to link each fastQ file with its condition. This information will be used to choose the group of samples to compare in the differential expression analysis. Here is an example of a conditions file:
 
-	name	condition	label
-	C019 	control		C_before_treatment
-	C020 	control		C_before_treatment
-	C021 	control		C_after_treatment
-	C022	control		C_after_treatment
-	P012D	FE 			FE_before_treatment
-	P013A	FE			FE_before_treatment
-	P014A	FE			FE_after_treatment
-	P015D	FE			FE_after_treatment
-	P014A	SEP			SEP_before_treatment
-	P015D	SEP			SEP_before_treatment
+	name	condition	label					sex		alcohol
+	C019 	control		C_before_treatment		M		0
+	C020 	control		C_before_treatment		M		1
+	C021 	control		C_after_treatment		F		0
+	C022	control		C_after_treatment		F		1
+	P012D	FE 			FE_before_treatment		M		1
+	P013A	FE			FE_before_treatment		F		0
+	P014A	FE			FE_after_treatment		M		0
+	P015D	FE			FE_after_treatment		F		1
+	P014A	SEP			SEP_before_treatment	M		1
+	P015D	SEP			SEP_before_treatment	F		0
 
 In order to obtain a file with a valid format, the following considerations must be taken into account:
 
 - Columns must be separated by single tabulations.
 - The first row must be the header: “name”, “condition” and “label”.
-- The first row must be the file rootnames of the fastQ files, i.e.: C019.fastq --> C019.
-- The second row must be the conditions.
- - The third column is the label, which is only used so that the user can identify each sample in case there is more than one condition. It has no impact on the analysis result and can be omitted.
+- The first column must be the file rootnames of the fastQ files (i.e.: C019.fastq --> C019).
+- The second column must be the conditions.
+ - The third column is the label, which is only used so that the user can identify each sample in case there is more than one condition. It has no impact on the analysis result but it must be present.
+ - Additional columns with factors can be included. All these factors will be added to the statistical model of differential expression analysis. Only one factor per column, they can be ommited.
 
 ## Writting the `contrast_file.txt` file
 
@@ -114,18 +146,18 @@ The `contrast_file.txt` is used by myBrain-Seq to perform the comparisons betwee
 
 ```
 name
-"Control_vs_first_episode" = "control-FE"
-"Control_vs_second_episode" = "control-SEP"
-"First_episode_vs_second_episode" = "FE-SEP"
+"Control-First_episode" = "C-FE"
+"Control-Second_episode" = "C-SEP"
+"First_episode-Second_episode" = "FE-SEP"
 ```
 
-In order to obtain a file with a valid format, the following considerations must be taken into account:
+The first line of `contrast_file.txt` is the header, the following lines begin with the contrast label (left side of the equal sign) and the factors to compare (right side of the equal sign). In order to obtain a file with a valid format, the following considerations must be taken into account:
 
 - The first row should be "name", in lowercase.
-- In the second row, the contrast label must appear double quoted, then a space, an equal, another space, and between double quotes the contrast: factor to compare - reference factor (the reference factor is usually the control) .
-- The factors to be compared must be the same as those specified in the "condition" column of the conditions_file.
+- The following rows must follow this structure: double quotes, ***label of the factor to compare***, hyphen, ***label of the reference factor***, double quotes, space, equal sign, space, double quotes, ***factor to compare***, hyphen, ***reference factor***, double quotes. No additional spaces should be added, use underscore symbol instead (eg.: *First episode* should be *First_episode*). Here is a visual representation of this structure where "B" is the reference factor: `"Label_A-Label_B" = "Factor_A-Factor_B"`
+- The name of the factors to be compared (right side of the equal sign) must be the same as those specified in the "condition" column of the `conditions_file.txt`.
 
-## Running the myBrain-Seq analysis
+## Running myBrain-Seq analysis
 
 Once all the required files were built you need to **build a runner** in order to perform the myBrain-Seq analysis. This can be done using the script `make_run-sh.sh`. This script uses the `compi.parameters` file as reference and will mount all the needed Docker volumes and build a directory for the logs. To use this script **adapt the first line** on the following code:
 

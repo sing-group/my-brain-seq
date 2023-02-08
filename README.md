@@ -137,8 +137,8 @@ In order to obtain a file with a valid format, the following considerations must
 - The first row must be the header: “name”, “condition” and “label”.
 - The first column must be the file rootnames of the fastQ files (i.e.: C019.fastq --> C019).
 - The second column must be the conditions.
- - The third column is the label, which is only used so that the user can identify each sample in case there is more than one condition. It has no impact on the analysis result but it must be present.
- - Additional columns with factors can be included. All these factors will be added to the statistical model of differential expression analysis. Only one factor per column, they can be ommited.
+- The third column is the label, which is only used so that the user can identify each sample in case there is more than one condition. It has no impact on the analysis result but it must be present.
+- Additional columns with factors can be included. All these factors will be added to the statistical model of differential expression analysis. Only one factor per column, they can be ommited.
 
 ## Writting the `contrast_file.txt` file
 

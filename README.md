@@ -59,7 +59,7 @@ To start a new analysis, the first thing to do is build the directory tree in yo
 
 ```bash
 WORKING_DIRECTORY=/path/to/the/working-directory
-docker run --rm -v ${WORKING_DIRECTORY}:${WORKING_DIRECTORY} singgroup/my-brain-seq init_working_dir.sh ${WORKING_DIRECTORY}
+docker run --rm -v ${WORKING_DIRECTORY}:${WORKING_DIRECTORY} -u "$(id -u)":"$(id -g)" singgroup/my-brain-seq init_working_dir.sh ${WORKING_DIRECTORY}
 ```
 
 After running the above code, the selected working-directory (`mbs_project` in this example) should have the following structure: 

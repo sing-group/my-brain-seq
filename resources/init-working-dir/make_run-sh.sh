@@ -64,8 +64,10 @@ printf "docker run -it --rm @\n\t\t-v /var/run/docker.sock:/var/run/docker.sock 
 fi
 
 # put backslashes instead of @
-cat ${workingDir}/.run_${studyName}.sh | tr '@' '\' > ${workingDir}/run_${studyName}.sh
+cat ${workingDir}/.run_${studyName}.sh | tr '@' '\' > ${workingDir}/run_${studyName}.sh &> /dev/null
 rm -f ${workingDir}/.run_${studyName}.sh
 
 # give run permisions
 chmod +x+x ${workingDir}/run_${studyName}.sh
+
+echo "Runner created in: ${workingDir}/run_${studyName}.sh"

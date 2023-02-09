@@ -9,7 +9,6 @@ set -o errexit
 # $1 : path to working dir.
 #
 
-
 # function to remove double slashes
 sslash () {
   echo ${1} | tr -s '/'
@@ -20,6 +19,12 @@ input=$(sslash "$wd/input")
 output=$(sslash "$wd/output")
 conditions=$(sslash "${input}/conditions_file.txt")
 contrast=$(sslash "${input}/contrast_file.txt")
+
+if [[ -d "${input}" ]] && [[ -d "${output}" ]]
+then
+	echo '[WARNING]: Selected working-dir already exist'
+	echo '           Please select another location or remove the existing one'
+fi
 
 # creation of input output directories
 mkdir -p ${input} ${output}

@@ -9,6 +9,11 @@ set -o errexit
 # $1 : path to working dir.
 #
 
+if [ $# -ne 1 ]; then
+	echo '[ERROR]: This script requires one argument (the path to the working dir)'
+	exit 1
+fi
+
 # function to remove double slashes
 sslash () {
   echo ${1} | tr -s '/'
@@ -24,6 +29,7 @@ if [[ -d "${input}" ]] && [[ -d "${output}" ]]
 then
 	echo '[WARNING]: Selected working-dir already exist'
 	echo '           Please select another location or remove the existing one'
+	exit 1
 fi
 
 # creation of input output directories

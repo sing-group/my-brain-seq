@@ -26,6 +26,7 @@ RUN gunzip -S .zip -c "Ensembl2Reactome.zip" > "./databases/Ensembl2Reactome.txt
 #adds additional scripts
 ADD resources/scripts /scripts
 ADD resources/init-working-dir /init-working-dir
+ADD resources/visual_console /visual_console
 RUN chmod uga+x /entrypoint.sh /scripts/*
 
 # ADD PIPELINE

@@ -1,4 +1,6 @@
 #!/bin/bash
+set -o nounset
+set -o errexit
 #-------------------------------------------------------------------------------
 # DESCRIPTION:
 #	This script builds the runner of the miRNA_pipeline using the compi.parame-

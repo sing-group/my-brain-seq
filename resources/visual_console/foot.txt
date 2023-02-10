@@ -1,0 +1,9 @@
+...............................................................................
+        
+        Developed by the SING and NeuroEpigenetics Lab groups
+        -----------------------------------------------------
+		Daniel Pérez-Rodríguez: daniel.prz.rodriguez@gmail.com
+			Hugo López-Fernández: hlfernandez@uvigo.es
+	 Roberto C. Agís-Balboa: roberto.carlos.agis.balboa@sergas.es
+							   -
+					© MyBrain-Seq, 2020-2023

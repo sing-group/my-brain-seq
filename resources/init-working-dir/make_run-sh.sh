@@ -1,6 +1,5 @@
 #!/bin/bash
-
-#---------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # DESCRIPTION:
 #	This script builds the runner of the miRNA_pipeline using the compi.parame-
 #   ters file as reference. The runner will mount all the needed Docker volumes
@@ -26,18 +25,25 @@
 #		contrast=/...
 #	
 #	A template of this file could be created using "make_compi-parameters.sh".
+#
+#-------------------------------------------------------------------------------
 
-#---------------------------------------------------------------------------------------
-
-# PARAMETERS
 myBrain_seq_version='latest'
 
-# to use: parameter_value=$(get_compi_parameter X Y)
+# check if additional compi parameters, if not, set default
+if [[ -z "${2}" ]]
+then
+    additional_compi_parameters='--num-tasks 5 --dea both'
+else
+    additional_compi_parameters="$(echo ${2} | awk '{$1=$1};1')"
+fi
+
 function get_compi_parameter {
 # $1 : ${1}   # $2 : compi parameter name  
     cat "${1}" | grep "${2}" | cut -d'=' -f2
 }
 
+# PARAMETERS
 # get the paths from the compi.parameters file
 workingDir="$(get_compi_parameter ${1} "workingDir")"
 fastqDir="$(get_compi_parameter ${1} "fastqDir")"
@@ -48,31 +54,30 @@ conditions="$(get_compi_parameter ${1} "conditions")"
 contrast="$(get_compi_parameter ${1} "contrast")"
 
 studyName="$(basename ${workingDir})"
+output_runner="$(echo ${workingDir}/run_${studyName}.sh | tr -s '/')"
 
-# write the workingDir in the runner
-printf "workingDir=\"${workingDir}\"\n" > "${workingDir}/.run_${studyName}.sh"
-
-# write the "make the directory for the pipeline logs using the timestamp"
-printf "timestamp=\$(date +\"%%Y-%%m-%%d_%%H:%%M:%%S\")\n" >> "${workingDir}/.run_${studyName}.sh"
-printf "mkdir -p \${workingDir}/logs/\${timestamp}\n" >> "${workingDir}/.run_${studyName}.sh"
-
-# write create the run.sh file
+# add the value to bwtIndex_or_genome
 if [[ ! -z "${bwtIndex}" ]]; then
     # if bowtie index
-    bowtie_dir="$(dirname ${bwtIndex})"
-    printf "docker run -it --rm @\n\t\t-v /var/run/docker.sock:/var/run/docker.sock @\n\t\t-v ${workingDir}:${workingDir} @\n\t\t-v ${fastqDir}:${fastqDir} @\n\t\t-v ${bowtie_dir}:${bowtie_dir} @\n\t\t-v ${gffFile}:${gffFile} @\n\t\t-v ${conditions}:${conditions} @\n\t\t-v ${contrast}:${contrast} @\n\t\tsinggroup/my-brain-seq:${myBrain_seq_version} @\n\t\t\t--logs ${workingDir}/logs/\${timestamp}/tasks @\n\t\t\t-pa ${1} @\n\t\t\t-o @\n\t\t\t--num-tasks 5 @\n\t\t\t-- --dea both @\n\t\t2>&1 | tee ${workingDir}/logs/\${timestamp}/compi.log" >> "${workingDir}/.run_${studyName}.sh"
-
+    bwtIndex_or_genome="$(dirname ${bwtIndex})"
 elif [[ ! -z "${genome}" ]]; then
     # if genome
-    printf "docker run -it --rm @\n\t\t-v /var/run/docker.sock:/var/run/docker.sock @\n\t\t-v ${workingDir}:${workingDir} @\n\t\t-v ${fastqDir}:${fastqDir} @\n\t\t-v ${genome}:${genome} @\n\t\t-v ${gffFile}:${gffFile} @\n\t\t-v ${conditions}:${conditions} @\n\t\t-v ${contrast}:${contrast} @\n\t\tsinggroup/my-brain-seq:${myBrain_seq_version} @\n\t\t\t--logs ${workingDir}/logs/\${timestamp}/tasks @\n\t\t\t-pa ${1} @\n\t\t\t-o @\n\t\t\t--num-tasks 5 @\n\t\t\t-- --dea both @\n\t\t2>&1 | tee ${workingDir}/logs/\${timestamp}/compi.log" >> "${workingDir}/.run_${studyName}.sh"
-
+    bwtIndex_or_genome="${genome}"
 fi
 
-# put backslashes instead of @
-cat ${workingDir}/.run_${studyName}.sh | tr '@' '\' &> /dev/null > ${workingDir}/run_${studyName}.sh
-rm -f ${workingDir}/.run_${studyName}.sh
+# PREPARE THE RUNNER
+cat '/init-working-dir/runner_template.txt'| \
+    sed -e "s|##@WORKING_DIR@##|${workingDir}|" \
+        -e "s|##@FASTQ_DIR@##|${fastqDir}|" \
+        -e "s|##@BOWTIE_OR_GENOME@##|${bwtIndex_or_genome}|" \
+        -e "s|##@GFF@##|${gffFile}|" \
+        -e "s|##@CONDITIONS@##|${conditions}|" \
+        -e "s|##@CONTRAST@##|${contrast}|" \
+        -e "s|##@PARAMETERS@##|${additional_compi_parameters}|" \
+        -e "s|##@VERSION@##|${myBrain_seq_version}|" \
+        -e "s|##@COMPI_PARAMETERS@##|${1}|" > "${output_runner}"
 
 # give run permisions
-chmod +x+x ${workingDir}/run_${studyName}.sh
+chmod +x+x "${output_runner}"
 
-echo "Runner created in: ${workingDir}/run_${studyName}.sh"
+echo "Runner created in: ${output_runner}"

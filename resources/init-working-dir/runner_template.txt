@@ -1,0 +1,50 @@
+#!/bin/bash
+################################################################################
+#                    ____               _                _____                 #
+#                   |  _ \             (_)              / ____|                #
+#  _ __ ___   _   _ | |_) | _ __  __ _  _  _ __  ______| (___    ___   __ _    #
+# | '_ ` _ \ | | | ||  _ < | '__|/ _` || || '_ \|______|\___ \  / _ \ / _` |   #
+# | | | | | || |_| || |_) || |  | (_| || || | | |       ____) ||  __/| (_| |   #
+# |_| |_| |_| \__, ||____/ |_|   \__,_||_||_| |_|      |_____/  \___| \__, |   #
+#              __/ |                   ____ __ __ ___   ___  ___  ____   | |   #
+#             |___/                  / , _// // // _ \ / _ \/ -_)/ __/   |_|   #
+#                                   /_/    \_,_//_//_//_//_/\__//_/            #
+#                                                                              #
+################################################################################
+
+# PARAMETERS
+myBrain_seq_version="##@VERSION@##"
+workingDir="##@WORKING_DIR@##"
+fastqDir="##@FASTQ_DIR@##"
+bwtIndex_or_genome="##@BOWTIE_OR_GENOME@##"
+gffFile="##@GFF@##"
+conditions="##@CONDITIONS@##"
+contrast="##@CONTRAST@##"
+compi_parameters="##@COMPI_PARAMETERS@##"
+additional_compi_parameters="##@PARAMETERS@##"
+
+# TEST IF PARAMETERS FILE EXISTS
+if [[ ! -f "${compi_parameters}" ]]; then
+	show_error "The parameters file (${compi_parameters}) does not exist."
+	exit 1
+fi
+
+# LOGS
+timestamp=$(date +"%Y-%m-%d_%H:%M:%S")
+mkdir -p ${workingDir}/logs/${timestamp}
+
+# RUN DOCKER IMAGE
+docker run -it --rm \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v ${workingDir}:${workingDir} \
+		-v ${fastqDir}:${fastqDir} \
+		-v ${bwtIndex_or_genome}:${bwtIndex_or_genome} \
+		-v ${gffFile}:${gffFile} \
+		-v ${conditions}:${conditions} \
+		-v ${contrast}:${contrast} \
+		singgroup/my-brain-seq:${myBrain_seq_version} \
+			--logs ${workingDir}/logs/${timestamp}/tasks \
+			-pa ${workingDir}/compi.parameters \
+			-o \
+			"${additional_compi_parameters}" \
+		2>&1 | tee ${workingDir}/logs/${timestamp}/compi.log

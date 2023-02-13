@@ -53,16 +53,36 @@ Finally, a single MultiQC report is generated to summarize the results of the qu
 
 
 # Using the myBrain-Seq image in Linux
+## Running the v.console
+
+Some steps on the preparation of myBrain-Seq analysis require either to adapt and run code on a console or to use myBrain-Seq's terminal user interface (*v.console*). As the *v.console* can perform several operations, please refer to this section whenever you need to use it. To launch the *v.console* just run the following command on a terminal:
+
+```bash
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock singgroup/my-brain-seq visual_console.sh
+```
+
+An interactive menu should be displayed in your terminal. 
+
 ## Building the directory tree
 
-To start a new analysis, the first thing to do is build the directory tree in your local file system. This directory tree will be referred as the "working directory" and its structure is recognized and used by the pipeline during the analysis. To build the working directory adapt the first line of the following code and run it:
+To start a new analysis, the first thing to do is build the directory tree in your local file system. This directory tree will be referred as the "working directory" and its structure is recognized and used by the pipeline during the analysis. MyBrain-seq offers two options to generate the working directory: interactively using myBrain-Seq's terminal user interface (*v.console*) or adapting and running a command in the console.  
+
+#### Creating the working directory interactively with the v.console
+
+Run the *v.console* (see section "*Running the v.console*") and select the option "Initialize the working-directory"; then, paste the full path where the "working-directory" should be placed and confirm by typing "y" and return key.
+
+#### Creating the working directory with a command
+
+To build the working directory adapt the first line of the following code and run it:
 
 ```bash
 WORKING_DIRECTORY=/path/to/the/working-directory
 docker run --rm -v ${WORKING_DIRECTORY}:${WORKING_DIRECTORY} -u "$(id -u)":"$(id -g)" singgroup/my-brain-seq init_working_dir.sh ${WORKING_DIRECTORY}
 ```
 
-After running the above code, the selected working-directory (`mbs_project` in this example) should have the following structure: 
+#### Structure of the working-directory
+
+After completing any of the above options, the selected working-directory (`mbs_project` in the example below) should have the following structure: 
 
 ```
 /home/user/mbs-project 
@@ -159,7 +179,7 @@ The first line of `contrast_file.txt` is the header, the following lines begin w
 
 ## Running myBrain-Seq analysis
 
-Once all the required files were built you need to **build a runner** in order to perform the myBrain-Seq analysis. This can be done using the script `make_run-sh.sh`. This script uses the `compi.parameters` file as reference and will mount all the needed Docker volumes and build a directory for the logs. To use this script **adapt the first line** on the following code:
+Once all the required files were built you need to **build a runner** in order to perform the myBrain-Seq analysis. This can be done using the *v.console* (see section "*Running the v.console*") or using the script `make_run-sh.sh`. This script uses the `compi.parameters` file as reference and will mount all the needed Docker volumes and build a directory for the logs. To use this script **adapt the first line** on the following code:
 
 ```bash
 COMPI_PARAMETERS=/path/to/compi.parameters
@@ -168,11 +188,7 @@ WD=$(cat $COMPI_PARAMETERS | grep 'workingDir' | cut -d'=' -f2)
 docker run --rm --entrypoint /init-working-dir/make_run-sh.sh -v ${WD}:${WD} -v ${COMPI_PARAMETERS}:${WD}/compi.parameters singgroup/my-brain-seq ${WD}/compi.parameters
 ```
 
-The resulting file will be an script saved in the working directory and named as `run_<name of the workingDir>.sh`. To begin with the analysis just run it, for example:
-
-```
-./run_mbs-project.sh
-```
+The resulting file will be an script saved in the working directory and named as `run_<name of the workingDir>.sh`. To begin with the analysis use the *v.console* or just run it on a terminal (`./run_mbs-project.sh`).
 
 ## Find out tasks with errors
 

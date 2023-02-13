@@ -15,8 +15,6 @@
 set -o nounset
 set -o errexit
 
-header='/home/dannyzimm/Documentos/mirna-pipeline/mirna-pipeline/resources/visual_console/header.txt'
-foot='/home/dannyzimm/Documentos/mirna-pipeline/mirna-pipeline/resources/visual_console/foot.txt'
 header='/visual_console/header.txt'
 foot='/visual_console/foot.txt'
 
@@ -162,7 +160,8 @@ function build_runner {
         echo
         echo -ne "$(greenprint 'BUILD MYBRAIN-SEQ RUNNER:')"
         echo
-        echo "Please, paste the path to the \"compi.parameters\" file."
+        echo "Please, paste the full path to the \"compi.parameters\" file."
+        echo "e.g.: /home/user/analysis_1/input/compi.parameters"
         echo
         echo "Path to \"compi.parameters\" file:"
         echo -ne "    > "

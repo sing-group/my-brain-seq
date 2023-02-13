@@ -32,16 +32,12 @@ set -o errexit
 
 myBrain_seq_version='latest'
 
-# check if additional compi parameters, if not, set default
-if [[ -z "${2}" ]]
-then
-    additional_compi_parameters='--num-tasks 5 --dea both'
-else
-    additional_compi_parameters="$(echo ${2} | awk '{$1=$1};1')"
+if [ $# -ne 1 ]; then
+	echo '[ERROR]: This script requires one argument (the path to the Compi parameters file)'
+	exit 1
 fi
 
 function get_compi_parameter {
-# $1 : ${1}   # $2 : compi parameter name  
     cat "${1}" | grep "${2}" | cut -d'=' -f2
 }
 
@@ -75,7 +71,6 @@ cat '/init-working-dir/runner_template.txt'| \
         -e "s|##@GFF@##|${gffFile}|" \
         -e "s|##@CONDITIONS@##|${conditions}|" \
         -e "s|##@CONTRAST@##|${contrast}|" \
-        -e "s|##@PARAMETERS@##|${additional_compi_parameters}|" \
         -e "s|##@VERSION@##|${myBrain_seq_version}|" \
         -e "s|##@COMPI_PARAMETERS@##|${1}|" > "${output_runner}"
 

@@ -13,7 +13,7 @@
 ################################################################################
 
 # PARAMETERS
-myBrain_seq_version="##@VERSION@##"
+myBrain_seq_version="${myBrain_seq_version:##@VERSION@##}"
 workingDir="##@WORKING_DIR@##"
 fastqDir="##@FASTQ_DIR@##"
 bwtIndex_or_genome="##@BOWTIE_OR_GENOME@##"
@@ -21,7 +21,12 @@ gffFile="##@GFF@##"
 conditions="##@CONDITIONS@##"
 contrast="##@CONTRAST@##"
 compi_parameters="##@COMPI_PARAMETERS@##"
-additional_compi_parameters="##@PARAMETERS@##"
+additional_compi_parameters="${1:--num-tasks 5}"
+
+if [ $# -ne 0 ] && [ $# -ne 1 ]; then
+	echo '[ERROR]: This script requires zero or one arguments (additional Compi parameters)'
+	exit 1
+fi
 
 # TEST IF PARAMETERS FILE EXISTS
 if [[ ! -f "${compi_parameters}" ]]; then
@@ -36,6 +41,7 @@ mkdir -p ${workingDir}/logs/${timestamp}
 # RUN DOCKER IMAGE
 docker run -it --rm \
 		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v ${HOME}/.compi:/root/.compi \
 		-v ${workingDir}:${workingDir} \
 		-v ${fastqDir}:${fastqDir} \
 		-v ${bwtIndex_or_genome}:${bwtIndex_or_genome} \

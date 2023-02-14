@@ -9,6 +9,11 @@ This pipeline has the following dependencies:
 - `pegi3s/bowtie1` (tested with 1.2.3).
 - `pegi3s/feature-counts` (tested with 2.0.0).
 - `pegi3s/samtools_bcftools` (tested with 1.9).
+- `pegi3s/samtools_bcftools` (tested with 1.10).
 - `pegi3s/r_data-analysis` (tested with 4.1.1).
 - `pegi3s/r_venn-diagram` (tested with 1.7.0).
 - `python3` (tested with 3.8.5).
+- `pegi3s/r_network` (tested with 4.7.1_v2).
+- `pegi3s/multiqc` (tested with 1.14.0).
+- `DIANA Tarbase annotations` (tested with 8).
+- `Reactome annotations` (tested with 83).

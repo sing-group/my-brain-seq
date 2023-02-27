@@ -31,6 +31,7 @@ input_contrast=as.character(args[3])
 path_output=as.character(args[4])
 
 padj = 0.05
+logFC = 0.5
 
 ptm("======================================================")
 ptm('        [PIPELINE -- deseq]: run_deseq2.R        ')
@@ -162,7 +163,8 @@ resOrdered
 
 #Get a list with the DE miRNAs
 DE_miRNAs = res[!is.na(res$padj),]
-DE_miRNAs = DE_miRNAs[DE_miRNAs$padj < padj,]
+DE_miRNAs = DE_miRNAs[DE_miRNAs$padj <= padj,]
+DE_miRNAs = DE_miRNAs[DE_miRNAs$log2FoldChange <= -logFC | DE_miRNAs$log2FoldChange >= logFC,]
 
 ################# BEGINNING OF THE COMMON PART (DESEQ2 EDGER) ##################
 

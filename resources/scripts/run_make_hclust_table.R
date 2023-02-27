@@ -110,7 +110,9 @@ ptm('Loading files')
 dea_results = read_tsv(path_dea_results)
 #Counts
 cts = read_tsv(path_counts, rowname="Geneid")
-cts = cts[-1:-5]
+if (c("Chr", "Start", "End", "Strand", "Length") %in% colnames(cts)){
+  cts = cts %>% select(-c("Chr", "Start", "End", "Strand", "Length")) #FIXME remove this comment if the script works
+}
 #Conditions
 conditions = read_tsv(path_conditions)
 #Labels
@@ -126,15 +128,17 @@ ptm('Getting miRNA profile')
 if (software == "DESeq2-EdgeR"){                                                # fix this step when dea-integration task average the log2FC values too
   mirna_profile = as.list(dea_results$Feature)
   #filter by q-value and FDR
-  dea_results_filtered = filter(dea_results,
-                                qvalue<q_value)
+  dea_results_filtered = dea_results %>%
+    filter(qvalue <= q_value) %>%
+    filter(log2FC >= fold_change | log2FC <= -fold_change)
   #get the miRNA list
   mirna_profile = dea_results_filtered$Feature
   # else filter the miRNAs by q_value and FC
 }else{
   #filter by q-value and FDR
-  dea_results_filtered = filter(dea_results,
-                                qvalue<q_value & (log2FC>fold_change | log2FC< -fold_change))
+  dea_results_filtered = dea_results %>%
+    filter(qvalue <= q_value) %>%
+    filter(log2FC >= fold_change | log2FC <= -fold_change)
   #get the miRNA list
   mirna_profile = dea_results_filtered$Feature
 }

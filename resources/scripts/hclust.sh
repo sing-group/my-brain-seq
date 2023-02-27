@@ -8,10 +8,23 @@ source ${SCRIPT_DIR}/functions.sh
 # lock Rscript before copying to avoid errors when parallel tasks are running
 cp_and_lock ${hclustMakeTableRscript} 'hclust' ${scriptsDir}
 cp_and_lock ${hclustRscript} 'hclust' ${scriptsDir}
+cp_and_lock ${deseq2NormalizationRscript} 'hclust' ${scriptsDir}
 
 # get the contrast name to build the output filename
 contrast_label=$(echo "${comparison}" | cut -d'"' -f2 )
 contrast_label_samples=$(echo "${comparison}" | cut -d'"' -f4 ) # FIXME: change the name of the integrated dea results, modify the pipeline accordingly
+
+# function to perform the global count normalization with DESeq2
+function run_deseq2_normalization {
+# $1 : ${path_counts}       $4 : ${software}
+# $2 : ${path_conditions}   $5 : ${input_contrast}
+# $3 : ${path_output} 
+echo "[PIPELINE -- hclust]: Performing the global count normalization with DESeq2..."
+  docker run --rm \
+	-v ${workingDir}:${workingDir} \
+	pegi3s/r_deseq2:${rDeseq2Version} \
+		Rscript "${workingDir}/compi_scripts/${deseq2NormalizationRscript}" "${1}" "${2}" "${3}" "${4}" "${5}"
+}
 
 # function to perform the hierarchical clustering analysis
 function run_hclust_make-table {
@@ -69,14 +82,48 @@ fi
 path_conditions="${conditions}"
 input_contrast="${comparison}"
 
+# check if a DESeq2 global count normalization should be performed
+if [[ -v ${1} ]]
+then
+	path_counts="${workingDir}/${outDir}/${ftqOut}/all-counts.txt"
+
+	if [[ ${selectDEAsoftware} == 'edger' ]] || [[ ${selectDEAsoftware} == 'both' ]]
+	then
+		path_output_normalized_counts="$(get_output_dir edger ${comparison})/pipel/"
+		software="EdgeR"
+		run_deseq2_normalization "${path_counts}" "${path_conditions}" "${path_output_normalized_counts}" "${software}" "${input_contrast}"
+	fi
+
+	if [[ ${selectDEAsoftware} == 'deseq' ]] || [[ ${selectDEAsoftware} == 'both' ]]
+	then
+		path_output_normalized_counts="$(get_output_dir deseq ${comparison})/pipel/"
+		software="DESeq2"
+		run_deseq2_normalization "${path_counts}" "${path_conditions}" "${path_output_normalized_counts}" "${software}" "${input_contrast}"
+	fi
+
+	if [[ ${selectDEAsoftware} == 'both' ]]
+	then
+		path_output_normalized_counts="${workingDir}/${outDir}/${deaIntOut}/${contrast_label}/pipel/"
+		software="DESeq2-EdgeR"
+		run_deseq2_normalization "${path_counts}" "${path_conditions}" "${path_output_normalized_counts}" "${software}" "${input_contrast}"
+	fi
+
+fi
+
 # perform the hierarchical clustering on the corresponding data
 if [[ ${selectDEAsoftware} == 'edger' ]] || [[ ${selectDEAsoftware} == 'both' ]]
 then
 	path_output_docker=$(get_output_dir edger ${comparison})
 	path_output_pipel="${path_output_docker}/pipel/"
 	dea_results="${path_output_docker}/$(echo EdgeR_${contrast_label} | xargs).tsv"
-	path_counts="${path_output_docker}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
 	software="EdgeR"
+
+	if [[ -v ${1} ]]; then
+		path_counts="${path_output_pipel}/all-counts_${software}_${contrast_label}_normalized.txt"
+	else
+		path_counts="${path_output_docker}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
+	fi
+
 	path_hclust_file="${path_output_pipel}/$(echo hclust_EdgeR_${contrast_label} | xargs).tsv"
 	# run the analysis
 	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}"
@@ -87,8 +134,14 @@ then
 	path_output_docker=$(get_output_dir deseq ${comparison})
 	path_output_pipel="${path_output_docker}/pipel/"
 	dea_results="${path_output_docker}/$(echo DESeq2_${contrast_label} | xargs).tsv"
-	path_counts="${path_output_docker}/pipel/$(echo all-counts_deseq_${contrast_label} | xargs).txt"
 	software="DESeq2"
+
+	if [[ -v ${1} ]]; then
+		path_counts="${path_output_pipel}/all-counts_${software}_${contrast_label}_normalized.txt"
+	else
+		path_counts="${path_output_docker}/pipel/$(echo all-counts_deseq_${contrast_label} | xargs).txt"
+	fi
+
 	path_hclust_file="${path_output_pipel}/$(echo hclust_DESeq2_${contrast_label} | xargs).tsv"
 	# run the analysis
 	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}"
@@ -99,9 +152,15 @@ then
 	path_output_docker="${workingDir}/${outDir}/${deaIntOut}/${contrast_label}/"
 	path_output_pipel="${path_output_docker}/pipel/"
 	dea_results="${path_output_docker}/DEmiRNAs_${contrast_label_samples}_deseq-edger_integrated.tsv"
-	# uses the counts of EdgeR (data is the same for both software)
-	path_counts="${workingDir}/${outDir}/${edgOut}/${contrast_label}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
 	software="DESeq2-EdgeR"
+
+	# uses the counts of EdgeR (data is the same for both software)
+	if [[ -v ${1} ]]; then
+		path_counts="${path_output_pipel}/all-counts_${software}_${contrast_label}_normalized.txt"
+	else
+		path_counts="${path_output_docker}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
+	fi
+
 	path_hclust_file="${path_output_pipel}/$(echo hclust_DESeq2-EdgeR_${contrast_label} | xargs).tsv"
 	# run the analysis
 	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}"

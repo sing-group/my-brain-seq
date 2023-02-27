@@ -10,8 +10,10 @@ echo "[PIPELINE -- bowtie-alignment]: Performing genome alignment with Bowtie...
 if [ ! -z ${genome} ]; then
 	bgi_genome="${workingDir}/input/genome/${genome}/"
 	bw_index_path="${workingDir}/input/genome/${genome}/bowtie-index_${genome}/"
-else
+elif [ ! -z ${bwtIndex} ]; then
 	bw_index_path="$(dirname ${bwtIndex})"
+else
+	echo "[PIPELINE -- bowtie-alignment]: [ERROR] No genome or bowtie index provided."
 fi
 
 # if adapter specified

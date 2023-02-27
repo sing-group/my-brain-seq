@@ -13,7 +13,7 @@
 ################################################################################
 
 # PARAMETERS
-myBrain_seq_version="${myBrain_seq_version:##@VERSION@##}"
+myBrain_seq_version="##@VERSION@##"
 workingDir="##@WORKING_DIR@##"
 fastqDir="##@FASTQ_DIR@##"
 bwtIndex_or_genome="##@BOWTIE_OR_GENOME@##"

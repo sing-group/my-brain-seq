@@ -22,6 +22,7 @@ path_output = as.character(args[4])
 path_output_pipel = as.character(args[5])
 
 q_value_filter = 0.05
+logFC = 0.5
 
 #-------------------------------------------------------------------------------
 #                                FUNCTIONS
@@ -85,6 +86,12 @@ ptm('Finding coincidences between DESeq2 and EdgeR after filtering by qvalue')
 deseq_filtered = deseq %>% filter(qvalue_deseq < q_value_filter)
 edger_filtered = edger %>% filter(qvalue_edger < q_value_filter)
 
+# filter the files by log2FC
+deseq_filtered = deseq_filtered %>%
+  filter(log2FC_deseq <= -logFC | log2FC_deseq >= logFC)
+edger_filtered = edger_filtered %>%
+  filter(log2FC_edger <= -logFC | log2FC_edger >= logFC)
+
 # search for coincidences miRNA between the two tables, then averages p/qvalues
 coincidences_full = inner_join(deseq_filtered, edger_filtered, by = 'Feature') %>%
   mutate(pvalue = (pvalue_deseq + pvalue_edger)/2, 
@@ -134,7 +141,9 @@ integrated = integrated_full %>%
   select(Feature, pvalue, qvalue, log2FC)
 
 # table with just the DEmiRNAs
-DEmiRNAs = integrated %>% filter(qvalue < q_value_filter)
+DEmiRNAs = integrated %>% 
+  filter(qvalue < q_value_filter) %>%
+  filter(log2FC >= logFC, log2FC <= -logFC)
 
 # print a summary
 if (length(integrated$Feature) > 0){

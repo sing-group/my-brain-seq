@@ -143,10 +143,22 @@ ptm('Exporting Dendrogram')
 filename_dendrogram = paste0('dendrogram', '_', software, '_', contrast_label, '.pdf')
 path_figure = paste(path_output, filename_dendrogram, sep = '')
 pdf(file = path_figure)
-par(mar=c(5 + 5,7,4,2) + 0.5)
+
+# calculate margins
+nlabels_dend = nrow(cts)
+mar_C = nlabels_dend/25             # UP
+mar_A = nlabels_dend/25             # DOWN
+mar_B = nlabels_dend/25             # LEFT
+mar_D = nlabels_dend/800            # RIGHT
+mar_E = (nlabels_dend * 2)/100      # SCALE
+mar_F = 100/((nlabels_dend*2)+5)    # LABEL SIZE
+
+avg_col_dend = set(avg_col_dend, "labels_cex", mar_F)
+
+par(mar=c(mar_A, mar_B, mar_C, mar_D) + mar_E)
 plot(avg_col_dend,
      main = title,
-     cex.main = 1.5,
+     cex.main = 1.5, #title
      ylab="Euclidean distance",
      sub=NULL)
 

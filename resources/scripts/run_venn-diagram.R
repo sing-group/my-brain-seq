@@ -46,8 +46,8 @@ venn_table = read.delim(venn_path)
 
 #VENN DIAGRAM
 #venn variables
-deseq = deseq[venn_table$deseq != ""]
-edger = edger[venn_table$edger != ""]
+deseq = venn_table$deseq[venn_table$deseq != ""]
+edger = venn_table$edger[venn_table$edger != ""]
 
 #colors of the venn diagram
 myCol = c('#459991', '#FF972F')

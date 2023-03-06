@@ -36,7 +36,7 @@ ptm("======================================================")
 get_contrast_factors = function(input_contrast) {
   contrast_table = read.delim(text = paste('name\n', input_contrast), sep = '=')
   contrast = strsplit(as.character(contrast_table$name), '-')[[1]]
-  ref_factor = trimws(contrast[2])
+ref_factor = trimws(contrast[2])
   cond_factor = as.character(trimws(contrast[1]))
   result = list("reference" = ref_factor, "condition" = cond_factor)
 }
@@ -46,8 +46,8 @@ venn_table = read.delim(venn_path)
 
 #VENN DIAGRAM
 #venn variables
-deseq = venn_table$deseq
-edger = venn_table$edger
+deseq = deseq[venn_table$deseq != ""]
+edger = edger[venn_table$edger != ""]
 
 #colors of the venn diagram
 myCol = c('#459991', '#FF972F')

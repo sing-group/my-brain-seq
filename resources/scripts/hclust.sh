@@ -40,22 +40,22 @@ echo "[PIPELINE -- hclust]: Building the hierarchical clustering table for ${4} 
 
 # function to run the hclust analysis with the Rscript
 function run_hclust {
-# $1 : ${path_hclust_file}  $3 : ${path_output}
+# $1 : ${path_hclust_file}  $3 : ${path_output}  $5 : ${conditions_file}
 # $2 : ${input_contrast}    $4 : ${software}
 echo "[PIPELINE -- hclust]: Running the hierarchical clustering analysis for ${4} results..."
   docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_data-analysis:${rdatanalysisVersion} \
-		Rscript "${workingDir}/compi_scripts/${hclustRscript}" "${1}" "${2}" "${3}" "${4}"
+		Rscript "${workingDir}/compi_scripts/${hclustRscript}" "${1}" "${2}" "${3}" "${4}" "${5}"
 }
 
 # function to test if dea file exists and run the "hclust" Rscript
 function test_and_run_hclust {
-# $1 : ${path_hclust_file}  $3 : ${path_output}
+# $1 : ${path_hclust_file}  $3 : ${path_output}  $5 : ${conditions_file}
 # $2 : ${input_contrast}    $4 : ${software}
 if [[ -f "$1" ]]
 then
-	run_hclust "${1}" "${2}" "${3}" "${4}"
+	run_hclust "${1}" "${2}" "${3}" "${4}" "${5}"
 else
 	echo "[PIPELINE -- hclust > $4]: No hclust table."
 	echo "[PIPELINE -- hclust > $4]: Skipping."
@@ -72,7 +72,7 @@ function test_and_run() {
 if [[ -f "$1" ]]
 then
 	run_hclust_make-table "${1}" "${2}" "${3}" "${4}" "${9}" "${6}"
-	test_and_run_hclust "${8}" "${4}" "${5}" "${6}"
+	test_and_run_hclust "${8}" "${4}" "${5}" "${6}" "${3}"
 else
 	echo "[PIPELINE -- hclust > $6]: No $7 results."
 	echo "[PIPELINE -- hclust > $6]: Done."

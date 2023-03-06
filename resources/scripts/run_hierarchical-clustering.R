@@ -6,12 +6,14 @@
 ##  2.- input_contrast: A line of the contrast file with one contrast.
 ##  3.- path_output: the output dir for the results.
 ##  4.- software: the software that produced the results (DESeq2/EdgeR/DESeq2-EdgeR).
+##  5.- conditions_file: path to the conditions_file.
 
 args = commandArgs(trailingOnly = TRUE)
 path_hclust_file=as.character(args[1])
 input_contrast=as.character(args[2])
 path_output=as.character(args[3])
 software=as.character(args[4])
+conditions_file=as.character(args[5])
 
 # CLUSTERING OPTIONS
 distance_method = 'euclidean'
@@ -40,6 +42,7 @@ ptm(paste0("  Hclust file:     ", as.character(args[1])))
 ptm(paste0("  Input contrast:  ", as.character(args[2])))
 ptm(paste0("  Output dir:      ", as.character(args[3])))
 ptm(paste0("  Software:        ", as.character(args[4])))
+ptm(paste0("  conditions_file: ", as.character(args[5])))
 ptm("======================================================")
 
 ptm('Loading libraries')
@@ -71,6 +74,14 @@ cts = read.csv(file = path_hclust_file,
                check.names=FALSE)
 
 cts = as.data.frame(t(cts))
+
+ptm('Loading conditions_file')
+# loads conditions_file
+conditions = read.table(
+  file = conditions_file,
+  sep = "\t",
+  header = TRUE
+)
 
 # standarize the values of each row (mirnas, scales...)
 cts_scaled = as.data.frame(scale(cts))
@@ -143,6 +154,32 @@ ptm('Exporting Dendrogram')
 filename_dendrogram = paste0('dendrogram', '_', software, '_', contrast_label, '.pdf')
 path_figure = paste(path_output, filename_dendrogram, sep = '')
 pdf(file = path_figure)
+
+# ASSIGN COLORS TO SAMPLE LABELS
+# get the sample labels used in the dendrogram in order
+labels_dend = as.data.frame(labels(avg_col_dend))
+colnames(labels_dend) = c("sample_labels")
+# create a variable with sample colors
+colors_label_dend = merge(labels_dend, 
+                          conditions, 
+                          by.x = "sample_labels", 
+                          by.y = "name",
+                          sort = FALSE)
+# change the conditions to colors
+colors_label_dend$condition = replace(
+  colors_label_dend$condition,
+  colors_label_dend$condition == contrast_factors$reference,
+  "#149E8B")
+colors_label_dend$condition = replace(
+  colors_label_dend$condition,
+  colors_label_dend$condition == contrast_factors$condition,
+  "#B53A5B")
+  
+# create a color vector
+colors_label_dend = as.character(colors_label_dend$condition)
+
+# assign the color vector to the dendrogram
+labels_colors(avg_col_dend) <- colors_label_dend
 
 # calculate margins
 nlabels_dend = nrow(cts)

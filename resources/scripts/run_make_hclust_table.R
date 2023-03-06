@@ -110,8 +110,9 @@ ptm('Loading files')
 dea_results = read_tsv(path_dea_results)
 #Counts
 cts = read_tsv(path_counts, rowname="Geneid")
-if (c("Chr", "Start", "End", "Strand", "Length") %in% colnames(cts)){
-  cts = cts %>% select(-c("Chr", "Start", "End", "Strand", "Length")) #FIXME remove this comment if the script works
+test_cols = c("Chr", "Start", "End", "Strand", "Length")
+if (all(test_cols %in% colnames(cts))){
+  cts = cts %>% select(-c("Chr", "Start", "End", "Strand", "Length"))
 }
 #Conditions
 conditions = read_tsv(path_conditions)

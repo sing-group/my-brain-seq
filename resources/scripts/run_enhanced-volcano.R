@@ -44,6 +44,9 @@ res = read.csv(file = path_counts,
                row.names = 1,
                header = TRUE)
 
+#GET ONLY ROWS WITH QVALUE != NA
+res_filtered = res[complete.cases(res$qvalue),]
+
 #CREATING VARIABLES
 vol_x = 'log2FC'
 vol_y = 'qvalue'
@@ -55,18 +58,54 @@ if (software == 'edger') {
 }
 titl = paste0(sfw_name, 'Differential expression')
 
-#PLOT: Volcano plot
+#-------------------------------------------------------------------------------
+#                             VOLCANO PLOT
+#-------------------------------------------------------------------------------
 ptm('Building Volcano plot')
 volcano_name = paste0(comparison_label, '_volcano', '.pdf')
 vol_path = paste0(path_output, volcano_name)
 pdf(file=vol_path)
-EnhancedVolcano(res,
+
+# AXIS LIMITS
+# This section calculates the limits used to plot the volcano. There are minimum
+# values for those limits (default values). These values correspond to the 
+# thresholds used to plot the data (qvalue, fold-change). If no data points reach
+# the minimum values, then the default values will be used.
+
+# default values
+qval = 0.05
+logfc = 0.5
+marg = 1.1
+
+# default limits 
+xlim_low_def = -logfc; xlim_high_def = logfc
+ylim_high_def = -log10(qval)
+
+# automatic limits
+xlim_low  = min(res_filtered$log2FC) * marg
+xlim_high = max(res_filtered$log2FC) * marg
+ylim_high = max(-log10(res_filtered$qvalue)) * marg
+
+# if default limits are not in automatic limits then use default limit
+if (xlim_low > xlim_low_def){xlim_low = xlim_low_def}
+if (xlim_high < xlim_high_def){xlim_high = xlim_high_def}
+if (ylim_high < ylim_high_def){ylim_high = ylim_high_def}
+
+# set xlim and ylim variables
+xlim = c(xlim_low, xlim_high)
+ylim = c(0, ylim_high)
+
+EnhancedVolcano(res_filtered,
+                x = vol_x, y = vol_y,
+                xlim = xlim, ylim = ylim,
                 title = comparison_label,
                 subtitle = titl,
-                pCutoff = 10e-5,
-                FCcutoff = 1,
-                lab = rownames(res),
-                x = vol_x,
-                y = vol_y)
+                pCutoff = 0.05,
+                FCcutoff = 0.5,
+                col=c('#8D8E94', '#149E8B', '#106392', '#A62C7A'),
+                colAlpha = 0.55,
+                lab = rownames(res_filtered),
+                labSize = 4)
+
 silence <- dev.off()
 ptm('Done')

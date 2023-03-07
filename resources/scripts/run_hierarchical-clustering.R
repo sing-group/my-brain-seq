@@ -122,7 +122,7 @@ avg_col_dend <- color_branches(avg_dend_obj, k = cluster_number)
 #-------------------------------------------------------------------------------
 ptm('Building heat map')
 # color scale
-color_scale <- c("black", "blue", "green", "yellow", "orange", "red")
+color_scale <- c("#000000", "#0E4C5F", "#65C19C", "#AEEA66", "#F6C456", "#FF4678")
 pal <- colorRampPalette(color_scale)(100)
 x=as.matrix(t(cts_scaled))
 

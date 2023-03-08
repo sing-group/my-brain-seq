@@ -154,11 +154,14 @@ then
 	dea_results="${path_output_docker}/DEmiRNAs_${contrast_label_samples}_deseq-edger_integrated.tsv"
 	software="DESeq2-EdgeR"
 
+	path_output_edger_docker=$(get_output_dir edger ${comparison}) 
+	path_output_edger_pipel="${path_output_edger_docker}/pipel/"
+
 	# uses the counts of EdgeR (data is the same for both software)
 	if [[ -v ${1} ]]; then
-		path_counts="${path_output_pipel}/all-counts_${software}_${contrast_label}_normalized.txt"
+		path_counts="${path_output_edger_pipel}/all-counts_EdgeR_${contrast_label}_normalized.txt"
 	else
-		path_counts="${path_output_docker}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
+		path_counts="${path_output_edger_docker}/pipel/$(echo all-counts_edger_${contrast_label} | xargs).txt"
 	fi
 
 	path_hclust_file="${path_output_pipel}/$(echo hclust_DESeq2-EdgeR_${contrast_label} | xargs).tsv"

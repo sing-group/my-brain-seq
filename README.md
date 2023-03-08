@@ -307,6 +307,7 @@ To run the pipeline with this test data, edit the `compi.parameters` (at `/worki
 ## Running time
 
 - ≈ 5 minutes - 5 parallel tasks - Ubuntu 20.04.4 LTS, 8 CPUs (Intel® Core™ i7-9700 @ 3.00GHz), 16GB of RAM and SSD disk.
+- ≈ 12 minutes - 5 parallel tasks - Ubuntu 18.04.6 LTS, 8 CPUs (Intel® Core™ i7-8565U @ 1.80GHz), 16GB of RAM and SSD disk.
 
 # Publications
 
@@ -320,7 +321,7 @@ To run the pipeline with this test data, edit the `compi.parameters` (at `/worki
 
 ## Building the Docker image
 
-To build the Docker image, [`compi-dk`](https://www.sing-group.org/compi/#downloads) is required. Once you have it installed, simply run `compi-dk build` from the project directory to build the Docker image. The image will be created with the name specified in the `compi.project` file. This file also specifies the version of compi that goes into the Docker image.
+To build the Docker image, [`compi-dk`](https://www.sing-group.org/compi/#downloads) is required. Once you have it installed, simply run `compi-dk build -drd -tv` from the project directory to build the Docker image. The image will be created with the name specified in the `compi.project` file. This file also specifies the version of compi that goes into the Docker image.
 
 # Team 
 

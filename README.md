@@ -323,6 +323,14 @@ To run the pipeline with this test data, edit the `compi.parameters` (at `/worki
 
 To build the Docker image, [`compi-dk`](https://www.sing-group.org/compi/#downloads) is required. Once you have it installed, simply run `compi-dk build -drd -tv` from the project directory to build the Docker image. The image will be created with the name specified in the `compi.project` file. This file also specifies the version of compi that goes into the Docker image.
 
+## Versioning
+
+The pipeline version is set in the `<version>` section of the `pipeline.xml`. Nevertheless, as the version number is referenced from other sites, it is recommended to update it using the following command:
+
+```
+./resources/development/set-new-version.sh $(pwd) <new_version>
+```
+
 # Team 
 
 MyBrain-Seq is a pipeline developed by the SING and NeuroEpigenetics Lab groups.

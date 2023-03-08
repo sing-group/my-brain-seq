@@ -88,9 +88,9 @@ edger_filtered = edger %>% filter(qvalue_edger < q_value_filter)
 
 # filter the files by log2FC
 deseq_filtered = deseq_filtered %>%
-  filter(log2FC_deseq <= -logFC | log2FC_deseq >= logFC)
+  filter(abs(log2FC_deseq) >= logFC)
 edger_filtered = edger_filtered %>%
-  filter(log2FC_edger <= -logFC | log2FC_edger >= logFC)
+  filter(abs(log2FC_edger) >= logFC)
 
 # search for coincidences miRNA between the two tables, then averages p/qvalues
 coincidences_full = inner_join(deseq_filtered, edger_filtered, by = 'Feature') %>%

@@ -139,13 +139,13 @@ contrast_label = paste0(contrast_factors$condition, '-'
 title = paste0(software, ': ', contrast_label)
 
 # find the longer label in the plot
-a = as.vector(lapply(colnames(cts), nchar))
-b = as.vector(lapply(rownames(cts), nchar))
-c = unlist(c(a, b))
-longer_label = max(c)
+max_len_sample = max(unlist(as.vector(lapply(rownames(cts), nchar))))
+max_len_mirna = max(unlist(as.vector(lapply(colnames(cts), nchar))))
+longer_label = max(max_len_sample, max_len_mirna)
 
 # uses the length of the longer label to calculate the canvas margins
-margins = round(longer_label - (longer_label / 5))
+margin_samples = max_len_sample * 0.8
+margin_mirnas = max_len_mirna * 0.8
 
 #-------------------------------------------------------------------------------
 #                         EXPORT DENDROGRAM
@@ -182,13 +182,12 @@ colors_label_dend = as.character(colors_label_dend$condition)
 labels_colors(avg_col_dend) <- colors_label_dend
 
 # calculate margins
-nlabels_dend = nrow(cts)
-mar_C = nlabels_dend/25             # UP
-mar_A = nlabels_dend/25             # DOWN
-mar_B = nlabels_dend/25             # LEFT
-mar_D = nlabels_dend/800            # RIGHT
-mar_E = (nlabels_dend * 2)/100      # SCALE
-mar_F = 100/((nlabels_dend*2)+5)    # LABEL SIZE
+mar_F = 0.6                            # LABEL SIZE
+mar_A = 0.2 * max_len_sample             # DOWN
+mar_C = 2                              # UP
+mar_B = 5                              # LEFT
+mar_D = 2                              # RIGHT
+mar_E = 2                              # SCALE
 
 avg_col_dend = set(avg_col_dend, "labels_cex", mar_F)
 
@@ -208,8 +207,18 @@ silence <- dev.off()
 ptm('Building Heatmap')
 filename_heatmap = paste0('heatmap', '_', software, '_', contrast_label, '.pdf')
 path_figure = paste(path_output, filename_heatmap, sep = '')
-pdf(file = path_figure)
-heat_map = heatmap.2(x, 
+
+# pdf margins
+corrector = round((longer_label**1.2) * 0.01)
+bottom = 8 + corrector
+left = 2 + corrector
+top = 5 + corrector
+right = 10 + corrector
+
+# write pdf file
+pdf(file = path_figure, width = 9, height = 9)
+par(oma=c(bottom, left, top, right))
+heat_map = heatmap.2(x,
                      distfun = function(x) dist(x, method="euclidean"),
                      hclustfun = function(x) hclust(x, method="ward.D2"),
                      col=pal,
@@ -219,7 +228,9 @@ heat_map = heatmap.2(x,
                      symm=F, #to avoid symmetrical x values
                      symkey=F,
                      symbreaks=F,
-                     margins=c(margins, margins),
+                     margins=c(longer_label*0.1, longer_label*0.1),
+                     cexRow = longer_label*0.07,
+                     cexCol = longer_label*0.07,
                      key.title = 'Expression',
                      key.xlab = 'Fold change',
                      key.ylab = 'Counts')

@@ -60,5 +60,5 @@ docker run -it --rm \
 			--logs ${workingDir}/logs/${timestamp}/tasks \
 			-pa ${FULL_COMPI_PARAMS_FILE} \
 			-o \
-			"${ADDITIONAL_COMPI_PARAMS}" \
+			${ADDITIONAL_COMPI_PARAMS} \
 		2>&1 | tee ${workingDir}/logs/${timestamp}/compi.log

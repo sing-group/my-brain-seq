@@ -31,6 +31,7 @@ input_contrast=as.character(args[3])
 path_output=as.character(args[4])
 
 padj = 0.05
+logFC = 0.5
 
 ptm("======================================================")
 ptm('    [PIPELINE -- edger]: run_edger_exact-test.R       ')
@@ -141,12 +142,14 @@ y = estimateDisp(y,design)
 et = exactTest(y)
 
 #RESULTS
+#Get a list with the DE miRNAs (p.value cut-off refers to adjusted pvalue)
+DE_miRNAs = topTags(et, n=Inf, p.value=0.05, adjust.method="BH", sort.by="PValue")
+DE_miRNAs = data.frame(DE_miRNAs$table)
+DE_miRNAs = DE_miRNAs[abs(DE_miRNAs$logFC) >= logFC,]
+
 #summary of the results
-print(topTags(et))
-pt('')
-print(summary(decideTests(et)))
-#get a list with the DE miRNAs (p.value cut-off refers to adjusted pvalue)
-DE_miRNAs = rownames(topTags(et, nrow(et), adjust.method="BH", sort.by="PValue", p.value=padj))
+print(head(DE_miRNAs, 10))
+
 #save results
 pt('')
 ptm('Saving results')
@@ -156,7 +159,7 @@ path_output_file = paste(path_output, output_file, sep='')
 #save DE miRNA list
 output_file_DEmiRNAs = paste('differentially-expressed-miRNAs_', output_file, sep = '')
 path_output_file_DEmiRNAs = paste(path_output, output_file_DEmiRNAs, sep='')
-write.table(DE_miRNAs,
+write.table(row.names(DE_miRNAs),
             path_output_file_DEmiRNAs,
             row.names = FALSE,
             col.names = FALSE)

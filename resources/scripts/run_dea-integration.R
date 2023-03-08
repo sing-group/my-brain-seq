@@ -143,7 +143,7 @@ integrated = integrated_full %>%
 # table with just the DEmiRNAs
 DEmiRNAs = integrated %>% 
   filter(qvalue < q_value_filter) %>%
-  filter(log2FC >= logFC, log2FC <= -logFC)
+  filter(abs(log2FC) >= logFC)
 
 # print a summary
 if (length(integrated$Feature) > 0){

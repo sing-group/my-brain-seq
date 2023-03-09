@@ -144,8 +144,17 @@ et = exactTest(y)
 #RESULTS
 #Get a list with the DE miRNAs (p.value cut-off refers to adjusted pvalue)
 DE_miRNAs = topTags(et, n=Inf, p.value=0.05, adjust.method="BH", sort.by="PValue")
-DE_miRNAs = data.frame(DE_miRNAs$table)
-DE_miRNAs = DE_miRNAs[abs(DE_miRNAs$logFC) >= logFC,]
+
+if (length(DE_miRNAs) != 0){
+  DE_miRNAs = data.frame(DE_miRNAs$table)
+  DE_miRNAs = DE_miRNAs[abs(DE_miRNAs$logFC) >= logFC,]
+  
+  #summary of the results
+  print(head(DE_miRNAs, 10))
+  
+} else {
+  print(paste0('[PIPELINE -- edger]: [INFO] No differentially expressed miRNAs on contrast', contrast_table$name))
+}
 
 #summary of the results
 print(head(DE_miRNAs, 10))

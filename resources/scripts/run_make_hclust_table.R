@@ -28,13 +28,13 @@ pt = function(text){
 
 # to print messages
 ptm = function(text, sft = software){
-  header = '[PIPELINE -- hclust -- run_make_hclust_table.R > '
+  header = '[MBS | hclust | run_make_hclust_table.R | '
   header = paste0(header, sft, ']: ')
   cat(paste(header, text), sep='\n')
 }
 
 ptm("======================================================")
-ptm('   [PIPELINE -- hclust]: run_make_hclust_table.R      ')
+ptm('   [MBS | hclust]: run_make_hclust_table.R      ')
 ptm('......................................................')
 ptm(paste0("  DEA file:        ", as.character(args[1])))
 ptm(paste0("  Counts file:     ", as.character(args[2])))

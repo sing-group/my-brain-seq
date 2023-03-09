@@ -2,7 +2,7 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- edger]: Performing differential expression analysis with EdgeR..."
+echo "[MBS | edger]: Performing differential expression analysis with EdgeR..."
 
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
@@ -23,7 +23,7 @@ touch "${er_path_counts}"
 cat "${workingDir}/${outDir}/${ftqOut}/all-counts.txt" | tail -n +2 > "${er_path_counts}"
 
 
-echo "[PIPELINE -- edger]: Running EdgeR analysis..."
+echo "[MBS | edger]: Running EdgeR analysis..."
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	-v ${er_path_contrast}:${er_path_contrast} \

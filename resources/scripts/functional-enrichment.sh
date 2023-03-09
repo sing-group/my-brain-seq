@@ -11,7 +11,7 @@ set -o errexit
 ##  6.- db_organism      : the name of the organism, e.g.: 'Homo sapiens'
 ##  7.- path_output      : path to save the output files.
 
-echo "[PIPELINE -- functional-enrichment]: Starting the functional enrichment analysis..."
+echo "[MBS | functional-enrichment]: Starting the functional enrichment analysis..."
 
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
@@ -27,7 +27,7 @@ function run_functional_enrichment {
 # $2 : ${reactome_db_file}   $6 : ${db_organism}
 # $3 : ${dea_result_file}    $7 : ${path_output}
 # $4 : ${input_contrast}
-echo "[PIPELINE -- functional-enrichment > ${5}]: Performing the functional enrichment analysis of ${5} results..."
+echo "[MBS | functional-enrichment | ${5}]: Performing the functional enrichment analysis of ${5} results..."
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_data-analysis:${rdatanalysisVersion} \
@@ -44,8 +44,8 @@ if [[ -f "$3" ]]
 then
 	run_functional_enrichment "$1" "$2" "$3" "$4" "$5" "$6" "$7"
 else
-	echo "[PIPELINE -- functional-enrichment > $5]: No $8 results."
-	echo "[PIPELINE -- functional-enrichment > $5]: Done."
+	echo "[MBS | functional-enrichment | $5]: No $8 results."
+	echo "[MBS | functional-enrichment | $5]: Done."
 fi
 }
 

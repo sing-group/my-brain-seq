@@ -38,7 +38,7 @@ q_value_filter = 0.05
 
 # to print messages
 ptm = function(text){
-  header = paste0('[PIPELINE -- functional-enrichment -- run_functional-enrichment-analysis.R > ', software, ']: ')
+  header = paste0('[MBS | functional-enrichment | run_functional-enrichment-analysis.R | ', software, ']: ')
   cat(paste(header, text), sep='\n')
 }
 
@@ -48,7 +48,7 @@ pt = function(text){
 }
 
 ptm("============================================================================")
-ptm(' [PIPELINE -- functional-enrichment]: run_functional-enrichment-analysis.R  ')
+ptm(' [MBS | functional-enrichment]: run_functional-enrichment-analysis.R  ')
 ptm('............................................................................')
 ptm(paste0("  tarbase_db_file :   ", as.character(args[1])))
 ptm(paste0("  reactome_db_file:   ", as.character(args[2])))

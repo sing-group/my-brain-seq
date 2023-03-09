@@ -3,7 +3,7 @@
 function cp_and_lock {
 # $1 : script to copy  # $2 : task name  # $3 : cp source directory
 	(
-	flock 200 || echo "[PIPELINE -- "${2}"]: ${1} is locked, cp omitted."
+	flock 200 || echo "[MBS | "${2}"]: ${1} is locked, cp omitted."
 	# selects the target directory using the source directory as reference
 	if [[ $3 == ${scriptsDir} ]];     then target_dir='/compi_scripts/';
 	elif [[ $3 == ${databasesDir} ]]; then target_dir='/compi_databases/'; fi

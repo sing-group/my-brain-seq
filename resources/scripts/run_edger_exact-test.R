@@ -12,7 +12,7 @@ pt = function(text){
 }
 # to print messages
 ptm = function(text){
-  header = '[PIPELINE -- edger -- run_edger_exact-test.R]:'
+  header = '[MBS | edger | run_edger_exact-test.R]:'
   cat(paste(header, text), sep='\n')
 }
 
@@ -34,7 +34,7 @@ padj = 0.05
 logFC = 0.5
 
 ptm("======================================================")
-ptm('    [PIPELINE -- edger]: run_edger_exact-test.R       ')
+ptm('    [MBS | edger]: run_edger_exact-test.R       ')
 ptm('......................................................')
 ptm(paste0("  Input counts file:    ", as.character(args[1])))
 ptm(paste0("  Input condition file: ", as.character(args[2])))
@@ -153,7 +153,7 @@ if (length(DE_miRNAs) != 0){
   print(head(DE_miRNAs, 10))
   
 } else {
-  print(paste0('[PIPELINE -- edger]: [INFO] No differentially expressed miRNAs on contrast', contrast_table$name))
+  print(paste0('[PIPELINE | edger]: [INFO] No differentially expressed miRNAs on contrast', contrast_table$name))
 }
 
 #summary of the results

@@ -2,7 +2,7 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- dea-integration]: Integrating DESeq2 and EdgeR results..."
+echo "[MBS | dea-integration]: Integrating DESeq2 and EdgeR results..."
 
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
@@ -11,7 +11,7 @@ source ${SCRIPT_DIR}/functions.sh
 cp_and_lock ${deaIntRscript} 'dea-integration' ${scriptsDir}
 
 # find the filenames of DESeq2 and EdgeR results
-echo "[PIPELINE -- dea-integration]: Finding DESeq2 and EdgeR results"
+echo "[MBS | dea-integration]: Finding DESeq2 and EdgeR results"
 contrast_filename=$(echo "${comparison}" | cut -d'=' -f1 | tr -d \" | sed -e 's/ /\\ /g')
 vp_comparison_label="$(echo ${contrast_filename} | xargs)"
 
@@ -34,14 +34,14 @@ path_output_pipel="${workingDir}/${outDir}/${deaIntOut}/${vp_comparison_label}/$
 # make the directory for the results of the contrast and the pipeline files
 mkdir -p "${path_output_pipel}"
 
-echo "[PIPELINE -- dea-integration]:	DESeq2 file: $path_deseq"
-echo "[PIPELINE -- dea-integration]:	EdgeR  file: $path_edger"
+echo "[MBS | dea-integration]:	DESeq2 file: $path_deseq"
+echo "[MBS | dea-integration]:	EdgeR  file: $path_edger"
 
-echo "[PIPELINE -- dea-integration]: Running DESeq2-EdgeR integration..."
+echo "[MBS | dea-integration]: Running DESeq2-EdgeR integration..."
 
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_data-analysis \
 		Rscript ${workingDir}/compi_scripts/${deaIntRscript} "${path_deseq}" "${path_edger}" "${input_contrast}" "${path_output}" "${path_output_pipel}"
 
-echo "[PIPELINE -- dea-integration]: Done!"
+echo "[MBS | dea-integration]: Done!"

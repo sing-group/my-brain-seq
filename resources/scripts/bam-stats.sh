@@ -2,7 +2,7 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- bam-stats]: Analyzing bam files with SAMtools stats..."
+echo "[MBS | bam-stats]: Analyzing bam files with SAMtools stats..."
 
 bam_input="${workingDir}/${outDir}/${bwtOut}/${bamFile}"
 bs_output="${workingDir}/${outDir}/${bamstOut}/$(echo ${bamFile} | cut -d'.' -f1)"

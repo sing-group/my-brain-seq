@@ -7,7 +7,7 @@
 
 # to print messages
 ptm = function(text){
-  header = '[PIPELINE -- dea-integration -- run_dea-integration.R]:'
+  header = '[MBS | dea-integration | run_dea-integration.R]:'
   cat(paste(header, text), sep='\n')
 }
 
@@ -39,7 +39,7 @@ get_contrast_factors = function(input_contrast) {
 
 # to print messages
 ptm = function(text){
-  header = '[PIPELINE -- dea-integration -- run_dea-integration.R]:'
+  header = '[MBS | dea-integration | run_dea-integration.R]:'
   cat(paste(header, text), sep='\n')
 }
 

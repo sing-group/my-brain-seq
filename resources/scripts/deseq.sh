@@ -2,7 +2,7 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- deseq]: Performing differential expression analysis with DESeq2..."
+echo "[MBS | deseq]: Performing differential expression analysis with DESeq2..."
 
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
@@ -25,8 +25,8 @@ touch "${dea_path_counts}"
 cat "${workingDir}/${outDir}/${ftqOut}/all-counts.txt" | tail -n +2 > "${dea_path_counts}"
 
 
-#echo "[PIPELINE -- edger]: Running EdgeR analysis..."
-echo "[PIPELINE -- deseq]: Running DESeq2 analysis..."
+#echo "[MBS | edger]: Running EdgeR analysis..."
+echo "[MBS | deseq]: Running DESeq2 analysis..."
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	-v ${dea_path_contrast}:${dea_path_contrast} \

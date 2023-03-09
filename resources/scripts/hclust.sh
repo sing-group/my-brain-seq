@@ -19,7 +19,7 @@ function run_deseq2_normalization {
 # $1 : ${path_counts}       $4 : ${software}
 # $2 : ${path_conditions}   $5 : ${input_contrast}
 # $3 : ${path_output} 
-echo "[PIPELINE -- hclust]: Performing the global count normalization with DESeq2..."
+echo "[MBS | hclust]: Performing the global count normalization with DESeq2..."
   docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_deseq2:${rDeseq2Version} \
@@ -31,7 +31,7 @@ function run_hclust_make-table {
 # $1 : ${dea_results}     $4 : ${input_contrast}
 # $2 : ${path_counts}     $5 : ${path_output_docker}
 # $3 : ${path_conditions} $6 : ${software}
-echo "[PIPELINE -- hclust]: Building the hierarchical clustering table for ${4} results..."
+echo "[MBS | hclust]: Building the hierarchical clustering table for ${4} results..."
   docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_data-analysis:${rdatanalysisVersion} \
@@ -42,7 +42,7 @@ echo "[PIPELINE -- hclust]: Building the hierarchical clustering table for ${4} 
 function run_hclust {
 # $1 : ${path_hclust_file}  $3 : ${path_output}  $5 : ${conditions_file}
 # $2 : ${input_contrast}    $4 : ${software}
-echo "[PIPELINE -- hclust]: Running the hierarchical clustering analysis for ${4} results..."
+echo "[MBS | hclust]: Running the hierarchical clustering analysis for ${4} results..."
   docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_data-analysis:${rdatanalysisVersion} \
@@ -57,8 +57,8 @@ if [[ -f "$1" ]]
 then
 	run_hclust "${1}" "${2}" "${3}" "${4}" "${5}"
 else
-	echo "[PIPELINE -- hclust > $4]: No hclust table."
-	echo "[PIPELINE -- hclust > $4]: Skipping."
+	echo "[MBS | hclust | $4]: No hclust table."
+	echo "[MBS | hclust | $4]: Skipping."
 fi
 }
 
@@ -74,8 +74,8 @@ then
 	run_hclust_make-table "${1}" "${2}" "${3}" "${4}" "${9}" "${6}"
 	test_and_run_hclust "${8}" "${4}" "${5}" "${6}" "${3}"
 else
-	echo "[PIPELINE -- hclust > $6]: No $7 results."
-	echo "[PIPELINE -- hclust > $6]: Done."
+	echo "[MBS | hclust | $6]: No $7 results."
+	echo "[MBS | hclust | $6]: Done."
 fi
 }
 

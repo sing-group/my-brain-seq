@@ -39,13 +39,13 @@ suppressMessages(library(htmltools))
 
 # function to print messages
 ptm = function(text){
-  header = paste0('[PIPELINE -- network -- run_network_plot.R > ', software, ']: ')
+  header = paste0('[MBS | network | run_network_plot.R | ', software, ']: ')
   cat(paste(header, text), sep='\n')
 }
 
 # header
 ptm("============================================================================")
-ptm('                [PIPELINE -- network -- run_network_plot.R                  ')
+ptm('                [MBS | network | run_network_plot.R                  ')
 ptm('............................................................................')
 ptm(paste0("  path_tarbase_db :             ", as.character(args[1])))
 ptm(paste0("  path_reactome_db:             ", as.character(args[2])))

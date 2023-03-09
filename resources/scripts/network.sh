@@ -12,7 +12,7 @@ set -o errexit
 ##  7.- db_organism               : the name of the organism, e.g.: 'Homo sapiens'
 ##  8.- path_output               : path to save the output files.
 
-echo "[PIPELINE -- network]: Starting the network creation..."
+echo "[MBS | network]: Starting the network creation..."
 
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
@@ -29,7 +29,7 @@ function run_functional_enrichment {
 # $2 : ${path_reactome_db}            $6 : ${software}
 # $3 : ${path_enrichment_table}       $7 : ${db_organism}
 # $4 : ${path_reactome_interaction}   $8 : ${path_output}
-echo "[PIPELINE -- network > ${6}]: Creating the network of ${6} results..."
+echo "[MBS | network | ${6}]: Creating the network of ${6} results..."
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_network:${rNetworkVersion} \
@@ -47,8 +47,8 @@ if [[ -f "$3" ]]
 then
 	run_functional_enrichment "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 else
-	echo "[PIPELINE -- network > $6]: No $9 results."
-	echo "[PIPELINE -- network > $6]: Done."
+	echo "[MBS | network | $6]: No $9 results."
+	echo "[MBS | network | $6]: Done."
 fi
 }
 

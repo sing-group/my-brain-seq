@@ -2,8 +2,8 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- fastqc-qc]: Performing a quality control with FastQC..."
-echo "[PIPELINE -- fastqc-qc]: Processing file: ${file}"
+echo "[MBS | fastqc-qc]: Performing a quality control with FastQC..."
+echo "[MBS | fastqc-qc]: Processing file: ${file}"
 
 fqc_input="${fastqDir}/${file}"
 fqc_output="${workingDir}/${outDir}/${fqcOut}/"

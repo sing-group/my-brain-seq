@@ -12,7 +12,7 @@ pt = function(text){
 }
 # to print messages
 ptm = function(text){
-  header = '[PIPELINE -- deseq -- run_deseq2.R]:'
+  header = '[MBS | deseq | run_deseq2.R]:'
   cat(paste(header, text), sep='\n')
 }
 
@@ -34,7 +34,7 @@ padj = 0.05
 logFC = 0.5
 
 ptm("======================================================")
-ptm('        [PIPELINE -- deseq]: run_deseq2.R        ')
+ptm('        [MBS | deseq]: run_deseq2.R        ')
 ptm('......................................................')
 ptm(paste0("  Counts file:     ", as.character(args[1])))
 ptm(paste0("  Condition file:  ", as.character(args[2])))

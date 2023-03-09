@@ -17,7 +17,7 @@ function run_volcano {
 # $2 : ${path_output_docker}
 # $3 : ${contrast_label}
 # $4 : ${vp_software}
-echo "[PIPELINE -- volcano]: Building the Volcano Plot of ${4} results..."
+echo "[MBS | volcano]: Building the Volcano Plot of ${4} results..."
   docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_enhanced-volcano:${rEnhancedVolcanoVersion} \
@@ -35,8 +35,8 @@ if [[ -f "$1" ]]
 then
 	run_volcano "$1" "$2" "$3" "$4"
 else
-	echo "[PIPELINE -- volcano > $4]: No $5 results."
-	echo "[PIPELINE -- volcano > $4]: Done."
+	echo "[MBS | volcano | $4]: No $5 results."
+	echo "[MBS | volcano | $4]: Done."
 fi
 }
 

@@ -30,13 +30,13 @@ pt = function(text){
 }
 # to print messages
 ptm = function(text, sft = software){
-  header = '[PIPELINE -- hclust -- run_hierarchical-clustering.R > '
+  header = '[MBS | hclust | run_hierarchical-clustering.R | '
   header = paste0(header, sft, ']: ')
   cat(paste(header, text), sep='\n')
 }
 
 ptm("======================================================")
-ptm(' [PIPELINE -- hclust]: run_hierarchical-clustering.R  ')
+ptm(' [MBS | hclust]: run_hierarchical-clustering.R  ')
 ptm('......................................................')
 ptm(paste0("  Hclust file:     ", as.character(args[1])))
 ptm(paste0("  Input contrast:  ", as.character(args[2])))

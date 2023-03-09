@@ -2,8 +2,8 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- build-genome-index]: Building the genome index for Bowtie..."
-echo "[PIPELINE -- build-genome-index]: Genome path: ${genome}"
+echo "[MBS | build-genome-index]: Building the genome index for Bowtie..."
+echo "[MBS | build-genome-index]: Genome path: ${genome}"
 
 bgi_genome="${workingDir}/input/genome/${genome}"
 bgi_wd_genome="${workingDir}/input/genome/${genome}"
@@ -21,14 +21,14 @@ bgi_index_path="${bgi_output}/${genome}"
 #if the genome directory exists skip the index creation
 if [[ -d ${bgi_output_wd} ]]
 then
-	echo "[PIPELINE -- build-genome-index]: Genome index already exists in: ${bgi_output_wd}"
-	echo "[PIPELINE -- build-genome-index]: Skipping Bowtie1 index creation"
+	echo "[MBS | build-genome-index]: Genome index already exists in: ${bgi_output_wd}"
+	echo "[MBS | build-genome-index]: Skipping Bowtie1 index creation"
 else
-	echo "[PIPELINE -- build-genome-index]:   Path to genome file:           ${bgi_genome}"
-	echo "[PIPELINE -- build-genome-index]:   Output path for the index:     ${bgi_output}"
-	echo "[PIPELINE -- build-genome-index]:   Root name for the index files: ${genome}"
+	echo "[MBS | build-genome-index]:   Path to genome file:           ${bgi_genome}"
+	echo "[MBS | build-genome-index]:   Output path for the index:     ${bgi_output}"
+	echo "[MBS | build-genome-index]:   Root name for the index files: ${genome}"
 
-	echo "[PIPELINE -- build-genome-index]: Running bowtie for the genome index creation"
+	echo "[MBS | build-genome-index]: Running bowtie for the genome index creation"
 	docker run --rm \
 		-v ${workingDir}:${workingDir} \
 		pegi3s/bowtie1:${bowtieVersion} \

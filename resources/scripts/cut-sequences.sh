@@ -3,8 +3,8 @@ set -o nounset
 set -o errexit
 
 if [ "${adapter}" != "NA" ]; then
-	echo "[PIPELINE -- cut-sequences]: Removing the adapter with Cutadapt..."
-	echo "[PIPELINE -- cut-sequences]: Processing file: ${file}"
+	echo "[MBS | cut-sequences]: Removing the adapter with Cutadapt..."
+	echo "[MBS | cut-sequences]: Processing file: ${file}"
 	
 	docker run --rm \
 		-v ${workingDir}:${workingDir} \
@@ -15,5 +15,5 @@ if [ "${adapter}" != "NA" ]; then
 		-o ${workingDir}/${outDir}/${ctdOut}/trimmed_${file} \
 		${fastqDir}/${file}
 else
-	echo "[PIPELINE -- cut-sequences]: No adapter specified, adapter removal skipped"
+	echo "[MBS | cut-sequences]: No adapter specified, adapter removal skipped"
 fi

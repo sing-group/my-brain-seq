@@ -2,7 +2,7 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- feature-counts]: Performing the read count with FeatureCounts..."
+echo "[MBS | feature-counts]: Performing the read count with FeatureCounts..."
 
 bam_input="${workingDir}/${outDir}/${bwtOut}/"
 

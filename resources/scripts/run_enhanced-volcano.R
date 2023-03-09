@@ -22,13 +22,13 @@ pt = function(text){
 }
 # to print messages
 ptm = function(text, sft = software){
-  header = '[PIPELINE -- volcano -- run_enhanced-volcano.R > '
+  header = '[MBS | volcano | run_enhanced-volcano.R | '
   header = paste0(header, sft, ']: ')
   cat(paste(header, text), sep='\n')
 }
 
 ptm("======================================================")
-ptm('     [PIPELINE -- volcano]: run_enhanced-volcano.R    ')
+ptm('     [MBS | volcano]: run_enhanced-volcano.R    ')
 ptm('......................................................')
 ptm(paste0("  Input counts file: ", as.character(args[1])))
 ptm(paste0("  Input output dir:  ", as.character(args[2])))

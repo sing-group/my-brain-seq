@@ -2,7 +2,7 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- pull-docker-images]: Downloading docker images from pegi3s..."
+echo "[MBS | pull-docker-images]: Downloading docker images from pegi3s..."
 
 docker pull pegi3s/fastqc:${fastqcVersion}
 docker pull pegi3s/cutadapt:${cutadaptVersion}

@@ -2,7 +2,7 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- multiqc]: Starting the creation of the MultiQC report..."
+echo "[MBS | multiqc]: Starting the creation of the MultiQC report..."
 
 # prepare the paths for the report
 results_path="${workingDir}/${outDir}/"
@@ -14,4 +14,4 @@ docker run --rm \
 	pegi3s/multiqc:${multiqcVersion} \
 	multiqc "${results_path}" --outdir "${output_dir}"
 
-echo "[PIPELINE -- multiqc]: Done"
+echo "[MBS | multiqc]: Done"

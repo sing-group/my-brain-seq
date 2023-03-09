@@ -2,19 +2,19 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- initialization]: Building the directory tree..."
+echo "[MBS | initialization]: Building the directory tree..."
 
 # function for the directory creation
 build_dir () {
 	# $1 : ${xOut}, pipeline parameter with the output directory.
 	# $2 : Name of the software, e.g.: DESeq2.
 	if [ ! -d "${workingDir}/${outDir}/$1" ]; then
-		echo "[PIPELINE -- initialization]: Creating the directory for the $2 results"
+		echo "[MBS | initialization]: Creating the directory for the $2 results"
 		mkdir -p ${workingDir}/${outDir}/$1/
 	else
-		echo "[PIPELINE -- initialization]: $1 already exist"; echo "[PIPELINE -- initialization]: Removing ${workingDir}/${outDir}/$1 directory and files..."
+		echo "[MBS | initialization]: $1 already exist"; echo "[MBS | initialization]: Removing ${workingDir}/${outDir}/$1 directory and files..."
 		rm -Rf ${workingDir}/${outDir}/$1/
-		echo "[PIPELINE -- initialization]: Creating the directory for the $2 results"
+		echo "[MBS | initialization]: Creating the directory for the $2 results"
 		mkdir -p ${workingDir}/${outDir}/$1/
 	fi
 }

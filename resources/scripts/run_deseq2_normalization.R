@@ -34,7 +34,7 @@ suppressMessages(library(DESeq2))
 
 # function to print messages
 ptm = function(text){
-  header = paste0('[PIPELINE -- hclust -- run_deseq2_normalization.R > ', software, ']: ')
+  header = paste0('[MBS | hclust | run_deseq2_normalization.R | ', software, ']: ')
   cat(paste(header, text), sep='\n')
 }
 
@@ -61,7 +61,7 @@ getNormalizedCounts = function(countData, colData, design) {
 
 # header
 ptm("============================================================================")
-ptm('             [PIPELINE -- hclust -- run_deseq2_normalization.R              ')
+ptm('             [MBS | hclust | run_deseq2_normalization.R              ')
 ptm('............................................................................')
 ptm(paste0("  path_counts     :   ", as.character(args[1])))
 ptm(paste0("  path_conditions :   ", as.character(args[2])))

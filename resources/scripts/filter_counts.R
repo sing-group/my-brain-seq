@@ -40,4 +40,4 @@ write.table(counts, path_output_counts, row.names = FALSE, col.names = TRUE, sep
 # conditions
 path_output_conditions = paste0(output_dir, '/', 'conditions_', cond_factor, '-', ref_factor, '.tsv')
 write.table(conditions_table, path_output_conditions, row.names = FALSE, col.names = TRUE, sep="\t", quote = FALSE)
-cat("[PIPELINE -- deseq | R]: Done", "\n")
+cat("[MBS | deseq | R]: Done", "\n")

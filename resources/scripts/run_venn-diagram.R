@@ -12,7 +12,7 @@ pt = function(text){
 }
 # to print messages
 ptm = function(text){
-  header = '[PIPELINE -- venn -- run_venn-diagram.R > deseq + edger]: '
+  header = '[MBS | venn | run_venn-diagram.R | deseq + edger]: '
   cat(paste(header, text), sep='\n')
 }
 
@@ -24,7 +24,7 @@ venn_output_format = as.character(args[3])
 input_contrast = as.character(args[4])
 
 ptm("======================================================")
-ptm('        [PIPELINE -- venn]: run_venn-diagram.R        ')
+ptm('        [MBS | venn]: run_venn-diagram.R        ')
 ptm('......................................................')
 ptm(paste0("  Input venn file:   ", as.character(args[1])))
 ptm(paste0("  Input output dir:  ", as.character(args[2])))

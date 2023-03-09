@@ -2,7 +2,7 @@
 set -o nounset
 set -o errexit
 
-echo "[PIPELINE -- venn]: Building a file for the Venn diagram"
+echo "[MBS | venn]: Building a file for the Venn diagram"
 
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
@@ -11,7 +11,7 @@ source ${SCRIPT_DIR}/functions.sh
 cp_and_lock ${vennRscript} 'venn' ${scriptsDir}
 
 # find the filenames of filtered DESeq2 and EdgeR results
-echo "[PIPELINE -- venn]: Finding filtered DESeq2 and EdgeR results"
+echo "[MBS | venn]: Finding filtered DESeq2 and EdgeR results"
 vp_comparison_label=$(echo "${comparison}" | cut -d'"' -f2)
 vp_comparison_label_file=$(echo "${comparison}" | cut -d'"' -f4)
 #vp_comparison_label="$(echo $contrast_filename | xargs)"
@@ -34,7 +34,7 @@ venn_output_format="${vennFormat}"
 input_contrast="${comparison}"
 
 # Run the R script
-echo "[PIPELINE -- venn]: Building the Venn diagram"
+echo "[MBS | venn]: Building the Venn diagram"
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_venn-diagram \

@@ -13,8 +13,8 @@ elif [ $# -gt 0 ] && [ "$1" == "resume" ]; then
 elif [ $# -gt 0 ] && [ "$1" == "init_working_dir.sh" ]; then
 	/scripts/init_working_dir.sh "${@:2}"
 
-elif [ $# -gt 0 ] && [ "$1" == "make_run-sh.sh" ]; then
-	/init-working-dir/make_run-sh.sh "${@:2}"
+elif [ $# -gt 0 ] && [ "$1" == "run" ]; then
+	/init-working-dir/run.sh "${@:2}"
 
 elif [ $# -gt 0 ] && [ "$1" == "visual_console.sh" ]; then
 	/visual_console/visual_console.sh "${@:2}"

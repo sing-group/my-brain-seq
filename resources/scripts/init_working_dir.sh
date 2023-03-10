@@ -41,8 +41,10 @@ touch "${conditions}"; touch "${contrast}"
 # creation of compi.parameters file
 printf "workingDir=${wd}\nconditions=${conditions}\ncontrast=${contrast}\nfastqDir=\nadapter=\ngenome=\ngffFile=\n" > "${input}/compi.parameters"
 
-# creation of README file with the instructions for the next steps
+# creation of the runner
+cp "/init-working-dir/run.sh" "${wd}"
 
+# creation of README file with the instructions for the next steps
 echo 'NEXT STEPS BEFORE RUNNING MYBRAIN-SEQ
 
 Please, complete the next steps before running myBrain-Seq analysis:

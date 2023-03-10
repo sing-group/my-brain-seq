@@ -244,7 +244,7 @@ function run_analysis {
 
             # get working dir from compi.parameters and save it
             if [[ "${exit_loop}" == 'y' ]]; then
-                working_dir = "$(dirname $(dirname ${compi_parameters}))"
+                working_dir="$(dirname $(dirname ${compi_parameters}))"
                 echo "WD=${working_dir}" > "${temp_file}"
                 temp_file_exists='TRUE'
                 update_wd

@@ -130,7 +130,7 @@ fastqDir=/path/to/study_1/data/
 gffFile=/path/to/study_1/refs/mirbase_hsa.gff3
 conditions=/path/to/mbs-project/input/conditions_file_study_1.txt
 contrast=/path/to/mbs-project/input/contrast_file_study_1.txt
-bwtIndex=/path/to/study_1/refs/bowtie-index_GRCh38
+bwtIndex=/path/to/study_1/refs/bowtie-index_GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set
 adapter=TGGAATTCTCGGGTGCCAAGG
 organism=Homo sapiens
 ```
@@ -143,7 +143,7 @@ This file contains the following mandatory parameters:
 - **conditions**: the path to conditions_file.txt.
 - **contrast**: the path to contrast_file.txt.
 - **genome** *(optional if bwtIndex is provided)*: the path to the reference genome in FASTA from which the Bowtie index will be built.
-- **bwtIndex** *(optional if genome is provided)*: the path to a directory containing a Bowtie index. If this parameter is omitted myBrain-Seq will build a new index using a genome in FASTA provided in the genome parameter.
+- **bwtIndex** *(optional if genome is provided)*: the path to a directory containing a Bowtie index, including the basename of the bowtie index files. If this parameter is omitted myBrain-Seq will build a new index using a genome in FASTA provided in the genome parameter.
 - **organism**: the organism used in the study. This parameter is used for the functional enrichment analysis and for the network construction. Available organisms are: *Mus musculus, Homo sapiens, Caenorhabditis elegans, Danio rerio, Rattus norvegicus, Gallus gallus, Drosophila melanogaster*.
 
 And the following optional parameters:
@@ -303,7 +303,7 @@ To run the pipeline with this test data, edit the `compi.parameters` (at `/worki
 
 ## Running time
 
-- ≈ 5 minutes - 5 parallel tasks - Ubuntu 20.04.4 LTS, 8 CPUs (Intel® Core™ i7-9700 @ 3.00GHz), 16GB of RAM and SSD disk.
+- ≈ 6 minutes - 5 parallel tasks - Ubuntu 20.04.4 LTS, 8 CPUs (Intel® Core™ i7-9700 @ 3.00GHz), 16GB of RAM and SSD disk.
 - ≈ 12 minutes - 5 parallel tasks - Ubuntu 18.04.6 LTS, 8 CPUs (Intel® Core™ i7-8565U @ 1.80GHz), 16GB of RAM and SSD disk.
 
 # Publications

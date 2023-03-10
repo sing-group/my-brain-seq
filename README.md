@@ -71,7 +71,7 @@ This section provides a comprehensive guide on how to perform these steps and th
 Some steps on the preparation of myBrain-Seq analysis require either to adapt and run code on a console or to use myBrain-Seq's terminal user interface (*v.console*). As the *v.console* can perform several operations, please refer to this section whenever you need to use it. To launch the *v.console* just run the following command on a terminal:
 
 ```bash
-docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock singgroup/my-brain-seq visual_console.sh
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp singgroup/my-brain-seq visual_console.sh
 ```
 
 An interactive menu should be displayed in your terminal. 
@@ -84,7 +84,7 @@ MyBrain-seq offers two options to generate the working directory: interactively 
 
 #### Creating the working directory interactively with the v.console
 
-Run the *v.console* (see section "*Running the v.console*") and select the option "Initialize the working-directory"; then, paste the full path where the "working-directory" should be placed and confirm by typing "y" and return key.
+Run the *v.console* (see section "*Running the v.console*") and select the option "Initialize the working-directory"; then, paste the full path where the "working-directory" should be placed and confirm.
 
 #### Creating the working directory with a command
 
@@ -102,11 +102,12 @@ After completing any of the above options, the selected working-directory (`mbs_
 ```
 /home/user/mbs-project 
 	|-- README.txt
-	|-- input 
-	|   |-- compi.parameters 
-	|   |-- conditions_file.txt 
-	|   `-- contrast_file.txt 
-	`-- output
+	|-- input
+	|   |-- compi.parameters
+	|   |-- conditions_file.txt
+	|   `-- contrast_file.txt
+	|-- output
+	`-- run.sh
 ```
 
 Where:
@@ -115,6 +116,7 @@ Where:
 - **compi.parameters** contains the paths and parameters needed for the analysis.
 - **conditions_file.txt** contains the names and conditions of each fastQ file. 
 - **contrast_file.txt** contains the names and labels of the conditions to compare in the differential expression analysis.
+- **run.sh** is the script to run the analysis.
 
 The creations of these files is detailed in the following sections as well as briefly indicated in the `README.txt` file. You may find it convenient to create additional directories and files within the working directory to group all the data related to a particular study.
 
@@ -194,16 +196,11 @@ The first line of `contrast_file.txt` is the header, the following lines begin w
 
 ## Running myBrain-Seq analysis
 
-Once all the required files were built you need to **build a runner** in order to perform the myBrain-Seq analysis. This can be done using the *v.console* (see section "*Running the v.console*") or using the script `make_run-sh.sh`. This script uses the `compi.parameters` file as reference and will create an script to run myBrain-Seq in the specified working directory, including the required instructions to mount all the needed Docker volumes as well as the creation of a directory for the task logs. To use this script **adapt the first line** on the following code:
+Once all the required files were built, to start myBrain-Seq analysis run the script "run.sh" placed on the root of the working directory. This also can be done interactively by using the *v.console* (see section "*Running the v.console*"). To run the script manually adapt the following code:
 
 ```bash
-COMPI_PARAMETERS=/path/to/compi.parameters
-
-WD=$(cat $COMPI_PARAMETERS | grep 'workingDir' | cut -d'=' -f2)
-docker run --rm --entrypoint /init-working-dir/make_run-sh.sh -v ${WD}:${WD} -v ${COMPI_PARAMETERS}:${WD}/compi.parameters singgroup/my-brain-seq ${WD}/compi.parameters
+/path/to/working-dir/run.sh /path/to/compi.parameters
 ```
-
-The resulting file will be an script saved in the working directory and named as `run_<name of the workingDir>.sh`. To begin with the analysis use the *v.console* or just run it on a terminal (`./run_mbs-project.sh`).
 
 ## Find out tasks with errors
 

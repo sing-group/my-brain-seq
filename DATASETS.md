@@ -9,3 +9,4 @@ Test data for the pipeline. Look at the instructions in the README.txt included 
 ## Compatible versions
 
 - 0.1.0
+- 1.0.0

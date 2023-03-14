@@ -4,7 +4,7 @@ Test data for the pipeline. Look at the instructions in the README.txt included 
 
 ## Download links
 
-- http://static.sing-group.org/software/myBrainSeq/downloads/test-data-0.1.0.zip
+- http://static.sing-group.org/software/myBrainSeq/downloads/test-data-1.0.zip
 
 ## Compatible versions
 

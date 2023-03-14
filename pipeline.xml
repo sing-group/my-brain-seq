@@ -178,6 +178,5 @@
 		<task-description id="functional-enrichment">Performs a Functional Enrichment Analysis using the DESeq2/EdgeR results.</task-description>
 		<task-description id="network">Build the network of interactions with the most enriched pathway of the functional-enrichment task.</task-description>
 		<task-description id="multiqc">Create a MultiQC report with the results.</task-description>
-		
 	</metadata>
 </pipeline>

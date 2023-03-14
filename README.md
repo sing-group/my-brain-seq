@@ -1,4 +1,4 @@
-# myBrain-Seq [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/sing-group/my-brain-seq) [![dockerhub](https://img.shields.io/badge/hub-docker-blue)](https://hub.docker.com/r/singgroup/my-brain-seq) [![compihub](https://img.shields.io/badge/hub-compi-blue)](https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f)
+# myBrain-Seq [![dockerhub](https://img.shields.io/badge/docker-v1.0.0-green)](https://hub.docker.com/r/singgroup/my-brain-seq) [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/sing-group/my-brain-seq) [![dockerhub](https://img.shields.io/badge/hub-docker-blue)](https://hub.docker.com/r/singgroup/my-brain-seq) [![compihub](https://img.shields.io/badge/hub-compi-blue)](https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f)
 > **myBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline for miRNA-Seq analysis of neuropsychiatric data. A Docker image is available for this pipeline in [this Docker Hub repository](https://hub.docker.com/r/singgroup/my-brain-seq).
 
 ## myBrain-Seq repositories
@@ -6,6 +6,15 @@
 - [GitHub](https://github.com/sing-group/my-brain-seq)
 - [Docker Hub](https://hub.docker.com/r/singgroup/my-brain-seq)
 - [CompiHub](https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f)
+
+## Table of contents
+
+ * [What does myBrain-Seq do?](#what-does-mybrain-seq-do)
+ * [Using the myBrain-Seq image in Linux](#using-the-mybrain-seq-image-in-linux)
+ * [Test data](#test-data)
+ * [Publications](#publications)
+ * [For Developers](#for-developers)
+ * [Team](#team)
 
 # What does myBrain-Seq do?
 
@@ -294,7 +303,7 @@ These are the pipeline parameters:
 
 # Test data
 
-The sample data is available [here](http://static.sing-group.org/software/myBrainSeq/downloads/test-data-0.1.0.zip). Download and decompress it to get a directory named `working-dir` that contains an example of a functional working directory, were the data and biological references were grouped within it. Here you can find:
+The sample data is available [here](http://static.sing-group.org/software/myBrainSeq/downloads/test-data-1.0.zip). Download and decompress it to get a directory named `working-dir` that contains an example of a functional working directory, were the data and biological references were grouped within it. Here you can find:
 
 - A directory called `input`, with the `compi.parameters`, `condition_file.txt` and `contrast_file.txt` of this particular study.
 - A directory called `data`, with the fastQ files of the study, the Bowtie index and the miRNA annotations. 

@@ -1,6 +1,5 @@
 # myBrain-Seq [![dockerhub](https://img.shields.io/badge/docker-v1.0.0-green)](https://hub.docker.com/r/singgroup/my-brain-seq) [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/sing-group/my-brain-seq) [![dockerhub](https://img.shields.io/badge/hub-docker-blue)](https://hub.docker.com/r/singgroup/my-brain-seq) [![compihub](https://img.shields.io/badge/hub-compi-blue)](https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f)
 > **myBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline for miRNA-Seq analysis of neuropsychiatric data. A Docker image is available for this pipeline in [this Docker Hub repository](https://hub.docker.com/r/singgroup/my-brain-seq).
-
 ## myBrain-Seq repositories
 
 - [GitHub](https://github.com/sing-group/my-brain-seq)
@@ -21,6 +20,11 @@
 **MyBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline for performing full analyses of miRNA-Seq data, with particular interest on neuropsychiatric data. 
 
 It can automatically identify differentially expressed microRNAs (DE miRNAs) between two conditions using two differential expression analysis software, namely DESeq2 and EdgeR, and is able to offer an integrated result suitable for experimental validation. Additionally, a functional analysis module puts biological meaning behind the list of DE miRNAs and eases the process of biomarker identification. 
+
+<p align="center">
+	<img src="./resources/docs/pipeline_workflow.png" alt="myBrain-Seq workflow" title="myBrain-Seq workflow" width="80%"/>
+	</br>
+</p>
 
 Its features and analysis are designed and tuned to work with miRNA data. We designed myBrain-Seq with the particularities of neuropsychiatric data in mind. In this way, myBrain-Seq addresses its most common limitations while offering results that help the investigator to identify potential biomarkers and molecular mechanisms for the studied conditions. When more than two conditions are involved, myBrain-Seq facilitates performing all the pairwise comparisons of interest.
 

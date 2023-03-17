@@ -22,7 +22,7 @@
 It can automatically identify differentially expressed microRNAs (DE miRNAs) between two conditions using two differential expression analysis software, namely DESeq2 and EdgeR, and is able to offer an integrated result suitable for experimental validation. Additionally, a functional analysis module puts biological meaning behind the list of DE miRNAs and eases the process of biomarker identification. 
 
 <p align="center">
-	<img src="./resources/docs/pipeline_workflow.png" alt="myBrain-Seq workflow" title="myBrain-Seq workflow" width="80%"/>
+	<img src="https://raw.githubusercontent.com/sing-group/my-brain-seq/master/resources/docs/pipeline_workflow.png" alt="myBrain-Seq workflow" title="myBrain-Seq workflow" width="80%"/>
 	</br>
 </p>
 

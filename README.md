@@ -327,6 +327,11 @@ To run the pipeline with this test data, edit the `compi.parameters` (at `/worki
 
 - D. Pérez-Rodríguez; M. Arancha Penedo; T. Rivera-Baltanás; T. Peña-Centeno; S. Burkhardt; A. Fischer; J. M. Prieto-González; J. M. Olivares Díez; H. López-Fernández; R. C. Agís-Balboa (2023) [MiRNA differences related to treatment resistant schizophrenia](https://doi.org/10.3390/ijms24031891). International Journal of Molecular Sciences. Volume 24(3), 1891. ISSN: 1422-0067
 
+## Related work
+
+- Pérez-Rodríguez, D., López-Fernández, H., & Agís-Balboa, R. C. (2021). Application of miRNA-seq in neuropsychiatry: A methodological perspective. Computers in Biology and Medicine, 135, 31-42. https://doi.org/10.1016/j.compbiomed.2021.104603
+- Pérez-Rodríguez, D., López-Fernández, H., & Agís-Balboa, R. C. (2022). On the Reproducibility of MiRNA-Seq Differential Expression Analyses in Neuropsychiatric Diseases. En M. Rocha, F. Fdez-Riverola, M. S. Mohamad, & R. Casado-Vara (Eds.), Practical Applications of Computational Biology & Bioinformatics, 15th International Conference (PACBB 2021) (pp. 41-51). Springer International Publishing. https://doi.org/10.1007/978-3-030-86258-9_5
+
 # For Developers
 
 ## Building the Docker image

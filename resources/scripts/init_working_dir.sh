@@ -79,17 +79,18 @@ Please, complete the next steps before running myBrain-Seq analysis:
 
 ==============================================================================
 
-	4. Build the runner using the script "make_run-sh.sh" to run myBrain-Seq
-	   analysis. Adapt the first line and run:
+	4. Run the analysis interactively by using the visual console or 
+	   use the script "run.sh" placed on the working-dir:
+	   
+	   - To start the visual console:
+			docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp singgroup/my-brain-seq visual_console.sh
 
-		COMPI_PARAMETERS=/path/to/compi.parameters
+	   - To start the analysis using the script adapt the following code:
+			./run.sh /absolute/path/to/compi.parameters
 
-		WD=$(cat $COMPI_PARAMETERS | grep '\''workingDir'\'' | cut -d'\''='\'' -f2)
-		docker run --rm --entrypoint /init-working-dir/make_run-sh.sh \
-			-v ${WD}:${WD} \
-			-v ${COMPI_PARAMETERS}:${WD}/compi.parameters \
-			singgroup/my-brain-seq ${WD}/compi.parameters
-
+	NOTE: to perform partial executions or change the number of parallel
+	processes of the analysis, please consult myBrain-Seq user manual.
+	
 ------------------------------------------------------------------------------
 
 For more information about these steps, please refeer to myBrain-Seq manual

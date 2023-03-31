@@ -215,6 +215,18 @@ Once all the required files were built, to start myBrain-Seq analysis run the sc
 /path/to/working-dir/run.sh /path/to/compi.parameters
 ```
 
+### Adapting myBrain-Seq execution
+
+MyBrain-Seq admits some parameters to customize the execution. Using these parameters you can perform partial executions or control the number of parallel processes of the analysis. These parameters should be quoted and added at the end of the running command:
+
+- **Start myBrain-Seq execution at a specific task**: `/path/to/working-dir/run.sh /path/to/compi.parameters "--from task_name"`
+
+- **Run myBrain-Seq until a specific task**: `/path/to/working-dir/run.sh /path/to/compi.parameters "--until task_name"`
+- **Start myBrain-Seq execution after a specific task**: `/path/to/working-dir/run.sh /path/to/compi.parameters "--after task_name"`
+- **Change the number of parallel processes** *(default 5)*: `/path/to/working-dir/run.sh /path/to/compi.parameters "--num-tasks 2"`
+
+You can combine several parameters to gain greater control of the analysis process. Since these parameters are controlled by the Compi framework, please refer to the [Compi manual](https://www.sing-group.org/compi/docs/introduction.html#) for more information.
+
 ## Find out tasks with errors
 
 Some tasks may produce errors that do not cause the pipeline to fail, but they can be important. Such errors are reported in the log files produced in the `logs` directory of the pipeline working directory. Inside this directory myBrain-Seq will create additional directories with the logs of each execution, they will be named with the date and hour of the analysis. Files containing the errors are saved with extension `*.err.log`, whereas normal output is saved with extension `*.out.log`.

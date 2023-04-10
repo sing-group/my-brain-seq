@@ -18,6 +18,7 @@
 		<param name="conditions" shortName="cond">The path to the .tsv file with the rootnames of the samples, conditions and labels.</param>
 		<param name="contrast" shortName="cont">The path to the .tsv file with the contrast DESeq2 has to perform.</param>
 		<param name="vennFormat" shortName="venf" global="true" defaultValue="png">The file format of the Venn diagram (png/svg/tiff), default png.</param>
+		<param name="distance_method" shortName="dmt" global="true" defaultValue="euclidean">Method used to compute distances on the hierarchical clustering step, default euclidean.</param>
 		
 		<param name="fqcOut" shortName="fqco" global="true" defaultValue="1_fastqc">The relative path to the directory containing the FastQC results.</param>
 		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="2_cutadapt">The relative path to the directory containing the Cutadapt results.</param>

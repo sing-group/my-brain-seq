@@ -7,6 +7,7 @@
 ##  3.- path_output: the output dir for the results.
 ##  4.- software: the software that produced the results (DESeq2/EdgeR/DESeq2-EdgeR).
 ##  5.- conditions_file: path to the conditions_file.
+##  6.- distance_method: default 'euclidean'. See Dist() on "amap" R package.
 
 args = commandArgs(trailingOnly = TRUE)
 path_hclust_file=as.character(args[1])
@@ -14,6 +15,7 @@ input_contrast=as.character(args[2])
 path_output=as.character(args[3])
 software=as.character(args[4])
 conditions_file=as.character(args[5])
+distance_method=as.character(args[6])
 
 # CLUSTERING OPTIONS
 distance_method = 'euclidean'
@@ -48,6 +50,7 @@ ptm("======================================================")
 ptm('Loading libraries')
 suppressMessages(library('dplyr'))
 suppressMessages(library('tibble'))
+suppressMessages(library('amap'))
 suppressMessages(library('RColorBrewer'))
 suppressMessages(library('dendextend'))
 suppressMessages(library("gplots"))
@@ -96,8 +99,9 @@ if (traspose_dendrogram == TRUE){
 #-------------------------------------------------------------------------------
 ptm('Computing distance matrix')
 # Calculated the distances using one of the following methods:
-#   "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski". 
-dist_mat <- dist(cts_scaled, method = "euclidean")
+#   "euclidean", "maximum", "manhattan", "canberra", "binary", "pearson", 
+#   "abspearson", "correlation", "abscorrelation", "spearman" or "kendall"
+dist_mat <- Dist(cts_scaled, method = distance_method)
 
 #-------------------------------------------------------------------------------
 #                         HIERARCHICAL CLUSTERING
@@ -181,9 +185,15 @@ colors_label_dend = as.character(colors_label_dend$condition)
 # assign the color vector to the dendrogram
 labels_colors(avg_col_dend) <- colors_label_dend
 
+# prepare label to y axis
+first_char = toupper(substring(distance_method, 1, 1))
+remaining_chars = substring(distance_method, 2)
+capitalized = paste0(first_char, remaining_chars)
+y_label = paste(capitalized, 'distance')
+
 # calculate margins
 mar_F = 0.6                            # LABEL SIZE
-mar_A = 0.2 * max_len_sample             # DOWN
+mar_A = 0.2 * max_len_sample           # DOWN
 mar_C = 2                              # UP
 mar_B = 5                              # LEFT
 mar_D = 2                              # RIGHT
@@ -195,7 +205,7 @@ par(mar=c(mar_A, mar_B, mar_C, mar_D) + mar_E)
 plot(avg_col_dend,
      main = title,
      cex.main = 1.5, #title
-     ylab="Euclidean distance",
+     ylab=y_label,
      sub=NULL)
 
 silence <- dev.off()
@@ -219,7 +229,7 @@ right = 10 + corrector
 pdf(file = path_figure, width = 9, height = 9)
 par(oma=c(bottom, left, top, right))
 heat_map = heatmap.2(x,
-                     distfun = function(x) dist(x, method="euclidean"),
+                     distfun = function(x) Dist(x, method=distance_method),
                      hclustfun = function(x) hclust(x, method="ward.D2"),
                      col=pal,
                      main=title,

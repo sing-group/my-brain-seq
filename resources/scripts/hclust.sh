@@ -41,21 +41,21 @@ echo "[MBS | hclust]: Building the hierarchical clustering table for ${4} result
 # function to run the hclust analysis with the Rscript
 function run_hclust {
 # $1 : ${path_hclust_file}  $3 : ${path_output}  $5 : ${conditions_file}
-# $2 : ${input_contrast}    $4 : ${software}
+# $2 : ${input_contrast}    $4 : ${software}	 $6 : ${distance_method}
 echo "[MBS | hclust]: Running the hierarchical clustering analysis for ${4} results..."
   docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_data-analysis:${rdatanalysisVersion} \
-		Rscript "${workingDir}/compi_scripts/${hclustRscript}" "${1}" "${2}" "${3}" "${4}" "${5}"
+		Rscript "${workingDir}/compi_scripts/${hclustRscript}" "${1}" "${2}" "${3}" "${4}" "${5}" "${6}"
 }
 
 # function to test if dea file exists and run the "hclust" Rscript
 function test_and_run_hclust {
 # $1 : ${path_hclust_file}  $3 : ${path_output}  $5 : ${conditions_file}
-# $2 : ${input_contrast}    $4 : ${software}
+# $2 : ${input_contrast}    $4 : ${software}     $6 : ${distance_method}
 if [[ -f "$1" ]]
 then
-	run_hclust "${1}" "${2}" "${3}" "${4}" "${5}"
+	run_hclust "${1}" "${2}" "${3}" "${4}" "${5}" "${6}"
 else
 	echo "[MBS | hclust | $4]: No hclust table."
 	echo "[MBS | hclust | $4]: Skipping."
@@ -68,11 +68,11 @@ function test_and_run() {
 # $2 : ${path_counts}         $7 : Text "DESeq2", "EdgeR" or "integrated"
 # $3 : ${path_conditions}     $8 : ${path_hclust_file}
 # $4 : ${input_contrast}      $9 : ${path_output_pipel}
-# $5 : ${path_output_docker}
+# $5 : ${path_output_docker}  $10 : ${distance_method}
 if [[ -f "$1" ]]
 then
 	run_hclust_make-table "${1}" "${2}" "${3}" "${4}" "${9}" "${6}"
-	test_and_run_hclust "${8}" "${4}" "${5}" "${6}" "${3}"
+	test_and_run_hclust "${8}" "${4}" "${5}" "${6}" "${3}" "${10}"
 else
 	echo "[MBS | hclust | $6]: No $7 results."
 	echo "[MBS | hclust | $6]: Done."
@@ -126,7 +126,7 @@ then
 
 	path_hclust_file="${path_output_pipel}/$(echo hclust_EdgeR_${contrast_label} | xargs).tsv"
 	# run the analysis
-	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}"
+	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}" "${distance_method}"
 fi
 
 if [[ ${selectDEAsoftware} == 'deseq' ]] || [[ ${selectDEAsoftware} == 'both' ]]
@@ -144,7 +144,7 @@ then
 
 	path_hclust_file="${path_output_pipel}/$(echo hclust_DESeq2_${contrast_label} | xargs).tsv"
 	# run the analysis
-	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}"
+	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}" "${distance_method}"
 fi
 
 if [[ ${selectDEAsoftware} == 'both' ]]
@@ -166,5 +166,5 @@ then
 
 	path_hclust_file="${path_output_pipel}/$(echo hclust_DESeq2-EdgeR_${contrast_label} | xargs).tsv"
 	# run the analysis
-	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}"
+	test_and_run "${dea_results}" "${path_counts}" "${path_conditions}" "${input_contrast}" "${path_output_docker}" "${software}" 'EdgeR' "${path_hclust_file}" "${path_output_pipel}" "${distance_method}"
 fi

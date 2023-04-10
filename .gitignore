@@ -3,3 +3,5 @@
 /runners-examples/
 .Rhistory
 scripts/.Rhistory
+mirna-pipeline.code-workspace
+tasks.json

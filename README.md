@@ -148,7 +148,7 @@ adapter=TGGAATTCTCGGGTGCCAAGG
 organism=Homo sapiens
 ```
 
-This file contains the following mandatory parameters:
+The following are mandatory parameters:
 
 - **workingDir**: the path to the myBrain-Seq working directory of the analysis (first example of this section).
 - **fastqDir**: the path to the directory with the fastQ files to analyse.
@@ -159,11 +159,16 @@ This file contains the following mandatory parameters:
 - **bwtIndex** *(optional if genome is provided)*: the path to a directory containing a Bowtie index, including the basename of the bowtie index files. If this parameter is omitted myBrain-Seq will build a new index using a genome in FASTA provided in the genome parameter.
 - **organism**: the organism used in the study. This parameter is used for the functional enrichment analysis and for the network construction. Available organisms are: *Mus musculus, Homo sapiens, Caenorhabditis elegans, Danio rerio, Rattus norvegicus, Gallus gallus, Drosophila melanogaster*.
 
-And the following optional parameters:
+Whereas these are some useful optional parameters:
 
 - **adapter**: the sequence of the adapter to remove. If this parameter is omitted myBrain-Seq will skip the adapter removal step.
 - **gffFeature**: the name of the feature of the GFF3 file from which the attributes will be obtained; the default value is "miRNA".
 - **gffAttribute**: the name of the attribute in the GFF3 file to use in the annotations; the default value is "Name".
+- **qvalue**: FDR-corrected pvalue used to filter miRNAs after the differential expression analysis; the default value is "0.05".
+- **log2FC**: Absolute value of the log2FC, used to filter miRNAs after the differential expression analysis; the default value is "0.5".
+- **distance_method**: Method used to compute distances on the hierarchical clustering step; the default value is "euclidean". Availiable methods are: "euclidean", "maximum", "manhattan", "canberra", "binary", "pearson", "abspearson", "correlation", "abscorrelation", "spearman" and "kendall".
+
+A full list of the optional parameters is on the section [pipeline parameters](#pipeline-parameters).
 
 ## Writing the `conditions_file.txt` file
 
@@ -233,88 +238,63 @@ Some tasks may produce errors that do not cause the pipeline to fail, but they c
 
 # Pipeline parameters
 
-These are the pipeline parameters:
+MyBrain-Seq needs the values of some parameters to work, as already indicated in the [*writing the `compi.parameters` file*](#writing-the-compiparameters-file) section. However, optional parameters with default values can also be edited by adding them to the compi.parameters file. Below is a list of all myBrain-Seq parameters:
 
 - `workingDir`: The working directory of the project.
-
 - `fastqDir`: The directory containing the fastq files (default is relative to workingDir).
-
 - `outDir`: The directory containing the pipeline outputs (relative to workingDir).
-
+- `organism`: The organism from which the data was obtained, needed for the functional enrichment analysis.
 - `adapter`: The sequence of the adapter to remove.
-
 - `genome`: The directory path to the genome to align.
-
-- `bwtIndex`: The directory path containing the Bowtie index.
-
+- `bwtIndex`: The absolute path to the rootname of the Bowtie index.
 - `gffFile`: The path to the .gff file of the reference genome.
-
-- `gffFeature`: Feature of the .gff file to use for the annotations (eg.: miRNA, gene, transcript...), default miRNA.
-
-- `gffAttribute`: Attribute of the .gff to use in the annotations (eg.: Name, gene_id, transcript_id...), default Name.
-
+- `gffFeature`: Feature of the .gff file to use for the annotations (eg.`: miRNA, gene, transcript...), default miRNA.
+- `gffAttribute`: Attribute of the .gff to use in the annotations (eg.`: Name, gene_id, transcript_id...), default Name.
 - `conditions`: The path to the .tsv file with the rootnames of the samples, conditions and labels.
-
 - `contrast`: The path to the .tsv file with the contrast DESeq2 has to perform.
-
+- `qvalue`: FDR-corrected pvalue used to filter miRNAs after the differential expression analysis.
+- `log2FC`: Absolute value of the log2FC, used to filter miRNAs after the differential expression analysis.
+- `distance_method`: Method used to compute distances on the hierarchical clustering step, default euclidean.
 - `vennFormat`: The file format of the Venn diagram (png/svg/tiff), default png.
-
 - `fqcOut`: The relative path to the directory containing the FastQC results.
-
 - `ctdOut`: The relative path to the directory containing the Cutadapt results.
-
 - `bwtOut`: The relative path to the directory containing the Bowtie results.
-
 - `bamstOut`: The relative path to the directory containing the Samtools stats and Plot-bamstats results.
-
 - `ftqOut`: The relative path to the directory containing the FeatureCounts results.
-
 - `dsqOut`: The relative path to the directory containing the DESeq2 results.
-
 - `edgOut`: The relative path to the directory containing the EdgeR results.
-
 - `deaIntOut`: The relative path to the directory containing the results of the DESeq2 and EdgeR integration.
-
-- `scriptsDir`: The relative path to the directory containing the R script to run the DESeq2 analysis.
-
+- `mqcOut`: The relative path to the directory containing the MultiQC report.
+- `scriptsDir`: The relative path to the directory containing the R scripts.
 - `testAdapterBashScript`: The relative path to the directory containing the R script to get the path of the aligned/unaligned data.
-
 - `deSeq2Rscript`: The relative path to the directory containing the R script to run the DESeq2 analysis.
-
 - `filterCtsRscript`: The relative path to the directory containing the R script used to filter all-counts.txt and conditions_file.
-
 - `edgerRscript`: The relative path to the directory containing the R script to run the EdgeR analysis.
-
 - `enhancedVolcanoRscript`: The relative path to the directory containing the R script to build the Volcano plot.
-
 - `deaIntRscript`: The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.
-
 - `vennRscript`: The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.
-
+- `deseq2NormalizationRscript`: The relative path to the directory containing the R script for the creation of the hclust table.
+- `hclustMakeTableRscript`: The relative path to the directory containing the R script for the creation of the hclust table.
+- `hclustRscript`: The relative path to the directory containing the R script for the hierarchical clustering analysis.
+- `functionalEnrichmentRscript`: The relative path to the directory containing the R script for the functional enrichment analysis.
+- `networkRscript`: The relative path to the directory containing the R script for the network creation.
+- `databasesDir`: The relative path to the directory containing the TarBase and Reactome databases.
+- `tarbaseDB`: The relative path to the TarBase file.
+- `reactomeDB`: The relative path to a Reactome file with Ensembl IDs and Reactome IDs.
+- `reactomeInteractionsDB`: The relative path to the Reactome file downloaded from https`://reactome.org/download/current/interactors/reactome.all_species.interactions.tab-delimited.txt and renamed as ReactomeInteractions.txt.
 - `rDeseq2Version`: Version of the pegi3s/r_deseq2 Docker image to use.
-
 - `rEdgerVersion`: Version of the pegi3s/r_edger Docker image to use.
-
-- `rEnhancedVolcanoVersion`: Version of the pegi3s/r_enhanced-volcano Docker image to use.		
-
+- `rEnhancedVolcanoVersion`: Version of the pegi3s/r_enhanced-volcano Docker image to use.
 - `cutadaptVersion`: Version of the pegi3s/cutadapt Docker image to use.
-
 - `fastqcVersion`: Version of the pegi3s/fastqc Docker image to use.
-
 - `bowtieVersion`: Version of the pegi3s/bowtie1 Docker image to use.
-
 - `featureCountsVersion`: Version of the pegi3s/feature-counts Docker image to use.
-
 - `samtoolsVersion`: Version of the pegi3s/samtools_bcftools Docker image to use.
-
 - `samtoolsBamstatsVersion`: Version of the pegi3s/samtools_bcftools Docker image to use for bam analysis.
-
 - `rdatanalysisVersion`: Version of the pegi3s/r_data-analysis Docker image to use.
-
 - `rVennVersion`: Version of the pegi3s/r_venn-diagram Docker image to use.
-
-- `skipPullDockerImages`: Use this flag to skip the pull-docker-images task.
-
+- `rNetworkVersion`: Version of the pegi3s/r_network Docker image to use.
+- `multiqcVersion`: Version of the pegi3s/multiqc Docker image to use.
 - `selectDEAsoftware`: Use this param to select the differential expression analysis software (deseq, edger or both).
 
 # Test data

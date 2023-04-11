@@ -18,7 +18,6 @@ conditions_file=as.character(args[5])
 distance_method=as.character(args[6])
 
 # CLUSTERING OPTIONS
-distance_method = 'euclidean'
 clustering_method = 'ward.D2'
 cluster_number = 2
 traspose_dendrogram = F
@@ -45,6 +44,7 @@ ptm(paste0("  Input contrast:  ", as.character(args[2])))
 ptm(paste0("  Output dir:      ", as.character(args[3])))
 ptm(paste0("  Software:        ", as.character(args[4])))
 ptm(paste0("  conditions_file: ", as.character(args[5])))
+ptm(paste0("  distance_method: ", as.character(args[6])))
 ptm("======================================================")
 
 ptm('Loading libraries')

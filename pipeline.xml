@@ -58,7 +58,7 @@
 		<param name="featureCountsVersion" shortName="fqv" defaultValue="2.0.0" global="true">Version of the pegi3s/feature-counts Docker image to use.</param>
 		<param name="samtoolsVersion" shortName="stv" defaultValue="1.9" global="true">Version of the pegi3s/samtools_bcftools Docker image to use.</param>
 		<param name="samtoolsBamstatsVersion" shortName="spb" defaultValue="1.10" global="true">Version of the pegi3s/samtools_bcftools Docker image to use for bam analysis.</param>
-		<param name="rdatanalysisVersion" shortName="rdav" defaultValue="4.1.1_v2" global="true">Version of the pegi3s/r_data-analysis Docker image to use.</param>
+		<param name="rdatanalysisVersion" shortName="rdav" defaultValue="4.1.1_v3" global="true">Version of the pegi3s/r_data-analysis Docker image to use.</param>
 		<param name="rVennVersion" shortName="rvv" defaultValue="1.7.0" global="true">Version of the pegi3s/r_venn-diagram Docker image to use.</param>
 		<param name="rNetworkVersion" shortName="rntv" defaultValue="4.1.1_v2_v3" global="true">Version of the pegi3s/r_network Docker image to use.</param>
 		<param name="multiqcVersion" shortName="mqv" defaultValue="1.14.0" global="true">Version of the pegi3s/multiqc Docker image to use.</param>
@@ -161,6 +161,7 @@
 	</tasks>
 
 	<metadata>
+
 		<task-description id="pull-docker-images">Pull the docker images of the software used for the analysis.</task-description>
 		<task-description id="initialization">Creates the output directories.</task-description>
 		<task-description id="fastqc-qc">Quality control with FastQC.</task-description>

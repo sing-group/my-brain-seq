@@ -155,7 +155,9 @@ ptm('Finding miRNA targets using Tarbase annotations')
 # conversion database (to convert pathways-genes to pathways-miRNAs)
 conversion_db = tarbase_db %>%
   select(geneId, mirna) %>%
-  inner_join(reactome_db, by = c('geneId' = 'ensembl_id')) %>%
+  inner_join(reactome_db,
+    by = c('geneId' = 'ensembl_id'), 
+    relationship = "many-to-many") %>%
   select(mirna, reactome_id) %>%
   distinct(mirna, reactome_id)
 

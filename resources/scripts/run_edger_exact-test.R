@@ -29,9 +29,8 @@ path_counts=as.character(args[1])
 path_cond=as.character(args[2])
 input_contrast=as.character(args[3])
 path_output=as.character(args[4])
-
-padj = 0.05
-logFC = 0.5
+padj=as.numeric(args[5])
+logFC=as.numeric(args[6])
 
 ptm("======================================================")
 ptm('    [MBS | edger]: run_edger_exact-test.R       ')
@@ -40,6 +39,9 @@ ptm(paste0("  Input counts file:    ", as.character(args[1])))
 ptm(paste0("  Input condition file: ", as.character(args[2])))
 ptm(paste0("  Contrast:             ", as.character(args[3])))
 ptm(paste0("  Output path:          ", as.character(args[4])))
+ptm('  --')
+ptm(paste0("  qvalue:          ", as.character(args[5])))
+ptm(paste0("  log2FC:          ", as.character(args[6])))
 ptm("======================================================")
 
 #DETECT FACTORS AND LABELS
@@ -143,7 +145,7 @@ et = exactTest(y)
 
 #RESULTS
 #Get a list with the DE miRNAs (p.value cut-off refers to adjusted pvalue)
-DE_miRNAs = topTags(et, n=Inf, p.value=0.05, adjust.method="BH", sort.by="PValue")
+DE_miRNAs = topTags(et, n=Inf, p.value=padj, adjust.method="BH", sort.by="PValue")
 
 if (length(DE_miRNAs) != 0){
   DE_miRNAs = data.frame(DE_miRNAs$table)

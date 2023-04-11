@@ -20,9 +20,8 @@ path_edger = as.character(args[2])
 input_contrast = as.character(args[3])
 path_output = as.character(args[4])
 path_output_pipel = as.character(args[5])
-
-q_value_filter = 0.05
-logFC = 0.5
+q_value_filter = as.numeric(args[6])
+logFC = as.numeric(args[7])
 
 #-------------------------------------------------------------------------------
 #                                FUNCTIONS

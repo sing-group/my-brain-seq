@@ -32,4 +32,4 @@ docker run --rm \
 	-v ${dea_path_contrast}:${dea_path_contrast} \
 	-v ${dea_path_cond}:${dea_path_cond} \
 	pegi3s/r_deseq2:${rDeseq2Version} \
-		Rscript ${workingDir}/compi_scripts/${deSeq2Rscript} "${dea_path_counts}" "${dea_path_cond}" "${comparison}" "${dea_path_output}"
+		Rscript ${workingDir}/compi_scripts/${deSeq2Rscript} "${dea_path_counts}" "${dea_path_cond}" "${comparison}" "${dea_path_output}" "${qvalue}" "${log2FC}"

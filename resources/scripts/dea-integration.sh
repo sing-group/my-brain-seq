@@ -42,6 +42,6 @@ echo "[MBS | dea-integration]: Running DESeq2-EdgeR integration..."
 docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/r_data-analysis \
-		Rscript ${workingDir}/compi_scripts/${deaIntRscript} "${path_deseq}" "${path_edger}" "${input_contrast}" "${path_output}" "${path_output_pipel}"
+		Rscript ${workingDir}/compi_scripts/${deaIntRscript} "${path_deseq}" "${path_edger}" "${input_contrast}" "${path_output}" "${path_output_pipel}" "${qvalue}" "${log2FC}"
 
 echo "[MBS | dea-integration]: Done!"

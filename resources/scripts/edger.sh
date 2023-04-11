@@ -29,4 +29,4 @@ docker run --rm \
 	-v ${er_path_contrast}:${er_path_contrast} \
 	-v ${er_path_cond}:${er_path_cond} \
 	pegi3s/r_edger:${rEdgerVersion} \
-		Rscript ${workingDir}/compi_scripts/${edgerRscript} "${er_path_counts}" "${er_path_cond}" "${comparison}" "${er_path_output}"
+		Rscript ${workingDir}/compi_scripts/${edgerRscript} "${er_path_counts}" "${er_path_cond}" "${comparison}" "${er_path_output}" "${qvalue}" "${log2FC}"

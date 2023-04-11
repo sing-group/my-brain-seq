@@ -3,6 +3,8 @@
 ##  2.- path_cond: path to the condition file.
 ##  3.- input_contrast: A line of the contrast file with one contrast.
 ##  4.- path_output: the output dir for the results.
+##  5.- qvalue: qvalue threshold for the results.
+##  6.- log2FC: log2FC threshold for the results.
 
 suppressMessages(library("DESeq2"))
 
@@ -29,9 +31,8 @@ path_counts=as.character(args[1])
 path_cond=as.character(args[2])
 input_contrast=as.character(args[3])
 path_output=as.character(args[4])
-
-padj = 0.05
-logFC = 0.5
+padj=as.numeric(args[5])
+logFC=as.numeric(args[6])
 
 ptm("======================================================")
 ptm('        [MBS | deseq]: run_deseq2.R        ')
@@ -40,6 +41,9 @@ ptm(paste0("  Counts file:     ", as.character(args[1])))
 ptm(paste0("  Condition file:  ", as.character(args[2])))
 ptm(paste0("  Input contrast:  ", as.character(args[3])))
 ptm(paste0("  Output path:     ", as.character(args[4])))
+ptm('  --')
+ptm(paste0("  qvalue:          ", as.character(args[5])))
+ptm(paste0("  log2FC:          ", as.character(args[6])))
 ptm("======================================================")
 
 

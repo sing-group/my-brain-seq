@@ -8,6 +8,8 @@
 ##  4.- input_contrast: A line of the 'contrast_file' with one contrast.
 ##  5.- path_output: the output dir for the results.
 ##  6.- software: the software that produced the tsv file (deseq/edger/both).
+##  7.- q_value: the qvalue filter to build the miRNA profiles.
+##  8.- fold_change: the log2FC threshold to build the miRNA profiles.
 
 #INPUTS
 args = commandArgs(trailingOnly = TRUE)
@@ -17,9 +19,8 @@ path_conditions=as.character(args[3])
 input_contrast=as.character(args[4])
 path_output=as.character(args[5])
 software=as.character(args[6])
-
-q_value = 0.05
-fold_change = 0.5
+q_value=as.numeric(args[7])
+fold_change=as.numeric(args[8])
 
 # to print bare text without "[1]"
 pt = function(text){

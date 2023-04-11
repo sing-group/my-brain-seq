@@ -17,8 +17,11 @@
 		<param name="gffAttribute" shortName="gffa" defaultValue="Name">Attribute of the .gff to use in the annotations (eg.: Name, gene_id, transcript_id...), default Name.</param>
 		<param name="conditions" shortName="cond">The path to the .tsv file with the rootnames of the samples, conditions and labels.</param>
 		<param name="contrast" shortName="cont">The path to the .tsv file with the contrast DESeq2 has to perform.</param>
-		<param name="vennFormat" shortName="venf" global="true" defaultValue="png">The file format of the Venn diagram (png/svg/tiff), default png.</param>
+		<param name="pvalue" shortName="pval" global="true" defaultValue="0.05">P-value threshold used for differential expression analyis.</param>
+		<param name="qvalue" shortName="qval" global="true" defaultValue="0.05">Q-value threshold used for differential expression analyis.</param>
+		<param name="log2FC" shortName="logfc" global="true" defaultValue="0.5">Absolute value of the log2FC threshold used for differential expression analyis.</param>
 		<param name="distance_method" shortName="dmt" global="true" defaultValue="euclidean">Method used to compute distances on the hierarchical clustering step, default euclidean.</param>
+		<param name="vennFormat" shortName="venf" global="true" defaultValue="png">The file format of the Venn diagram (png/svg/tiff), default png.</param>
 		
 		<param name="fqcOut" shortName="fqco" global="true" defaultValue="1_fastqc">The relative path to the directory containing the FastQC results.</param>
 		<param name="ctdOut" shortName="ctdo" global="true" defaultValue="2_cutadapt">The relative path to the directory containing the Cutadapt results.</param>

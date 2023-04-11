@@ -23,6 +23,7 @@
 ##  5.- software        : the software that produced the "dea_result_file" (DESeq2/EdgeR/DESeq2-EdgeR).
 ##  6.- db_organism     : the name of the organism, e.g.: 'Homo sapiens'
 ##  7.- path_output     : path to save the output files.
+##  8.- q_value_filter  : the qvalue filter to build DEA results.
 
 # INPUTS
 args = commandArgs(trailingOnly = TRUE)
@@ -33,8 +34,7 @@ input_contrast   = as.character(args[4])
 software         = as.character(args[5])
 db_organism      = as.character(args[6])
 path_output      = as.character(args[7])
-
-q_value_filter = 0.05
+q_value_filter   = as.numeric(args[8])
 
 # to print messages
 ptm = function(text){
@@ -105,7 +105,7 @@ get_genes_in_pathway = function(reactomeId){
   result = pathways_table_DE %>% 
     filter(reactome_id == reactomeId) %>%
     select(ensembl_id)
-  
+
   if (identical(result, character(0))){
     result = result$ensembl_id
     return('')
@@ -216,22 +216,22 @@ enrichment_table['pvalue'] = 0
 # fill the container with q-values resulting from a Fisher hypergeometric test
 for (pth in 1:dim(enrichment_table)[1]){
   p = pathway_list$reactome_id[pth]
-  
+
   # number of DE mirnas in the pathway
   DE_mirnas_in_pathway = pathways_table_DE %>%
     filter(reactome_id == p)
   n_DE_mirnas_in_pathway = length(DE_mirnas_in_pathway$mirna)
-  
+
   # number of the total genes in the pathway
   total_mirnas_in_pathway = pathways_table_ALL_TESTED %>%
     filter(reactome_id == p)
   total_mirnas_in_pathway = length(total_mirnas_in_pathway$mirna)
-  
+
   # derivated calcs from "variables dependent of the pathway"
   mirnas_not_in_pathway = total_mirnas_in_pathway - n_DE_mirnas_in_pathway
   DE_mirnas_not_in_pathway = n_DE_mirnas - n_DE_mirnas_in_pathway
   total_no_DE_mirnas = total_mirna_tested - n_DE_mirnas
-  
+
   # build contingency table
   deTable <-  matrix(c(n_DE_mirnas_in_pathway, 
                        mirnas_not_in_pathway, 
@@ -240,10 +240,10 @@ for (pth in 1:dim(enrichment_table)[1]){
                      nrow = 2,
                      dimnames = list(DE=c("yes","no"),
                                      GeneSet=c("in","out")))
-  
+
   # enrichment score for a pathway
   enrichment_score = fisher.test(deTable, alternative = "greater")
-  
+
   # write the results to the empty container
   enrichment_table$pvalue[pth] = enrichment_score$p.value
 

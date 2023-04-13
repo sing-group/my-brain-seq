@@ -1,5 +1,33 @@
-# myBrain-Seq [![dockerhub](https://img.shields.io/badge/docker-v1.0.1-green)](https://hub.docker.com/r/singgroup/my-brain-seq) [![license](https://img.shields.io/badge/license-MIT-brightgreen)](https://github.com/sing-group/my-brain-seq) [![dockerhub](https://img.shields.io/badge/hub-docker-blue)](https://hub.docker.com/r/singgroup/my-brain-seq) [![compihub](https://img.shields.io/badge/hub-compi-blue)](https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f)
-> **myBrain-Seq** is a [Compi](https://www.sing-group.org/compi/) pipeline for miRNA-Seq analysis of neuropsychiatric data. A Docker image is available for this pipeline in [this Docker Hub repository](https://hub.docker.com/r/singgroup/my-brain-seq).
+<table border="0">
+  <tr>
+    <td><img src="./resources/docs/mybrain-seq_logo.png"
+         alt="myBrain-Seq logo"
+         width="200px"
+		 style="vertical-align: middle; margin-left: 0;"/></td>
+    <td style="vertical-align:middle;">
+      <blockquote>
+        <p><strong>myBrain-Seq</strong> is a 
+			<a href="https://www.sing-group.org/compi/">Compi</a> pipeline for miRNA-Seq analysis of neuropsychiatric data. A Docker image is available for this pipeline in <a href="https://hub.docker.com/r/singgroup/my-brain-seq"> this Docker Hub repository </a>.
+		</p>
+      </blockquote>
+		<p>
+			<a href="https://hub.docker.com/r/singgroup/my-brain-seq">
+				<img src="https://img.shields.io/badge/docker-v1.0.1-green" alt="dockerhub">
+			</a> 
+			<a href="https://github.com/sing-group/my-brain-seq">
+				<img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="license">
+			</a> 
+			<a href="https://hub.docker.com/r/singgroup/my-brain-seq">
+				<img src="https://img.shields.io/badge/hub-docker-blue" alt="dockerhub">
+			</a> 
+			<a href="https://www.sing-group.org/compihub/explore/625e719acc1507001943ab7f">
+				<img src="https://img.shields.io/badge/hub-compi-blue" alt="compihub">
+			</a>
+		</p>
+    </td>
+  </tr>
+</table>
+
 ## myBrain-Seq repositories
 
 - [GitHub](https://github.com/sing-group/my-brain-seq)

@@ -60,7 +60,7 @@ if [[ ! -z "${bwtIndex}" ]]; then
     bwtIndex_or_genome="$(dirname ${bwtIndex})"
 elif [[ ! -z "${genome}" ]]; then
     # if genome
-    bwtIndex_or_genome="${genome}"
+    bwtIndex_or_genome="$(dirname ${genome})"
 fi
 
 # PREPARE THE RUNNER

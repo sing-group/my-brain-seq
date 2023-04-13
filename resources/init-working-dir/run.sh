@@ -7,7 +7,7 @@ function show_error() {
 }
 
 function get_compi_parameter {
-    cat "${1}" | grep "${2}" | cut -d'=' -f2
+    cat "${1}" | grep "${2}=" | cut -d'=' -f2
 }
 
 MYBRAIN_SEQ_VERSION=${MYBRAIN_SEQ_VERSION-1.0.1}
@@ -40,7 +40,7 @@ if [[ ! -z "${bwtIndex}" ]]; then
     bwtIndex_or_genome="$(dirname ${bwtIndex})"
 elif [[ ! -z "${genome}" ]]; then
     # if genome
-    bwtIndex_or_genome="${genome}"
+    bwtIndex_or_genome="$(dirname ${genome})"
 fi
 
 timestamp=$(date +"%Y-%m-%d_%H:%M:%S")

@@ -264,66 +264,250 @@ You can combine several parameters to gain greater control of the analysis proce
 
 Some tasks may produce errors that do not cause the pipeline to fail, but they can be important. Such errors are reported in the log files produced in the `logs` directory of the pipeline working directory. Inside this directory myBrain-Seq will create additional directories with the logs of each execution, they will be named with the date and hour of the analysis. Files containing the errors are saved with extension `*.err.log`, whereas normal output is saved with extension `*.out.log`.
 
-# Pipeline parameters
+# myBrain-Seq parameters
 
 MyBrain-Seq needs the values of some parameters to work, as already indicated in the [*writing the `compi.parameters` file*](#writing-the-compiparameters-file) section. However, optional parameters with default values can also be edited by adding them to the compi.parameters file. Below is a list of all myBrain-Seq parameters:
 
-- `workingDir`: The working directory of the project.
-- `fastqDir`: The directory containing the fastq files (default is relative to workingDir).
-- `outDir`: The directory containing the pipeline outputs (relative to workingDir).
-- `organism`: The organism from which the data was obtained, needed for the functional enrichment analysis.
-- `adapter`: The sequence of the adapter to remove.
-- `genome`: The directory path to the genome to align.
-- `bwtIndex`: The absolute path to the rootname of the Bowtie index.
-- `gffFile`: The path to the .gff file of the reference genome.
-- `gffFeature`: Feature of the .gff file to use for the annotations (eg.`: miRNA, gene, transcript...), default miRNA.
-- `gffAttribute`: Attribute of the .gff to use in the annotations (eg.`: Name, gene_id, transcript_id...), default Name.
-- `conditions`: The path to the .tsv file with the rootnames of the samples, conditions and labels.
-- `contrast`: The path to the .tsv file with the contrast DESeq2 has to perform.
-- `qvalue`: FDR-corrected pvalue used to filter miRNAs after the differential expression analysis.
-- `log2FC`: Absolute value of the log2FC, used to filter miRNAs after the differential expression analysis.
-- `distance_method`: Method used to compute distances on the hierarchical clustering step, default euclidean.
-- `vennFormat`: The file format of the Venn diagram (png/svg/tiff), default png.
-- `fqcOut`: The relative path to the directory containing the FastQC results.
-- `ctdOut`: The relative path to the directory containing the Cutadapt results.
-- `bwtOut`: The relative path to the directory containing the Bowtie results.
-- `bamstOut`: The relative path to the directory containing the Samtools stats and Plot-bamstats results.
-- `ftqOut`: The relative path to the directory containing the FeatureCounts results.
-- `dsqOut`: The relative path to the directory containing the DESeq2 results.
-- `edgOut`: The relative path to the directory containing the EdgeR results.
-- `deaIntOut`: The relative path to the directory containing the results of the DESeq2 and EdgeR integration.
-- `mqcOut`: The relative path to the directory containing the MultiQC report.
-- `scriptsDir`: The relative path to the directory containing the R scripts.
-- `testAdapterBashScript`: The relative path to the directory containing the R script to get the path of the aligned/unaligned data.
-- `deSeq2Rscript`: The relative path to the directory containing the R script to run the DESeq2 analysis.
-- `filterCtsRscript`: The relative path to the directory containing the R script used to filter all-counts.txt and conditions_file.
-- `edgerRscript`: The relative path to the directory containing the R script to run the EdgeR analysis.
-- `enhancedVolcanoRscript`: The relative path to the directory containing the R script to build the Volcano plot.
-- `deaIntRscript`: The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.
-- `vennRscript`: The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.
-- `deseq2NormalizationRscript`: The relative path to the directory containing the R script for the creation of the hclust table.
-- `hclustMakeTableRscript`: The relative path to the directory containing the R script for the creation of the hclust table.
-- `hclustRscript`: The relative path to the directory containing the R script for the hierarchical clustering analysis.
-- `functionalEnrichmentRscript`: The relative path to the directory containing the R script for the functional enrichment analysis.
-- `networkRscript`: The relative path to the directory containing the R script for the network creation.
-- `databasesDir`: The relative path to the directory containing the TarBase and Reactome databases.
-- `tarbaseDB`: The relative path to the TarBase file.
-- `reactomeDB`: The relative path to a Reactome file with Ensembl IDs and Reactome IDs.
-- `reactomeInteractionsDB`: The relative path to the Reactome file downloaded from https`://reactome.org/download/current/interactors/reactome.all_species.interactions.tab-delimited.txt and renamed as ReactomeInteractions.txt.
-- `rDeseq2Version`: Version of the pegi3s/r_deseq2 Docker image to use.
-- `rEdgerVersion`: Version of the pegi3s/r_edger Docker image to use.
-- `rEnhancedVolcanoVersion`: Version of the pegi3s/r_enhanced-volcano Docker image to use.
-- `cutadaptVersion`: Version of the pegi3s/cutadapt Docker image to use.
-- `fastqcVersion`: Version of the pegi3s/fastqc Docker image to use.
-- `bowtieVersion`: Version of the pegi3s/bowtie1 Docker image to use.
-- `featureCountsVersion`: Version of the pegi3s/feature-counts Docker image to use.
-- `samtoolsVersion`: Version of the pegi3s/samtools_bcftools Docker image to use.
-- `samtoolsBamstatsVersion`: Version of the pegi3s/samtools_bcftools Docker image to use for bam analysis.
-- `rdatanalysisVersion`: Version of the pegi3s/r_data-analysis Docker image to use.
-- `rVennVersion`: Version of the pegi3s/r_venn-diagram Docker image to use.
-- `rNetworkVersion`: Version of the pegi3s/r_network Docker image to use.
-- `multiqcVersion`: Version of the pegi3s/multiqc Docker image to use.
-- `selectDEAsoftware`: Use this param to select the differential expression analysis software (deseq, edger or both).
+<style type="text/css">
+</style>
+<table class="tg" style="undefined;table-layout: fixed; width: 759px">
+<colgroup>
+<col style="width: 200px">
+<col style="width: 559px">
+</colgroup>
+<thead>
+  <tr>
+    <th class="tg-3mtf">Parameter</th>
+    <th class="tg-3mtf">Description</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-v5y2">workingDir</td>
+    <td class="tg-9ika">The working directory of the project.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">fastqDir</td>
+    <td class="tg-azvr">The directory containing the fastq files (default is relative to workingDir).</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">outDir</td>
+    <td class="tg-9ika">The directory containing the pipeline outputs (relative to workingDir).</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">organism</td>
+    <td class="tg-azvr">The organism from which the data was obtained, needed for the functional enrichment analysis.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">adapter</td>
+    <td class="tg-9ika">The sequence of the adapter to remove.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">genome</td>
+    <td class="tg-azvr">The directory path to the genome to align.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">bwtIndex</td>
+    <td class="tg-9ika">The absolute path to the rootname of the Bowtie index.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">gffFile</td>
+    <td class="tg-azvr">The path to the .gff file of the reference genome.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">gffFeature</td>
+    <td class="tg-9ika">Feature of the .gff file to use for the annotations (eg.`: miRNA, gene, transcript...), default miRNA.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">gffAttribute</td>
+    <td class="tg-azvr">Attribute of the .gff to use in the annotations (eg. Name, gene_id, transcript_id...), default "Name".</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">conditions</td>
+    <td class="tg-9ika">The path to the .tsv file with the rootnames of the samples, conditions and labels.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">contrast</td>
+    <td class="tg-azvr">The path to the .tsv file with the contrast DESeq2 has to perform.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">qvalue</td>
+    <td class="tg-9ika">FDR-corrected pvalue used to filter miRNAs after the differential expression analysis.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">log2FC</td>
+    <td class="tg-azvr">Absolute value of the log2FC, used to filter miRNAs after the differential expression analysis.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">distance_method</td>
+    <td class="tg-9ika">Method used to compute distances on the hierarchical clustering step, default euclidean.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">vennFormat</td>
+    <td class="tg-azvr">The file format of the Venn diagram (png/svg/tiff), default png.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">fqcOut</td>
+    <td class="tg-9ika">The relative path to the directory containing the FastQC results.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">ctdOut</td>
+    <td class="tg-azvr">The relative path to the directory containing the Cutadapt results.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">bwtOut</td>
+    <td class="tg-9ika">The relative path to the directory containing the Bowtie results.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">bamstOut</td>
+    <td class="tg-azvr">The relative path to the directory containing the Samtools stats and Plot-bamstats results.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">ftqOut</td>
+    <td class="tg-9ika">The relative path to the directory containing the FeatureCounts results.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">dsqOut</td>
+    <td class="tg-azvr">The relative path to the directory containing the DESeq2 results.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">edgOut</td>
+    <td class="tg-9ika">The relative path to the directory containing the EdgeR results.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">deaIntOut</td>
+    <td class="tg-azvr">The relative path to the directory containing the results of the DESeq2 and EdgeR integration.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">mqcOut</td>
+    <td class="tg-9ika">The relative path to the directory containing the MultiQC report.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">scriptsDir</td>
+    <td class="tg-azvr">The relative path to the directory containing the R scripts.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">testAdapterBashScript</td>
+    <td class="tg-9ika">The relative path to the directory containing the R script to get the path of the aligned/unaligned data.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">deSeq2Rscript</td>
+    <td class="tg-azvr">The relative path to the directory containing the R script to run the DESeq2 analysis.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">filterCtsRscript</td>
+    <td class="tg-9ika">The relative path to the directory containing the R script used to filter all-counts.txt and conditions_file.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">edgerRscript</td>
+    <td class="tg-azvr">The relative path to the directory containing the R script to run the EdgeR analysis.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">enhancedVolcanoRscript</td>
+    <td class="tg-9ika">The relative path to the directory containing the R script to build the Volcano plot.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">deaIntRscript</td>
+    <td class="tg-azvr">The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">vennRscript</td>
+    <td class="tg-9ika">The relative path to the directory containing the R script to run the DESeq-EdgeR results integration.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">deseq2NormalizationRscript</td>
+    <td class="tg-azvr">The relative path to the directory containing the R script for the creation of the hclust table.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">hclustMakeTableRscript</td>
+    <td class="tg-9ika">The relative path to the directory containing the R script for the creation of the hclust table.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">hclustRscript</td>
+    <td class="tg-azvr">The relative path to the directory containing the R script for the hierarchical clustering analysis.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">functionalEnrichmentRscript</td>
+    <td class="tg-9ika">The relative path to the directory containing the R script for the functional enrichment analysis.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">networkRscript</td>
+    <td class="tg-azvr">The relative path to the directory containing the R script for the network creation.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">databasesDir</td>
+    <td class="tg-9ika">The relative path to the directory containing the TarBase and Reactome databases.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">tarbaseDB</td>
+    <td class="tg-azvr">The relative path to the TarBase file.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">reactomeDB</td>
+    <td class="tg-9ika">The relative path to a Reactome file with Ensembl IDs and Reactome IDs.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">reactomeInteractionsDB</td>
+    <td class="tg-azvr">The relative path to the Reactome file downloaded from <a href="https://reactome.org/download/current/interactors/reactome.all_species.interactions.tab-delimited.txt" target="_blank" rel="noopener noreferrer">here</a> and renamed as ReactomeInteractions.txt.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">rDeseq2Version</td>
+    <td class="tg-9ika">Version of the pegi3s/r_deseq2 Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">rEdgerVersion</td>
+    <td class="tg-azvr">Version of the pegi3s/r_edger Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">rEnhancedVolcanoVersion</td>
+    <td class="tg-9ika">Version of the pegi3s/r_enhanced-volcano Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">cutadaptVersion</td>
+    <td class="tg-azvr">Version of the pegi3s/cutadapt Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">fastqcVersion</td>
+    <td class="tg-9ika">Version of the pegi3s/fastqc Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">bowtieVersion</td>
+    <td class="tg-azvr">Version of the pegi3s/bowtie1 Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">featureCountsVersion</td>
+    <td class="tg-9ika">Version of the pegi3s/feature-counts Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">samtoolsVersion</td>
+    <td class="tg-azvr">Version of the pegi3s/samtools_bcftools Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">samtoolsBamstatsVersion</td>
+    <td class="tg-9ika">Version of the pegi3s/samtools_bcftools Docker image to use for bam analysis.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">rdatanalysisVersion</td>
+    <td class="tg-azvr">Version of the pegi3s/r_data-analysis Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">rVennVersion</td>
+    <td class="tg-9ika">Version of the pegi3s/r_venn-diagram Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">rNetworkVersion</td>
+    <td class="tg-azvr">Version of the pegi3s/r_network Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">multiqcVersion</td>
+    <td class="tg-9ika">Version of the pegi3s/multiqc Docker image to use.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">selectDEAsoftware</td>
+    <td class="tg-azvr">Use this param to select the differential expression analysis software (deseq, edger or both).</td>
+  </tr>
+</tbody>
+</table>
 
 # Test data
 

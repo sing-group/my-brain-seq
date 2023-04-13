@@ -8,8 +8,9 @@ echo "[MBS | bowtie-alignment]: Performing genome alignment with Bowtie..."
 #pre-built index or if it was built in the task "build-genome-index").
 #if genome flag
 if [ ! -z ${genome} ]; then
-	bgi_genome="${workingDir}/input/genome/${genome}/"
-	bw_index_path="${workingDir}/input/genome/${genome}/bowtie-index_${genome}/"
+	genome_name="$(basename ${genome} | cut -d '.' -f1)"
+	bw_index_path="${workingDir}/input/genome/${genome_name}/bowtie-index_${genome_name}"
+	bwtIndex="${bw_index_path}/${genome_name}"
 elif [ ! -z ${bwtIndex} ]; then
 	bw_index_path="$(dirname ${bwtIndex})"
 else

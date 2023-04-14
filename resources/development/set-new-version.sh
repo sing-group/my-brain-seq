@@ -1,4 +1,6 @@
 #!/bin/bash
+set -o nounset
+set -o errexit
 
 if [ $# -ne 2 ]; then
 	show_error "[ERROR]: This script requires two arguments (the path to the project dir and the new version)"

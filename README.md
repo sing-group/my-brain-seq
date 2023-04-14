@@ -1,8 +1,8 @@
 <table border="0">
   <tr>
-    <td><img src="./resources/docs/mybrain-seq_logo.png"
+    <td><img src="https://raw.githubusercontent.com/sing-group/my-brain-seq/master/resources/docs/mybrain-seq_logo.png"
          alt="myBrain-Seq logo"
-         width="200px"
+         width="240px"
 		 style="vertical-align: middle; margin-left: 0;"/></td>
     <td style="vertical-align:middle;">
       <blockquote>

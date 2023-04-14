@@ -11,3 +11,4 @@ Test data for the pipeline. Look at the instructions in the README.txt included 
 - 0.1.0
 - 1.0.0
 - 1.0.1
+- 1.1.0

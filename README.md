@@ -12,7 +12,7 @@
       </blockquote>
 		<p>
 			<a href="https://hub.docker.com/r/singgroup/my-brain-seq">
-				<img src="https://img.shields.io/badge/docker-v1.0.1-green" alt="dockerhub">
+				<img src="https://img.shields.io/badge/docker-v1.1.0-green" alt="dockerhub">
 			</a> 
 			<a href="https://github.com/sing-group/my-brain-seq">
 				<img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="license">
@@ -268,8 +268,6 @@ Some tasks may produce errors that do not cause the pipeline to fail, but they c
 
 MyBrain-Seq needs the values of some parameters to work, as already indicated in the [*writing the `compi.parameters` file*](#writing-the-compiparameters-file) section. However, optional parameters with default values can also be edited by adding them to the compi.parameters file. Below is a list of all myBrain-Seq parameters:
 
-<style type="text/css">
-</style>
 <table class="tg" style="undefined;table-layout: fixed; width: 759px">
 <colgroup>
 <col style="width: 200px">

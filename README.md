@@ -523,6 +523,7 @@ To run the pipeline with this test data, edit the `compi.parameters` (at `/worki
 
 # Publications
 
+- Pérez-Rodríguez, D., Agís-Balboa, R. C., & López-Fernández, H. (2023). [MyBrain-Seq: A Pipeline for MiRNA-Seq Data Analysis in Neuropsychiatric Disorders](https://doi.org/10.3390/biomedicines11041230). Biomedicines, 11(4), Article 4. 
 - D. Pérez-Rodríguez; M. Pérez-Rodríguez; R.C. Agís-Balboa; H. López-Fernández (2022) [Towards a flexible and portable workflow for analyzing miRNA-seq neuropsychiatric data: an initial replicability assessment](https://doi.org/10.1007/978-3-031-17024-9_4). 16th International Conference on Practical Applications of Computational Biology & Bioinformatics: PACBB 2022. L'Aquila, Italy. 13 - July
 
 ## Papers using myBrainSeq

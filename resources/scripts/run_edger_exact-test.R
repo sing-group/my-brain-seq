@@ -140,20 +140,18 @@ pt('')
 
 #estimate dispersion
 y = estimateDisp(y,design) 
-#Differential expression analysis using an exact test
-et = exactTest(y)
+#Differential expression analysis using glmFit and glmLRT
+fit = glmFit(y, design)
+# Testing the effect of 'group' with coef=2
+lrt = glmLRT(fit, coef=2) 
 
 #RESULTS
 #Get a list with the DE miRNAs (p.value cut-off refers to adjusted pvalue)
-DE_miRNAs = topTags(et, n=Inf, p.value=padj, adjust.method="BH", sort.by="PValue")
+DE_miRNAs = topTags(lrt, n=Inf, p.value=padj, adjust.method="BH", sort.by="PValue")
 
 if (length(DE_miRNAs) != 0){
   DE_miRNAs = data.frame(DE_miRNAs$table)
-  DE_miRNAs = DE_miRNAs[abs(DE_miRNAs$logFC) >= logFC,]
-  
-  #summary of the results
-  print(head(DE_miRNAs, 10))
-  
+  DE_miRNAs = DE_miRNAs[abs(DE_miRNAs$logFC) >= logFC,] 
 } else {
   print(paste0('[PIPELINE | edger]: [INFO] No differentially expressed miRNAs on contrast', contrast_table$name))
 }
@@ -175,9 +173,10 @@ write.table(row.names(DE_miRNAs),
             row.names = FALSE,
             col.names = FALSE)
 #save the whole EdgeR table
-results = topTags(et, nrow(et))$table
+results = topTags(lrt, nrow(lrt))$table
 dataframe_save = as.data.frame(results)
 dataframe_save = cbind(Feature = rownames(results), dataframe_save)
-colnames(dataframe_save) = c('Feature', 'log2FC', 'logCPM', 'pvalue', 'qvalue') # logFC = log2FC, see: https://www.biostars.org/p/303806/#303829
+colnames(dataframe_save) = c('Feature', 'log2FC', 'logCPM', 'LR', 'pvalue', 'qvalue') # logFC = log2FC, see: https://www.biostars.org/p/303806/#303829
+dataframe_save = dataframe_save[, !(colnames(dataframe_save) %in% c('LR'))]
 write.table(dataframe_save, path_output_file, row.names = FALSE, col.names = TRUE, sep = '\t')
 ptm('Done')

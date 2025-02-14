@@ -18,3 +18,11 @@ sed -i "s#^MYBRAIN_SEQ_VERSION=.*#MYBRAIN_SEQ_VERSION=\${MYBRAIN_SEQ_VERSION-${N
 
 echo "You should also have a look at the following files as they contain the old version (${OLD_VERSION})":
 rgrep -l --exclude-dir './image-files' --exclude '*.R' ${OLD_VERSION} ./*
+
+year=$(date '+%Y')
+echo "Updating the footer of the visual console with the new version and the current year"
+
+mv ${PROJECT_DIR}/resources/visual_console/foot.txt ${PROJECT_DIR}/resources/visual_console/foot.txt.old
+head -n -1 ${PROJECT_DIR}/resources/visual_console/foot.txt.old > ${PROJECT_DIR}/resources/visual_console/foot.txt
+rm ${PROJECT_DIR}/resources/visual_console/foot.txt.old
+echo "                                              © MyBrain-Seq v${new_version}, 2020-${year}" >> ${PROJECT_DIR}/resources/visual_console/foot.txt

@@ -117,6 +117,11 @@ docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v /tmp:/tmp si
 
 An interactive menu should be displayed in your terminal. 
 
+<p align="center">
+	<img src="https://raw.githubusercontent.com/sing-group/my-brain-seq/master/resources/docs/vconsole.png" alt="myBrain-Seq visual console" title="myBrain-Seq visual console" width="80%"/>
+	</br>
+</p>
+
 ## Building the directory tree
 
 To start a new analysis, the first thing to do is build the directory tree in your local file system. This directory tree will be referred as the **working directory** and its structure is recognized and used by the pipeline during the analysis. 

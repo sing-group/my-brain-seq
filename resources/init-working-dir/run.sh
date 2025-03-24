@@ -10,7 +10,7 @@ function get_compi_parameter {
     cat "${1}" | grep "${2}=" | cut -d'=' -f2
 }
 
-MYBRAIN_SEQ_VERSION=${MYBRAIN_SEQ_VERSION-1.1.0}
+MYBRAIN_SEQ_VERSION=${MYBRAIN_SEQ_VERSION-1.2.1}
 
 FULL_COMPI_PARAMS_FILE=$1
 ADDITIONAL_COMPI_PARAMS="${2:--num-tasks 5}"
@@ -43,7 +43,7 @@ elif [[ ! -z "${genome}" ]]; then
     bwtIndex_or_genome="$(dirname ${genome})"
 fi
 
-timestamp=$(date +"%Y-%m-%d_%H:%M:%S")
+timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 mkdir -p ${workingDir}/logs/${timestamp}
 
 docker run -it --rm \

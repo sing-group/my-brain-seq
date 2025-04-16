@@ -13,8 +13,8 @@ bgi_output="${workingDir}/input/genome/${genome_name}/bowtie-index_${genome_name
 #second argument passed to bowtie
 bgi_index_path="${bgi_output}/${genome_name}"
 
-#if the genome directory exists skip the index creation
-if [[ -d ${bgi_output} ]]
+#if the genome directory exists and is not empty skip the index creation
+if [[ -d ${bgi_output} ]] && [[ $(ls -A ${bgi_output}) ]];
 then
 	echo "[MBS | build-genome-index]: Genome index already exists in: ${bgi_output}"
 	echo "[MBS | build-genome-index]: Skipping Bowtie1 index creation"

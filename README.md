@@ -39,6 +39,7 @@
  * [What does myBrain-Seq do?](#what-does-mybrain-seq-do)
  * [Using the myBrain-Seq image in Linux](#using-the-mybrain-seq-image-in-linux)
  * [Test data](#test-data)
+ * [Troubleshooting](#troubleshooting)
  * [Publications](#publications)
  * [For Developers](#for-developers)
  * [Team](#team)
@@ -525,6 +526,19 @@ To run the pipeline with this test data, edit the `compi.parameters` (at `/worki
 
 - ≈ 6 minutes - 5 parallel tasks - Ubuntu 20.04.4 LTS, 8 CPUs (Intel® Core™ i7-9700 @ 3.00GHz), 16GB of RAM and SSD disk.
 - ≈ 12 minutes - 5 parallel tasks - Ubuntu 18.04.6 LTS, 8 CPUs (Intel® Core™ i7-8565U @ 1.80GHz), 16GB of RAM and SSD disk.
+
+# Troubleshooting
+
+## Using hard disk drives in Windows formats
+
+The `build-genome-index` task can fail when a hard disk drive in a Windows format like FAT/exFAT is used. When using such formats for storing the pipeline data, the following error may appear in the logs:
+
+```
+> [MBS | build-genome-index]: Running bowtie for the genome index creation
+> docker: Error response from daemon: error while creating mount source path '/path/to/analysis/input/genome/Homo_sapiens/bowtie-index_Homo_sapiens': chown /path/to/analysis/input/genome/Homo_sapiens/bowtie-index_Homo_sapiens: operation not permitted.
+```
+
+To overcome this issue, the folder for the genome index must be created before running the pipeline (`mkdir -p /path/to/analysis/input/genome/Homo_sapiens/bowtie-index_Homo_sapiens`).
 
 # Publications
 

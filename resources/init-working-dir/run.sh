@@ -10,7 +10,7 @@ function get_compi_parameter {
     cat "${1}" | grep "${2}=" | cut -d'=' -f2
 }
 
-MYBRAIN_SEQ_VERSION=${MYBRAIN_SEQ_VERSION-1.2.2}
+MYBRAIN_SEQ_VERSION=${MYBRAIN_SEQ_VERSION-1.2.3}
 
 FULL_COMPI_PARAMS_FILE=$1
 ADDITIONAL_COMPI_PARAMS="${2:--num-tasks 5}"

@@ -15,3 +15,5 @@ docker pull pegi3s/r_edger:${rEdgerVersion}
 docker pull pegi3s/r_enhanced-volcano:${rEnhancedVolcanoVersion}
 docker pull pegi3s/r_venn-diagram:${rVennVersion}
 docker pull pegi3s/r_data-analysis:${rdatanalysisVersion}
+docker pull pegi3s/r_network:${rNetworkVersion}
+docker pull pegi3s/multiqc:${multiqcVersion}

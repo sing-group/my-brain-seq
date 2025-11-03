@@ -11,7 +11,7 @@ filebam=$(echo ${file} | sed 's/\.sam//')
 filebam=$(echo $filebam | tr -s '/')  # convert the path to single slash
 
 if [ -f "${bam_output}/${filebam}.bam" ]; then
-	echo "[MBS | sam-to-bam]: ${filebam}.bam already exists, removing ${filebam}.bam and ${filebam}.bam.bai."
+	echo "[MBS | sam-to-bam]: ${filebam}.bam already exists, removing ${filebam}.bam and ${filebam}.bam.bai"
 	rm -f "${bam_output}/${filebam}.bam"
 	rm -f "${bam_output}/${filebam}.bam.bai"
 fi
@@ -21,3 +21,7 @@ docker run --rm \
 	-v ${workingDir}:${workingDir} \
 	pegi3s/samtools_bcftools:${samtoolsVersion} \
 		sh -c "samtools sort \"${bam_output}${file}\" > \"${bam_output}${filebam}.bam\" && samtools index \"${bam_output}${filebam}.bam\""
+
+if [ -v ${samtools_keep_sam_files} ]; then
+	rm -f "${bam_output}/${file}"
+fi

@@ -2,7 +2,7 @@
 
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<version>1.3.0.dev02</version>
+	<version>1.3.0.dev03</version>
 
 	<params>
 		<param name="workingDir" shortName="wd" global="true" defaultValue="/working_dir">The working directory of the project.</param>
@@ -12,6 +12,7 @@
 		<param name="adapter" shortName="adp" global="true" defaultValue="NA">The sequence of the adapter to remove.</param>
 		<param name="genome" shortName="genome" global="true" defaultValue="">The directory path to the genome to align.</param>
 		<param name="bwtIndex" shortName="bwti" global="true" defaultValue="">The absolute path to the rootname of the Bowtie index.</param>
+		<param name="bwt_additional_args" shortName="bwta" global="true" defaultValue="">Additional arguments to pass to Bowtie.</param>
 		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome.</param>
 		<param name="gffFeature" shortName="gfft" defaultValue="miRNA">Feature of the .gff file to use for the annotations (eg.: miRNA, gene, transcript...), default miRNA.</param>
 		<param name="gffAttribute" shortName="gffa" defaultValue="Name">Attribute of the .gff to use in the annotations (eg.: Name, gene_id, transcript_id...), default Name.</param>

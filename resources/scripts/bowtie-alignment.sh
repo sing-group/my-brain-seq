@@ -47,6 +47,7 @@ docker run --rm \
 	-v ${fastqDir}:${fastqDir} \
 	pegi3s/bowtie1:${bowtieVersion} \
 	bowtie -S \
+	${bwt_additional_args} \
 	${bwtIndex} \
 	${bw_fastq} \
 	${bw_output}

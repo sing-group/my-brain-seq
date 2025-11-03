@@ -39,7 +39,7 @@ mkdir -p ${input} ${output}
 touch "${conditions}"; touch "${contrast}"
 
 # creation of compi.parameters file
-printf "workingDir=${wd}\nconditions=${conditions}\ncontrast=${contrast}\nfastqDir=\nadapter=\ngenome=\ngffFile=\n" > "${input}/compi.parameters"
+printf "workingDir=${wd}\nconditions=${conditions}\ncontrast=${contrast}\nfastqDir=\nadapter=\ngenome=\ngffFile=\n#bwt_additional_args=\n" > "${input}/compi.parameters"
 
 # creation of the runner
 cp "/init-working-dir/run.sh" "${wd}"

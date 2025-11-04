@@ -41,8 +41,9 @@ touch "${conditions}"; touch "${contrast}"
 # creation of compi.parameters file
 printf "workingDir=${wd}\nconditions=${conditions}\ncontrast=${contrast}\nfastqDir=\nadapter=\ngenome=\ngffFile=\n#bwt_additional_args=\n#ft_additional_args=\n" > "${input}/compi.parameters"
 
-# creation of the runner
+# copying files to working-dir
 cp "/init-working-dir/run.sh" "${wd}"
+cp "/init-working-dir/pipeline.png" "${wd}"
 
 # creation of README file with the instructions for the next steps
 echo 'NEXT STEPS BEFORE RUNNING MYBRAIN-SEQ

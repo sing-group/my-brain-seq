@@ -9,6 +9,11 @@ bs_output="${workingDir}/${outDir}/${bamstOut}/$(echo ${bamFile} | cut -d'.' -f1
 bs_stats_file="${bs_output}/${bamFile}.stats"
 bs_plot_names="${bs_output}/${bamFile}_PLOT"
 
+if [ -d "${bs_output}" ]; then
+	echo "[MBS | bam-stats]: ${bs_output} already exists, skipping bam-stats analysis."
+	exit 0
+fi
+
 mkdir "${bs_output}"
 
 docker run --rm\

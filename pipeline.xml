@@ -2,7 +2,7 @@
 
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<version>1.2.4</version>
+	<version>1.2.5</version>
 
 	<params>
 		<param name="workingDir" shortName="wd" global="true" defaultValue="/working_dir">The working directory of the project.</param>
@@ -107,7 +107,7 @@
 		</foreach>
 
 		<!--Performs the quality control with QualiMap-->
-		<foreach id="bam-stats" after="sam-to-bam" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*.\fastq.*\.bam" as="bamFile">
+		<foreach id="bam-stats" after="sam-to-bam" of="command" in="ls -1 ${workingDir}/${outDir}/${bwtOut}/ | grep .*.\fastq.*\.bam | grep -v .bai" as="bamFile">
 			${scriptsDir}/bam-stats.sh
 		</foreach>
 

@@ -2,7 +2,7 @@
 
 <pipeline xmlns="http://www.sing-group.org/compi/pipeline-1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<version>1.3.0.dev03</version>
+	<version>1.3.0.dev04</version>
 
 	<params>
 		<param name="workingDir" shortName="wd" global="true" defaultValue="/working_dir">The working directory of the project.</param>
@@ -16,6 +16,7 @@
 		<param name="gffFile" shortName="gff">The path to the .gff file of the reference genome.</param>
 		<param name="gffFeature" shortName="gfft" defaultValue="miRNA">Feature of the .gff file to use for the annotations (eg.: miRNA, gene, transcript...), default miRNA.</param>
 		<param name="gffAttribute" shortName="gffa" defaultValue="Name">Attribute of the .gff to use in the annotations (eg.: Name, gene_id, transcript_id...), default Name.</param>
+		<param name="ft_additional_args" shortName="ftaa" global="true" defaultValue="">Additional arguments to pass to FeatureCounts.</param>
 		<param name="conditions" shortName="cond">The path to the .tsv file with the rootnames of the samples, conditions and labels.</param>
 		<param name="contrast" shortName="cont">The path to the .tsv file with the contrast DESeq2 has to perform.</param>
 		<param name="qvalue" shortName="qval" global="true" defaultValue="0.05">FDR-corrected pvalue used to filter miRNAs after the differential expression analysis.</param>

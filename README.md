@@ -12,7 +12,7 @@
       </blockquote>
 		<p>
 			<a href="https://hub.docker.com/r/singgroup/my-brain-seq">
-				<img src="https://img.shields.io/badge/docker-v1.1.0-green" alt="dockerhub">
+				<img src="https://img.shields.io/badge/docker-v1.3.0-green" alt="dockerhub">
 			</a> 
 			<a href="https://github.com/sing-group/my-brain-seq">
 				<img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="license">
@@ -441,6 +441,14 @@ MyBrain-Seq needs the values of some parameters to work, as already indicated in
   <tr>
     <td class="tg-v5y2">databasesDir</td>
     <td class="tg-9ika">The relative path to the directory containing the TarBase and Reactome databases.</td>
+  </tr>
+  <tr>
+    <td class="tg-1ot7">bwt_additional_args</td>
+    <td class="tg-azvr">Additional arguments to pass to Bowtie.</td>
+  </tr>
+  <tr>
+    <td class="tg-v5y2">ft_additional_args</td>
+    <td class="tg-9ika">Additional arguments to pass to FeatureCounts.</td>
   </tr>
   <tr>
     <td class="tg-1ot7">tarbaseDB</td>

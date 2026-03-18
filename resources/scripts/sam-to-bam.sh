@@ -22,6 +22,6 @@ docker run --rm \
 	pegi3s/samtools_bcftools:${samtoolsVersion} \
 		sh -c "samtools sort \"${bam_output}${file}\" > \"${bam_output}${filebam}.bam\" && samtools index \"${bam_output}${filebam}.bam\""
 
-if [ -v ${samtools_keep_sam_files} ]; then
+if [ -v samtools_keep_sam_files ]; then
 	rm -f "${bam_output}/${file}"
 fi

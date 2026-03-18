@@ -12,7 +12,7 @@
       </blockquote>
 		<p>
 			<a href="https://hub.docker.com/r/singgroup/my-brain-seq">
-				<img src="https://img.shields.io/badge/docker-v1.3.0-green" alt="dockerhub">
+				<img src="https://img.shields.io/badge/docker-v1.3.1-green" alt="dockerhub">
 			</a> 
 			<a href="https://github.com/sing-group/my-brain-seq">
 				<img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="license">
